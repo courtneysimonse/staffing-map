@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Titan Staffing Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <!-- <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script> -->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+      .btn {
+        position: absolute;
+        font-size: 11px;
+        line-height: 18px;
+        display: block;
+        margin: 0;
+        padding: 5px 10px;
+        border-radius: 3px;
+        background-color: #3498DB;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script>
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoiY291cnRuZXlzaW1vbnNlIiwiYSI6ImNqZGozNng0NjFqZWIyd28xdDJ2MXduNTcifQ.PoSFtqfsq1di1IDXzlN4PA';
+      const map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+        center: [-75.5,41.5], // starting position
+        zoom: 6 // starting zoom
+      });
+
+      const canvas = map.getCanvasContainer();
+
+      map.on('load', () => {
+
+        map.addSource('candidates-source', {
+          type: 'geojson',
+          data: 'data/candidates.geojson'
+          });
+
+        map.addLayer({
+          'id': 'cadidates',
+          'type': 'circle',
+          'source': 'candidates-source',
+          'paint': {
+          'circle-color': '#c9132a',
+          'circle-radius': 3
+          }
+        });
+
+        map.addSource('clients-source', {
+          type: 'geojson',
+          data: 'data/client-sites.geojson'
+          });
+
+        map.addLayer({
+          'id': 'clients',
+          'type': 'circle',
+          'source': 'clients-source',
+          'paint': {
+          'circle-color': 'green',
+          'circle-radius': 3
+          }
+        });
+
+      });
+    </script>
+  </body>
+</html>
