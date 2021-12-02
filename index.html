@@ -34,19 +34,87 @@ body { margin: 0; padding: 0; }
     map.on('load', () => {
         map.addSource('candidates', {
             'type': 'geojson',
-            'data': 'data/candidates.geojson'
+            'data': 'data/candidates.geojson',
+            'cluster': true,
+            'clusterMaxZoom': 14, // Max zoom to cluster points on
+            'clusterRadius': 50 // Radius of each cluster when clustering points (defaults to 50)
         });
         // Add a layer showing the candidates.
         map.addLayer({
-            'id': 'candidates',
+            'id': 'clusters',
             'type': 'circle',
             'source': 'candidates',
+            'filter': ['has', 'point_count'],
             'paint': {
                 'circle-color': '#4264fb',
                 'circle-radius': 6,
                 'circle-stroke-width': 1,
                 'circle-stroke-color': '#ffffff'
             }
+        });
+        map.addLayer({
+          id: 'cluster-count',
+          type: 'symbol',
+          source: 'candidates',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12
+          }
+        });
+
+        map.addLayer({
+          id: 'unclustered-point',
+          type: 'circle',
+          source: 'candidates',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': '#11b4da',
+            'circle-radius': 4,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+          }
+        });
+
+        // inspect a cluster on click
+        map.on('click', 'clusters', (e) => {
+          const features = map.queryRenderedFeatures(e.point, {
+            layers: ['clusters']
+          });
+          const clusterId = features[0].properties.cluster_id;
+          map.getSource('candidates').getClusterExpansionZoom(
+            clusterId,
+            (err, zoom) => {
+              if (err) return;
+
+              map.easeTo({
+                center: features[0].geometry.coordinates,
+                zoom: zoom
+              });
+            }
+          );
+        });
+
+        // When a click event occurs on a feature in
+        // the unclustered-point layer, open a popup at
+        // the location of the feature, with
+        // description HTML from its properties.
+        map.on('click', 'unclustered-point', (e) => {
+          const coordinates = e.features[0].geometry.coordinates.slice();
+          const description = e.features[0].properties['LAST NAME'];
+
+          // Ensure that if the map is zoomed out such that
+          // multiple copies of the feature are visible, the
+          // popup appears over the copy being pointed to.
+          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+          }
+
+          new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(description)
+            .addTo(map);
         });
 
         map.addSource('clients', {
@@ -72,25 +140,25 @@ body { margin: 0; padding: 0; }
             closeOnClick: false
         });
 
-        map.on('mouseenter', 'candidates', (e) => {
-            // Change the cursor style as a UI indicator.
-            map.getCanvas().style.cursor = 'pointer';
-
-            // Copy coordinates array.
-            const coordinates = e.features[0].geometry.coordinates.slice();
-            const description = e.features[0].properties['LAST NAME'];
-
-            // Ensure that if the map is zoomed out such that multiple
-            // copies of the feature are visible, the popup appears
-            // over the copy being pointed to.
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-
-            // Populate the popup and set its coordinates
-            // based on the feature found.
-            popup.setLngLat(coordinates).setHTML(description).addTo(map);
-        });
+        // map.on('mouseenter', 'candidates', (e) => {
+        //     // Change the cursor style as a UI indicator.
+        //     map.getCanvas().style.cursor = 'pointer';
+        //
+        //     // Copy coordinates array.
+        //     const coordinates = e.features[0].geometry.coordinates.slice();
+        //     const description = e.features[0].properties['LAST NAME'];
+        //
+        //     // Ensure that if the map is zoomed out such that multiple
+        //     // copies of the feature are visible, the popup appears
+        //     // over the copy being pointed to.
+        //     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        //         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        //     }
+        //
+        //     // Populate the popup and set its coordinates
+        //     // based on the feature found.
+        //     popup.setLngLat(coordinates).setHTML(description).addTo(map);
+        // });
 
         map.on('mouseenter', 'clients', (e) => {
             // Change the cursor style as a UI indicator.
@@ -117,25 +185,25 @@ body { margin: 0; padding: 0; }
             popup.remove();
         });
 
-        // When a click event occurs on a feature in the candidates layer, open a popup at the
-        // location of the feature, with description HTML from its properties.
-        map.on('click', 'candidates', (e) => {
-          // Copy coordinates array.
-          const coordinates = e.features[0].geometry.coordinates.slice();
-          const description = e.features[0].properties['LAST NAME'];
-
-          // Ensure that if the map is zoomed out such that multiple
-          // copies of the feature are visible, the popup appears
-          // over the copy being pointed to.
-          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-          }
-
-          new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setHTML(description)
-            .addTo(map);
-        });
+        // // When a click event occurs on a feature in the candidates layer, open a popup at the
+        // // location of the feature, with description HTML from its properties.
+        // map.on('click', 'candidates', (e) => {
+        //   // Copy coordinates array.
+        //   const coordinates = e.features[0].geometry.coordinates.slice();
+        //   const description = e.features[0].properties['LAST NAME'];
+        //
+        //   // Ensure that if the map is zoomed out such that multiple
+        //   // copies of the feature are visible, the popup appears
+        //   // over the copy being pointed to.
+        //   while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        //     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        //   }
+        //
+        //   new mapboxgl.Popup()
+        //     .setLngLat(coordinates)
+        //     .setHTML(description)
+        //     .addTo(map);
+        // });
 
         map.on('click', 'clients', (e) => {
           // Copy coordinates array.
