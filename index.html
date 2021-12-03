@@ -163,7 +163,10 @@ body { margin: 0; padding: 0; }
         // description HTML from its properties.
         map.on('click', 'candidates-unclustered-point', (e) => {
           const coordinates = e.features[0].geometry.coordinates.slice();
-          const description = e.features[0].properties['LAST NAME'];
+          const props = e.features[0].properties;
+          const description = props['FIRST NAME'] + " " + props['LAST NAME'] + "<br>" +
+            "Temp ID: " + props['TEMP ID'] + "<br>" +
+            "Position: " + props['POSITION'];
 
           // Ensure that if the map is zoomed out such that
           // multiple copies of the feature are visible, the
