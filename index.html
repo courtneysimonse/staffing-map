@@ -100,11 +100,11 @@ body { margin: 0; padding: 0; }
                 'circle-radius': [
                   'step',
                   ['get', 'point_count'],
-                  5,
+                  8,
                   3,
-                  10,
+                  13,
                   6,
-                  15
+                  17
                   ],
                 'circle-stroke-width': 1,
                 'circle-stroke-color': '#ffffff'
@@ -204,25 +204,23 @@ body { margin: 0; padding: 0; }
             closeOnClick: false
         });
 
-        // map.on('mouseenter', 'candidates', (e) => {
-        //     // Change the cursor style as a UI indicator.
-        //     map.getCanvas().style.cursor = 'pointer';
-        //
-        //     // Copy coordinates array.
-        //     const coordinates = e.features[0].geometry.coordinates.slice();
-        //     const description = e.features[0].properties['LAST NAME'];
-        //
-        //     // Ensure that if the map is zoomed out such that multiple
-        //     // copies of the feature are visible, the popup appears
-        //     // over the copy being pointed to.
-        //     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-        //         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        //     }
-        //
-        //     // Populate the popup and set its coordinates
-        //     // based on the feature found.
-        //     popup.setLngLat(coordinates).setHTML(description).addTo(map);
-        // });
+        map.on('mouseenter', 'candidates-clusters' || 'candidates-cluster-count', (e) => {
+            // Change the cursor style as a UI indicator.
+            map.getCanvas().style.cursor = 'pointer';
+            
+        });
+
+        map.on('mouseenter', 'candidates-unclustered-point', (e) => {
+            // Change the cursor style as a UI indicator.
+            map.getCanvas().style.cursor = 'pointer';
+
+        });
+
+        map.on('mouseleave', 'candidates-clusters' || 'candidates-cluster-count' || 'candidates-unclustered-point', (e) => {
+            // Change the cursor style as a UI indicator.
+            map.getCanvas().style.cursor = '';
+
+        });
 
         map.on('mouseenter', 'clients', (e) => {
             // Change the cursor style as a UI indicator.
@@ -248,26 +246,6 @@ body { margin: 0; padding: 0; }
             map.getCanvas().style.cursor = '';
             popup.remove();
         });
-
-        // // When a click event occurs on a feature in the candidates layer, open a popup at the
-        // // location of the feature, with description HTML from its properties.
-        // map.on('click', 'candidates', (e) => {
-        //   // Copy coordinates array.
-        //   const coordinates = e.features[0].geometry.coordinates.slice();
-        //   const description = e.features[0].properties['LAST NAME'];
-        //
-        //   // Ensure that if the map is zoomed out such that multiple
-        //   // copies of the feature are visible, the popup appears
-        //   // over the copy being pointed to.
-        //   while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-        //     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        //   }
-        //
-        //   new mapboxgl.Popup()
-        //     .setLngLat(coordinates)
-        //     .setHTML(description)
-        //     .addTo(map);
-        // });
 
         map.on('click', 'clients', (e) => {
           // Copy coordinates array.
