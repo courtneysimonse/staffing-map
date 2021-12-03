@@ -6,6 +6,7 @@
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+  <link href="vendor/spiderify.css" rel="stylesheet">
   <style>
     body { margin: 0; padding: 0; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -105,20 +106,16 @@
       margin-right: 5px;
     }
 
-    .spider-leg-container .spider-leg-pin{
+    .spider-leg-container .spider-leg-pin {
        position: relative;
-       width: 22px;
-       height: 22px;
-       /* margin-left: -8px;
-       margin-top: -18px; */
-       background-image: url(images/marker.svg);
+       width: 10px;
+       height: 10px;
+       margin-left: -5px;
+       margin-top: -5px;
+       border-radius: 50%;
+       background-color: #4264fb;
+       /* background-image: url(images/marker.svg); */
        /* background-position: -110px -110px; */
-     }
-     .spider-leg-container .spider-leg-line {
-       /* background-color: #f4f4f4; */
-     }
-     .spider-leg-container:hover .spider-leg-line {
-       /* background-color: #f404f4; */
      }
 
   </style>
@@ -152,17 +149,22 @@
     spiderifier = new MapboxglSpiderifier(map, {
       markerWidth: 40,
       markerHeight: 40,
-      onClick: function (event, spiderLeg) {
-        var offset = MapboxglSpiderifier.popupOffsetForSpiderLeg(spiderLeg);
-        event.stopPropagation();
-        var content = createPopupContent(spiderLeg.feature.properties);
+      customPin: true,
+      initializeLeg: function (spiderLeg) {
+
+        var content = createPopupContent(spiderLeg.feature);
+
         var popup = new mapboxgl.Popup({
-            closeOnClick: false,
-            offset: options.offset
-          })
-          .setHTML(content);
-        spiderleg.mapboxMarker.setPopup(currentPopup);
-        currentPopup.addTo(map);
+            // closeOnClick: false,
+            offset: MapboxglSpiderifier.popupOffsetForSpiderLeg(spiderLeg)
+          }).setHTML(content);
+
+        spiderLeg.mapboxMarker.setPopup(popup);
+        popup.addTo(map);
+
+      },
+      onClick: function (event, spiderLeg) {
+
       }
     });
     const SPIDERFY_FROM_ZOOM = 13;
@@ -243,33 +245,34 @@
               });
 
               console.log(zoom);
-              spiderifier.spiderfy(e.lngLat, features);
+              // spiderifier.spiderfy(e.lngLat, features);
 
             }
           );
 
 
-          // spiderifier.unspiderfy();
-          // if (!features.length) {
-          //   return;
-          // } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
-          //   map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
-          // } else {
-          //   map.getSource('candidates').getClusterLeaves(
-          //     features[0].properties.cluster_id,
-          //     100,
-          //     0,
-          //     function(err, leafFeatures){
-          //       if (err) {
-          //         return console.error('error while getting leaves of a cluster', err);
-          //       }
-          //       var markers = leafFeatures.map(function(leafFeature){
-          //         return leafFeature.properties;
-          //       });
-          //       spiderifier.spiderfy(features[0].geometry.coordinates, markers);
-          //     }
-          //   );
-          // }
+          spiderifier.unspiderfy();
+          if (!features.length) {
+            return;
+          } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
+            map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
+          } else {
+            map.getSource('candidates').getClusterLeaves(
+              features[0].properties.cluster_id,
+              100,
+              0,
+              function(err, leafFeatures){
+                if (err) {
+                  return console.error('error while getting leaves of a cluster', err);
+                }
+                var markers = leafFeatures.map(function(leafFeature){
+                  console.log(leafFeature.properties);
+                  return leafFeature.properties;
+                });
+                spiderifier.spiderfy(features[0].geometry.coordinates, markers);
+              }
+            );
+          }
         });
 
         // When a click event occurs on a feature in
@@ -462,6 +465,19 @@
         layers.appendChild(link);
       }
     });
+
+    map.on('zoomstart', () => {
+      spiderifier.unspiderfy();
+    });
+
+    function createPopupContent(props) {
+      console.log(props);
+      const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
+        "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
+        "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
+        "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'];
+      return description;
+    }
 </script>
 
 </body>
