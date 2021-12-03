@@ -6,6 +6,7 @@
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+  <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
   <link href="vendor/spiderify.css" rel="stylesheet">
   <style>
     body { margin: 0; padding: 0; }
@@ -118,15 +119,34 @@
        /* background-position: -110px -110px; */
      }
 
+     #geocode {
+      z-index: 100;
+      position: absolute;
+      left: 50px;
+      top: 10px;
+      background-color: #3887be;
+      color: whitesmoke;
+      border-radius: 3px;
+      box-shadow: ;
+      font-family: 'Open Sans', sans-serif;
+      padding: 10px;
+      border: none;
+    }
+
   </style>
 </head>
 <body>
 
 <nav id="menu"></nav>
 <div id="map"></div>
+<button id="geocode" class="button">Load Data</button>
 
 <script src="vendor/spiderify.js"></script>
 <script>
+  var geocodingClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoiY291cnRuZXlzaW1vbnNlIiwiYSI6ImNqZGozNng0NjFqZWIyd28xdDJ2MXduNTcifQ.PoSFtqfsq1di1IDXzlN4PA' });
+
+
+
 	mapboxgl.accessToken = 'pk.eyJ1IjoiY291cnRuZXlzaW1vbnNlIiwiYSI6ImNqZGozNng0NjFqZWIyd28xdDJ2MXduNTcifQ.PoSFtqfsq1di1IDXzlN4PA';
     const map = new mapboxgl.Map({
         container: 'map',
