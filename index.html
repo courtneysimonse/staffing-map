@@ -105,6 +105,22 @@
       margin-right: 5px;
     }
 
+    .spider-leg-container .spider-leg-pin{
+       position: relative;
+       width: 22px;
+       height: 22px;
+       /* margin-left: -8px;
+       margin-top: -18px; */
+       background-image: url(images/marker.svg);
+       /* background-position: -110px -110px; */
+     }
+     .spider-leg-container .spider-leg-line {
+       /* background-color: #f4f4f4; */
+     }
+     .spider-leg-container:hover .spider-leg-line {
+       /* background-color: #f404f4; */
+     }
+
   </style>
 </head>
 <body>
@@ -119,7 +135,8 @@
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [-74.5, 42.0],
-        zoom: 6
+        zoom: 6,
+        maxZoom: 13
     });
 
     const nav = new mapboxgl.NavigationControl({showCompass: false});
@@ -130,6 +147,25 @@
 
     // disable map rotation using touch rotation gesture
     map.touchZoomRotate.disableRotation();
+
+    // spiderifier
+    spiderifier = new MapboxglSpiderifier(map, {
+      markerWidth: 40,
+      markerHeight: 40,
+      onClick: function (event, spiderLeg) {
+        var offset = MapboxglSpiderifier.popupOffsetForSpiderLeg(spiderLeg);
+        event.stopPropagation();
+        var content = createPopupContent(spiderLeg.feature.properties);
+        var popup = new mapboxgl.Popup({
+            closeOnClick: false,
+            offset: options.offset
+          })
+          .setHTML(content);
+        spiderleg.mapboxMarker.setPopup(currentPopup);
+        currentPopup.addTo(map);
+      }
+    });
+    const SPIDERFY_FROM_ZOOM = 13;
 
     map.on('load', () => {
         map.addSource('candidates', {
@@ -199,12 +235,41 @@
             (err, zoom) => {
               if (err) return;
 
+              console.log(map.getZoom());
+
               map.easeTo({
                 center: features[0].geometry.coordinates,
                 zoom: zoom
               });
+
+              console.log(zoom);
+              spiderifier.spiderfy(e.lngLat, features);
+
             }
           );
+
+
+          // spiderifier.unspiderfy();
+          // if (!features.length) {
+          //   return;
+          // } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
+          //   map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
+          // } else {
+          //   map.getSource('candidates').getClusterLeaves(
+          //     features[0].properties.cluster_id,
+          //     100,
+          //     0,
+          //     function(err, leafFeatures){
+          //       if (err) {
+          //         return console.error('error while getting leaves of a cluster', err);
+          //       }
+          //       var markers = leafFeatures.map(function(leafFeature){
+          //         return leafFeature.properties;
+          //       });
+          //       spiderifier.spiderfy(features[0].geometry.coordinates, markers);
+          //     }
+          //   );
+          // }
         });
 
         // When a click event occurs on a feature in
