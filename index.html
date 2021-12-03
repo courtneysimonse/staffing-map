@@ -180,7 +180,7 @@
           source: 'candidates',
           filter: ['!', ['has', 'point_count']],
           paint: {
-            'circle-color': '#11b4da',
+            'circle-color': '#4264fb',
             'circle-radius': 4,
             'circle-stroke-width': 1,
             'circle-stroke-color': '#fff'
@@ -213,10 +213,10 @@
         map.on('click', 'candidates-unclustered-point', (e) => {
           const coordinates = e.features[0].geometry.coordinates.slice();
           const props = e.features[0].properties;
-          const description = props['FIRST NAME'] + " " + props['LAST NAME'] + "<br>" +
-            "Temp ID: " + props['TEMP ID'] + "<br>" +
-            "Position: " + props['POSITION'] + "<br>" +
-            "Pay: " + props['PAY'] + "  Shift: " + props['SHIFT'] + "  Car:" + props['CAR'];
+          const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
+            "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
+            "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
+            "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'];
 
           // Ensure that if the map is zoomed out such that
           // multiple copies of the feature are visible, the
