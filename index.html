@@ -278,7 +278,12 @@
 
             // Copy coordinates array.
             const coordinates = e.features[0].geometry.coordinates.slice();
-            const description = e.features[0].properties['COMPANY'];
+            const props = e.features[0].properties;
+            const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
+                      "<strong>Position:</strong> " + props['JOB POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
+                      props['DESCRIPTION'] + "<br>" +
+                      props['SCHEDULE'] + "<br>" +
+                      "<strong>No. of People: </strong>" + props['NUMBER OF PEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISH LEVEL'];
 
             // Ensure that if the map is zoomed out such that multiple
             // copies of the feature are visible, the popup appears
@@ -300,7 +305,12 @@
         map.on('click', 'clients', (e) => {
           // Copy coordinates array.
           const coordinates = e.features[0].geometry.coordinates.slice();
-          const description = e.features[0].properties['COMPANY'];
+          const props = e.features[0].properties;
+          const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
+                    "<strong>Position:</strong> " + props['JOB POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
+                    props['DESCRIPTION'] + "<br>" +
+                    props['SCHEDULE'] + "<br>" +
+                    "<strong>No. of People: </strong>" + props['NUMBER OF PEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISH LEVEL'];
 
           // Ensure that if the map is zoomed out such that multiple
           // copies of the feature are visible, the popup appears
