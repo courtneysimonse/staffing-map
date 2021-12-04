@@ -536,7 +536,7 @@
           // After the last frame rendered before the map enters an "idle" state.
           map.on('idle', () => {
             // If these two layers were not added to the map, abort
-            if (!map.getLayer('candidates-clusters') || !map.getLayer('clients')) {
+            if (!map.getLayer('candidates-clusters') || !map.getLayer('clients-clusters')) {
               return;
             }
 
@@ -550,7 +550,7 @@
               },
               {'name': 'Clients',
                 'id': 'clients',
-                'layer': ['clients']}
+                'layer': ['clients-clusters','clients-cluster-count','clients-unclustered-point']}
             ];
 
             // Set up the corresponding toggle button for each layer.
