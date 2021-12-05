@@ -198,7 +198,7 @@
       var candidatesCSV = d3.csv("./data/candidates.csv");
       var clientsCSV = d3.csv("./data/client-sites.csv");
       Promise.all([candidatesCSV,clientsCSV]).then(processData, error);
-
+      document.getElementById('geocode').style.visibility = 'hidden';
     }
 
     // function fired if there is an error
