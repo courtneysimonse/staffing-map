@@ -8,138 +8,15 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
   <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
   <link href="vendor/spiderify.css" rel="stylesheet">
-  <style>
-    body { margin: 0; padding: 0; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+  <link href="css/styles.css" rel="stylesheet">
 
-    .mapboxgl-popup {
-        max-width: 400px;
-        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-    }
-
-    #menu {
-      background: #fff;
-      position: absolute;
-      z-index: 1;
-      top: 10px;
-      right: 10px;
-      border-radius: 3px;
-      width: 120px;
-      border: 1px solid rgba(0, 0, 0, 0.4);
-      font-family: 'Open Sans', sans-serif;
-    }
-
-    #menu a {
-      font-size: 13px;
-      color: #404040;
-      display: block;
-      margin: 0;
-      padding: 0;
-      padding: 10px;
-      text-decoration: none;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-      text-align: center;
-    }
-
-    #menu a:last-child {
-      border: none;
-    }
-
-    #menu a:hover {
-      background-color: #f8f8f8;
-      color: #404040;
-    }
-
-    #menu a.active {
-      background-color: #3887be;
-      color: #ffffff;
-    }
-
-    #menu a.active:hover {
-      background: #3074a4;
-    }
-
-    .filter-group {
-      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-      font-weight: 600;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1;
-      border-radius: 3px;
-      width: 120px;
-      color: #fff;
-    }
-
-    .filter-group input[type='checkbox']:first-child + label {
-      border-radius: 3px 3px 0 0;
-    }
-
-    .filter-group label:last-child {
-      border-radius: 0 0 3px 3px;
-      border: none;
-    }
-
-    .filter-group input[type='checkbox'] {
-      display: none;
-    }
-
-    .filter-group input[type='checkbox'] + label {
-      background-color: #3386c0;
-      display: block;
-      cursor: pointer;
-      padding: 10px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-    }
-
-    .filter-group input[type='checkbox'] + label {
-      background-color: #3386c0;
-      text-transform: capitalize;
-    }
-
-    .filter-group input[type='checkbox'] + label:hover,
-    .filter-group input[type='checkbox']:checked + label {
-      background-color: #4ea0da;
-    }
-
-    .filter-group input[type='checkbox']:checked + label:before {
-      content: '✔';
-      margin-right: 5px;
-    }
-
-    .spider-leg-container .spider-leg-pin {
-       position: relative;
-       width: 10px;
-       height: 10px;
-       margin-left: -5px;
-       margin-top: -5px;
-       border-radius: 50%;
-       background-color: #4264fb;
-       /* background-image: url(images/marker.svg); */
-       /* background-position: -110px -110px; */
-     }
-
-     #geocode {
-      z-index: 100;
-      position: absolute;
-      left: 50px;
-      top: 10px;
-      background-color: #3887be;
-      color: whitesmoke;
-      border-radius: 3px;
-      box-shadow: ;
-      font-family: 'Open Sans', sans-serif;
-      padding: 10px;
-      border: none;
-    }
-
-  </style>
 </head>
 <body>
 
   <nav id="menu"></nav>
   <div id="map"></div>
   <button id="geocode" class="button" onclick="getCSVs()">Load Data</button>
+  <nav id="filter-group" class="filter-group"></nav>
 
   <script src="vendor/spiderify.js"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -160,6 +37,8 @@
 
     const nav = new mapboxgl.NavigationControl({showCompass: false});
     map.addControl(nav, 'top-left');
+
+    const filterGroup = document.getElementById('filter-group');
 
     // disable map rotation using right click + drag
     map.dragRotate.disable();
@@ -313,7 +192,7 @@
                     return console.error('error while getting leaves of a cluster', err);
                   }
                   var markers = leafFeatures.map(function(leafFeature){
-                    console.log(leafFeature.properties);
+                    // console.log(leafFeature.properties);
                     return leafFeature.properties;
                   });
                   spiderifier.spiderfy(features[0].geometry.coordinates, markers);
@@ -443,7 +322,7 @@
                     return console.error('error while getting leaves of a cluster', err);
                   }
                   var markers = leafFeatures.map(function(leafFeature){
-                    console.log(leafFeature.properties);
+                    // console.log(leafFeature.properties);
                     return leafFeature.properties;
                   });
                   spiderifier.spiderfy(features[0].geometry.coordinates, markers);
@@ -494,11 +373,31 @@
               // Change the cursor style as a UI indicator.
               map.getCanvas().style.cursor = 'pointer';
 
+              const coordinates = e.features[0].geometry.coordinates.slice();
+              const props = e.features[0].properties;
+              const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
+                "<strong>Position:</strong> " + props['JOB POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
+                props['DESCRIPTION'] + "<br>" +
+                props['SCHEDULE'] + "<br>" +
+                "<strong>No. of People: </strong>" + props['NUMBER OF PEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISH LEVEL'];
+
+              // Ensure that if the map is zoomed out such that multiple
+              // copies of the feature are visible, the popup appears
+              // over the copy being pointed to.
+              while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                  coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+              }
+
+              // Populate the popup and set its coordinates
+              // based on the feature found.
+              popup.setLngLat(coordinates).setHTML(description).addTo(map);
+
           });
 
           map.on('mouseleave', 'candidates-clusters' || 'candidates-cluster-count' || 'candidates-unclustered-point', (e) => {
               // Change the cursor style as a UI indicator.
               map.getCanvas().style.cursor = '';
+              popup.remove();
 
           });
 
@@ -546,11 +445,14 @@
                 'id': 'candidates',
                 'layer': ['candidates-clusters','candidates-cluster-count','candidates-unclustered-point'],
                 'position': ['Stationary Machine Operator','Office Assistant','Warehouse labor',
-                              'Production Line','Garment Inspector','Packer']
+                              'Production Line','Garment Inspector','Packer'],
+                'car': ['yes','no']
               },
               {'name': 'Clients',
                 'id': 'clients',
-                'layer': ['clients-clusters','clients-cluster-count','clients-unclustered-point']}
+                'layer': ['clients-clusters','clients-cluster-count','clients-unclustered-point'],
+                'english': ['basic','advance']
+              }
             ];
 
             // Set up the corresponding toggle button for each layer.
@@ -601,9 +503,99 @@
               const layers = document.getElementById('menu');
               layers.appendChild(link);
             }
+
+
           });
 
+      const filterHeaders = ['Job Positions'];
+      const jobFilterHeader = document.createElement('details');
+      jobFilterHeader.classList.add('filter-group-header');
+      jobFilterHeader.innerHTML = "<summary id='"+filterHeaders[0]+"'>"+filterHeaders[0]+"</summary>";
+      filterGroup.appendChild(jobFilterHeader);
 
+      const jobTypes = [];
+      clientsGeoJSON.features.forEach((item, i) => {
+        // console.log(item.properties['JOB POSITION']);
+        if (!jobTypes.includes(item.properties['JOB POSITION'])) {
+          jobTypes.push(item.properties['JOB POSITION']);
+        }
+      });
+      // console.log(jobTypes);
+
+      let jobsFilter = jobTypes;
+
+      const clientsSource = map.getSource('clients');
+      let clientsGeoJSONFiltered = {};
+      clientsGeoJSONFiltered.type = "FeatureCollection";
+      clientsGeoJSONFiltered.features = [];
+
+      for (const job of jobTypes) {
+        // Add checkbox and label elements for the layer.
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = job;
+        input.checked = true;
+        input.classList.add("job-position");
+        jobFilterHeader.appendChild(input);
+
+        const label = document.createElement('label');
+        label.setAttribute('for', job);
+        label.textContent = job;
+        label.classList.add("job-position");
+        jobFilterHeader.appendChild(label);
+
+        // When the checkbox changes, update the visibility of the layer.
+        input.addEventListener('change', (e) => {
+          clientsGeoJSONFiltered.features = [];
+          if (input.checked) {
+            jobsFilter.push(job);
+            // console.log(jobsFilter);
+          } else {
+            jobsFilter = jobsFilter.filter( (item) => {
+              if (item != job) {
+                return item
+              }
+            });
+            // console.log(jobsFilter);
+          }
+        clientsGeoJSON.features.forEach((item, i) => {
+          if (jobsFilter.includes(item.properties['JOB POSITION'])) {
+            clientsGeoJSONFiltered.features.push(item);
+          }
+        });
+
+        // console.log(clientsGeoJSON);
+        // console.log(clientsGeoJSONFiltered);
+        clientsSource.setData(clientsGeoJSONFiltered);
+        // console.log(map.getSource('clients'));
+      });
+
+      // // When the checkbox changes, update the visibility of the layer.
+      // input.addEventListener('change', (e) => {
+      //   if (input.checked) {
+      //     clientsGeoJSONFiltered.features.push(clientsGeoJSON.features.filter(item => {
+      //       if (job === item.properties['JOB POSITION']) {
+      //         return item;
+      //       }
+      //     }));
+      //     console.log(input.id);
+      //     console.log(input.checked);
+      //     console.log(clientsGeoJSONFiltered);
+      //     map.getSource('clients').setData(clientsGeoJSONFiltered);
+      //   } else {
+      //     clientsGeoJSONFiltered.features = clientsGeoJSON.features.filter(item => {
+      //       if (job != item.properties['JOB POSITION']) {
+      //         return item;
+      //       }
+      //     });
+      //     console.log(input.id);
+      //     console.log(input.checked);
+      //     console.log(clientsGeoJSONFiltered);
+      //     map.getSource('clients').setData(clientsGeoJSONFiltered);
+      //   }
+      //
+      // });
+    }
 
     });
 
