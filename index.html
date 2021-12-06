@@ -377,11 +377,10 @@
 
               const coordinates = e.features[0].geometry.coordinates.slice();
               const props = e.features[0].properties;
-              const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
-                "<strong>Position:</strong> " + props['JOB POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
-                props['DESCRIPTION'] + "<br>" +
-                props['SCHEDULE'] + "<br>" +
-                "<strong>No. of People: </strong>" + props['NUMBER OF PEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISH LEVEL'];
+              const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
+                "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
+                "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
+                "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'];
 
               // Ensure that if the map is zoomed out such that multiple
               // copies of the feature are visible, the popup appears
