@@ -59,13 +59,13 @@ body { margin: 0; padding: 0; }
   cursor: pointer;
 }
 
-#filter-group-clients {
+#filter-group-clients.filter-group {
   background-color: #008000;
   top: 10px;
   right: 10px;
 }
 
-#filter-group-candidates {
+#filter-group-candidates.filter-group {
   background-color: #3386c0;
   top: 10px;
   right: 150px;
