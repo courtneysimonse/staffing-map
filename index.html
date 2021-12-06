@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" type="text/css"> -->
   <script>
 
-    mapboxgl.accessToken = 'pk.eyJ1IjoiY291cnRuZXlzaW1vbnNlIiwiYSI6ImNqZGozNng0NjFqZWIyd28xdDJ2MXduNTcifQ.PoSFtqfsq1di1IDXzlN4PA';
+    mapboxgl.accessToken = 'pk.eyJ1IjoiY291cnRuZXlzaW1vbnNlIiwiYSI6ImNrd3Y5dzE1bjA5bG0ycmxhYmFzZWU0MGgifQ.WJyXNWlvycMOcCWn-xjS5w';
       const map = new mapboxgl.Map({
           container: 'map',
           style: 'mapbox://styles/mapbox/streets-v11',
@@ -73,7 +73,7 @@
     const SPIDERFY_FROM_ZOOM = 13;
 
 
-    var mapboxClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoiY291cnRuZXlzaW1vbnNlIiwiYSI6ImNqZGozNng0NjFqZWIyd28xdDJ2MXduNTcifQ.PoSFtqfsq1di1IDXzlN4PA' });
+    var mapboxClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoiY291cnRuZXlzaW1vbnNlIiwiYSI6ImNrd3Y5dzE1bjA5bG0ycmxhYmFzZWU0MGgifQ.WJyXNWlvycMOcCWn-xjS5w' });
 
     function getCSVs() {
       var candidatesCSV = d3.csv("./data/candidates.csv");
@@ -445,15 +445,11 @@
             const toggleableLayerIds = [
               {'name': 'Candidates',
                 'id': 'candidates',
-                'layer': ['candidates-clusters','candidates-cluster-count','candidates-unclustered-point'],
-                'position': ['Stationary Machine Operator','Office Assistant','Warehouse labor',
-                              'Production Line','Garment Inspector','Packer'],
-                'car': ['yes','no']
+                'layer': ['candidates-clusters','candidates-cluster-count','candidates-unclustered-point']
               },
               {'name': 'Clients',
                 'id': 'clients',
-                'layer': ['clients-clusters','clients-cluster-count','clients-unclustered-point'],
-                'english': ['basic','advance']
+                'layer': ['clients-clusters','clients-cluster-count','clients-unclustered-point']
               }
             ];
 
@@ -509,13 +505,13 @@
 
           });
 
-      const filterHeadersClients = ['JOB POSITION','PAY RATE','SCHEDULE','NUMBER OF PEOPLE','ENGLISH LEVEL'];
+      const filterHeadersClients = ['JOB POSITION','PAY RATE','SCHEDULE','NUMBER OF PEOPLE','ENGLISH LEVEL','STATUS'];
       filterHeadersClients.forEach((header, i) => {
         createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
 
       });
 
-      const filterHeadersCandidates = ['POSITION','PAY','SHIFT','CAR'];
+      const filterHeadersCandidates = ['POSITION','PAY','SHIFT','CAR','STATUS'];
       filterHeadersCandidates.forEach((header, i) => {
         createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
 
@@ -526,19 +522,19 @@
     }
 
     function createFilters(header, geoJSON, source, filterGroup) {
-      const filterClass = header.replace(/\s/g, '');
+      const filterClass = header.replace(/\s/g, '')+"-"+source;
 
       const jobFilterHeader = document.createElement('details');
       jobFilterHeader.classList.add('filter-group-header');
-      jobFilterHeader.innerHTML = "<summary id='"+header+"'>"+header+"</summary>";
+      jobFilterHeader.innerHTML = "<summary id='"+filterClass+"'>"+header+"</summary>";
       filterGroup.appendChild(jobFilterHeader);
 
       const jobTypes = [];
       geoJSON.features.forEach((item, i) => {
         // console.log(item.properties[header]);
         // console.log(header);
-        if (!jobTypes.includes(item.properties[header])) {
-          jobTypes.push(item.properties[header]);
+        if (!jobTypes.includes(item.properties[header]+"-"+source)) {
+          jobTypes.push(item.properties[header]+"-"+source);
         }
       });
       // console.log(jobTypes);
@@ -561,12 +557,13 @@
 
         const label = document.createElement('label');
         label.setAttribute('for', job);
-        label.textContent = job;
+        label.textContent = job.replace(/\-(.*)$/g, '');
         label.classList.add(filterClass);
         jobFilterHeader.appendChild(label);
 
         // When the checkbox changes, update the visibility of the layer.
         input.addEventListener('change', (e) => {
+          console.log(jobsFilter);
           geoJSONFiltered.features = [];
           if (input.checked) {
             jobsFilter.push(job);
@@ -580,7 +577,8 @@
             // console.log(jobsFilter);
           }
         geoJSON.features.forEach((item, i) => {
-          if (jobsFilter.includes(item.properties[header])) {
+          // console.log(item.properties[header]);
+          if (jobsFilter.includes(item.properties[header]+"-"+source)) {
             geoJSONFiltered.features.push(item);
           }
         });
