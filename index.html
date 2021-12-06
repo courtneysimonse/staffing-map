@@ -16,7 +16,8 @@
   <nav id="menu"></nav>
   <div id="map"></div>
   <button id="geocode" class="button" onclick="getCSVs()">Load Data</button>
-  <nav id="filter-group" class="filter-group"></nav>
+  <nav id="filter-group-clients" class="filter-group"></nav>
+  <nav id="filter-group-candidates" class="filter-group"></nav>
 
   <script src="vendor/spiderify.js"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -38,7 +39,8 @@
     const nav = new mapboxgl.NavigationControl({showCompass: false});
     map.addControl(nav, 'top-left');
 
-    const filterGroup = document.getElementById('filter-group');
+    const filterGroupClients = document.getElementById('filter-group-clients');
+    const filterGroupCandidates = document.getElementById('filter-group-candidates');
 
     // disable map rotation using right click + drag
     map.dragRotate.disable();
@@ -507,80 +509,89 @@
 
           });
 
-      const filterHeaders = ['JOB POSITION','PAY RATE','SCHEDULE','NUMBER OF PEOPLE','ENGLISH LEVEL'];
-      filterHeaders.forEach((header, i) => {
-        const filterClass = header.replace(/\s/g, '');
-
-        const jobFilterHeader = document.createElement('details');
-        jobFilterHeader.classList.add('filter-group-header');
-        jobFilterHeader.innerHTML = "<summary id='"+header+"'>"+header+"</summary>";
-        filterGroup.appendChild(jobFilterHeader);
-
-        const jobTypes = [];
-        clientsGeoJSON.features.forEach((item, i) => {
-          // console.log(item.properties[header]);
-          // console.log(header);
-          if (!jobTypes.includes(item.properties[header])) {
-            jobTypes.push(item.properties[header]);
-          }
-        });
-        // console.log(jobTypes);
-
-        let jobsFilter = jobTypes;
-
-        const clientsSource = map.getSource('clients');
-        let clientsGeoJSONFiltered = {};
-        clientsGeoJSONFiltered.type = "FeatureCollection";
-        clientsGeoJSONFiltered.features = [];
-
-        for (const job of jobTypes) {
-          // Add checkbox and label elements for the layer.
-          const input = document.createElement('input');
-          input.type = 'checkbox';
-          input.id = job;
-          input.checked = true;
-          input.classList.add(filterClass);
-          jobFilterHeader.appendChild(input);
-
-          const label = document.createElement('label');
-          label.setAttribute('for', job);
-          label.textContent = job;
-          label.classList.add(filterClass);
-          jobFilterHeader.appendChild(label);
-
-          // When the checkbox changes, update the visibility of the layer.
-          input.addEventListener('change', (e) => {
-            clientsGeoJSONFiltered.features = [];
-            if (input.checked) {
-              jobsFilter.push(job);
-              // console.log(jobsFilter);
-            } else {
-              jobsFilter = jobsFilter.filter( (item) => {
-                if (item != job) {
-                  return item
-                }
-              });
-              // console.log(jobsFilter);
-            }
-          clientsGeoJSON.features.forEach((item, i) => {
-            if (jobsFilter.includes(item.properties[header])) {
-              clientsGeoJSONFiltered.features.push(item);
-            }
-          });
-
-          // console.log(clientsGeoJSON);
-          // console.log(clientsGeoJSONFiltered);
-          clientsSource.setData(clientsGeoJSONFiltered);
-          // console.log(map.getSource('clients'));
-        });
-
-      }
+      const filterHeadersClients = ['JOB POSITION','PAY RATE','SCHEDULE','NUMBER OF PEOPLE','ENGLISH LEVEL'];
+      filterHeadersClients.forEach((header, i) => {
+        createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
 
       });
 
+      const filterHeadersCandidates = ['POSITION','PAY','SHIFT','CAR'];
+      filterHeadersCandidates.forEach((header, i) => {
+        createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
 
+      });
 
     });
+
+    }
+
+    function createFilters(header, geoJSON, source, filterGroup) {
+      const filterClass = header.replace(/\s/g, '');
+
+      const jobFilterHeader = document.createElement('details');
+      jobFilterHeader.classList.add('filter-group-header');
+      jobFilterHeader.innerHTML = "<summary id='"+header+"'>"+header+"</summary>";
+      filterGroup.appendChild(jobFilterHeader);
+
+      const jobTypes = [];
+      geoJSON.features.forEach((item, i) => {
+        // console.log(item.properties[header]);
+        // console.log(header);
+        if (!jobTypes.includes(item.properties[header])) {
+          jobTypes.push(item.properties[header]);
+        }
+      });
+      // console.log(jobTypes);
+
+      let jobsFilter = jobTypes;
+
+      const sourceID = map.getSource(source);
+      let geoJSONFiltered = {};
+      geoJSONFiltered.type = "FeatureCollection";
+      geoJSONFiltered.features = [];
+
+      for (const job of jobTypes) {
+        // Add checkbox and label elements for the layer.
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = job;
+        input.checked = true;
+        input.classList.add(filterClass);
+        jobFilterHeader.appendChild(input);
+
+        const label = document.createElement('label');
+        label.setAttribute('for', job);
+        label.textContent = job;
+        label.classList.add(filterClass);
+        jobFilterHeader.appendChild(label);
+
+        // When the checkbox changes, update the visibility of the layer.
+        input.addEventListener('change', (e) => {
+          geoJSONFiltered.features = [];
+          if (input.checked) {
+            jobsFilter.push(job);
+            // console.log(jobsFilter);
+          } else {
+            jobsFilter = jobsFilter.filter( (item) => {
+              if (item != job) {
+                return item
+              }
+            });
+            // console.log(jobsFilter);
+          }
+        geoJSON.features.forEach((item, i) => {
+          if (jobsFilter.includes(item.properties[header])) {
+            geoJSONFiltered.features.push(item);
+          }
+        });
+
+        // console.log(clientsGeoJSON);
+        // console.log(clientsGeoJSONFiltered);
+        sourceID.setData(geoJSONFiltered);
+        // console.log(map.getSource('clients'));
+      });
+
+    }
 
     }
 

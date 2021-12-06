@@ -11,9 +11,9 @@ body { margin: 0; padding: 0; }
   position: absolute;
   z-index: 1;
   top: 10px;
-  right: 140px;
+  right: 300px;
   border-radius: 3px;
-  width: 120px;
+  width: 100px;
   border: 1px solid rgba(0, 0, 0, 0.4);
   font-family: 'Open Sans', sans-serif;
 }
@@ -52,15 +52,23 @@ body { margin: 0; padding: 0; }
   font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-size: 13px;
   position: absolute;
-  top: 10px;
-  right: 10px;
   z-index: 1;
   border-radius: 3px;
   width: 130px;
   color: #fff;
-  background-color: #3386c0;
   cursor: pointer;
+}
 
+#filter-group-clients {
+  background-color: #008000;
+  top: 10px;
+  right: 10px;
+}
+
+#filter-group-candidates {
+  background-color: #3386c0;
+  top: 10px;
+  right: 150px;
 }
 
 .filter-group-header {
@@ -89,9 +97,18 @@ body { margin: 0; padding: 0; }
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
 }
 
+#filter-group-clients.filter-group input[type='checkbox'] + label {
+  background-color: #72cc72;
+}
+
 .filter-group input[type='checkbox'] + label {
   background-color: #3386c0;
   text-transform: capitalize;
+}
+
+#filter-group-clients.filter-group input[type='checkbox'] + label:hover,
+#filter-group-clients.filter-group input[type='checkbox']:checked + label {
+  background-color: #008000;
 }
 
 .filter-group input[type='checkbox'] + label:hover,
