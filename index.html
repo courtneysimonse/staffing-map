@@ -507,95 +507,78 @@
 
           });
 
-      const filterHeaders = ['Job Positions'];
-      const jobFilterHeader = document.createElement('details');
-      jobFilterHeader.classList.add('filter-group-header');
-      jobFilterHeader.innerHTML = "<summary id='"+filterHeaders[0]+"'>"+filterHeaders[0]+"</summary>";
-      filterGroup.appendChild(jobFilterHeader);
+      const filterHeaders = ['JOB POSITION','PAY RATE','SCHEDULE','NUMBER OF PEOPLE','ENGLISH LEVEL'];
+      filterHeaders.forEach((header, i) => {
+        const filterClass = header.replace(/\s/g, '');
 
-      const jobTypes = [];
-      clientsGeoJSON.features.forEach((item, i) => {
-        // console.log(item.properties['JOB POSITION']);
-        if (!jobTypes.includes(item.properties['JOB POSITION'])) {
-          jobTypes.push(item.properties['JOB POSITION']);
-        }
-      });
-      // console.log(jobTypes);
+        const jobFilterHeader = document.createElement('details');
+        jobFilterHeader.classList.add('filter-group-header');
+        jobFilterHeader.innerHTML = "<summary id='"+header+"'>"+header+"</summary>";
+        filterGroup.appendChild(jobFilterHeader);
 
-      let jobsFilter = jobTypes;
-
-      const clientsSource = map.getSource('clients');
-      let clientsGeoJSONFiltered = {};
-      clientsGeoJSONFiltered.type = "FeatureCollection";
-      clientsGeoJSONFiltered.features = [];
-
-      for (const job of jobTypes) {
-        // Add checkbox and label elements for the layer.
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.id = job;
-        input.checked = true;
-        input.classList.add("job-position");
-        jobFilterHeader.appendChild(input);
-
-        const label = document.createElement('label');
-        label.setAttribute('for', job);
-        label.textContent = job;
-        label.classList.add("job-position");
-        jobFilterHeader.appendChild(label);
-
-        // When the checkbox changes, update the visibility of the layer.
-        input.addEventListener('change', (e) => {
-          clientsGeoJSONFiltered.features = [];
-          if (input.checked) {
-            jobsFilter.push(job);
-            // console.log(jobsFilter);
-          } else {
-            jobsFilter = jobsFilter.filter( (item) => {
-              if (item != job) {
-                return item
-              }
-            });
-            // console.log(jobsFilter);
-          }
+        const jobTypes = [];
         clientsGeoJSON.features.forEach((item, i) => {
-          if (jobsFilter.includes(item.properties['JOB POSITION'])) {
-            clientsGeoJSONFiltered.features.push(item);
+          // console.log(item.properties[header]);
+          // console.log(header);
+          if (!jobTypes.includes(item.properties[header])) {
+            jobTypes.push(item.properties[header]);
           }
         });
+        // console.log(jobTypes);
 
-        // console.log(clientsGeoJSON);
-        // console.log(clientsGeoJSONFiltered);
-        clientsSource.setData(clientsGeoJSONFiltered);
-        // console.log(map.getSource('clients'));
+        let jobsFilter = jobTypes;
+
+        const clientsSource = map.getSource('clients');
+        let clientsGeoJSONFiltered = {};
+        clientsGeoJSONFiltered.type = "FeatureCollection";
+        clientsGeoJSONFiltered.features = [];
+
+        for (const job of jobTypes) {
+          // Add checkbox and label elements for the layer.
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.id = job;
+          input.checked = true;
+          input.classList.add(filterClass);
+          jobFilterHeader.appendChild(input);
+
+          const label = document.createElement('label');
+          label.setAttribute('for', job);
+          label.textContent = job;
+          label.classList.add(filterClass);
+          jobFilterHeader.appendChild(label);
+
+          // When the checkbox changes, update the visibility of the layer.
+          input.addEventListener('change', (e) => {
+            clientsGeoJSONFiltered.features = [];
+            if (input.checked) {
+              jobsFilter.push(job);
+              // console.log(jobsFilter);
+            } else {
+              jobsFilter = jobsFilter.filter( (item) => {
+                if (item != job) {
+                  return item
+                }
+              });
+              // console.log(jobsFilter);
+            }
+          clientsGeoJSON.features.forEach((item, i) => {
+            if (jobsFilter.includes(item.properties[header])) {
+              clientsGeoJSONFiltered.features.push(item);
+            }
+          });
+
+          // console.log(clientsGeoJSON);
+          // console.log(clientsGeoJSONFiltered);
+          clientsSource.setData(clientsGeoJSONFiltered);
+          // console.log(map.getSource('clients'));
+        });
+
+      }
+
       });
 
-      // // When the checkbox changes, update the visibility of the layer.
-      // input.addEventListener('change', (e) => {
-      //   if (input.checked) {
-      //     clientsGeoJSONFiltered.features.push(clientsGeoJSON.features.filter(item => {
-      //       if (job === item.properties['JOB POSITION']) {
-      //         return item;
-      //       }
-      //     }));
-      //     console.log(input.id);
-      //     console.log(input.checked);
-      //     console.log(clientsGeoJSONFiltered);
-      //     map.getSource('clients').setData(clientsGeoJSONFiltered);
-      //   } else {
-      //     clientsGeoJSONFiltered.features = clientsGeoJSON.features.filter(item => {
-      //       if (job != item.properties['JOB POSITION']) {
-      //         return item;
-      //       }
-      //     });
-      //     console.log(input.id);
-      //     console.log(input.checked);
-      //     console.log(clientsGeoJSONFiltered);
-      //     map.getSource('clients').setData(clientsGeoJSONFiltered);
-      //   }
-      //
-      // });
-    }
+
 
     });
 
