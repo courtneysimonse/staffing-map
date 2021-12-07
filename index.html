@@ -395,7 +395,7 @@
 
           });
 
-          map.on('mouseleave', 'candidates-clusters' || 'candidates-cluster-count' || 'candidates-unclustered-point', (e) => {
+          map.on('mouseleave', 'candidates-clusters' || 'candidates-cluster-count', (e) => {
               // Change the cursor style as a UI indicator.
               map.getCanvas().style.cursor = '';
               popup.remove();
@@ -431,6 +431,12 @@
               map.getCanvas().style.cursor = '';
               popup.remove();
           });
+
+          map.on('mouseleave', 'candidates-unclustered-point', () => {
+              map.getCanvas().style.cursor = '';
+              popup.remove();
+          });
+
 
 
           // After the last frame rendered before the map enters an "idle" state.
