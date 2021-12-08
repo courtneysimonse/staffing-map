@@ -527,23 +527,28 @@
     }
 
     function createFilters(header, geoJSON, source, filterGroup) {
+      // remove spaces in header text and append layer name
       const filterClass = header.replace(/\s/g, '')+"-"+source;
 
+      // create details element for header and give id
       const jobFilterHeader = document.createElement('details');
       jobFilterHeader.classList.add('filter-group-header');
       jobFilterHeader.innerHTML = "<summary id='"+filterClass+"'>"+header+"</summary>";
       filterGroup.appendChild(jobFilterHeader);
 
       const jobTypes = [];
+      // loop through features in layer
       geoJSON.features.forEach((item, i) => {
         // console.log(item.properties[header]);
         // console.log(header);
+        // add the values for the selected property
         if (!jobTypes.includes(item.properties[header]+"-"+source)) {
           jobTypes.push(item.properties[header]+"-"+source);
         }
       });
       // console.log(jobTypes);
 
+      // create a copy of the list of values
       let jobsFilter = jobTypes;
 
       const sourceID = map.getSource(source);
@@ -551,22 +556,24 @@
       geoJSONFiltered.type = "FeatureCollection";
       geoJSONFiltered.features = [];
 
+      // loop through values in list
       for (const job of jobTypes) {
         // Add checkbox and label elements for the layer.
         const input = document.createElement('input');
         input.type = 'checkbox';
         input.id = job;
-        input.checked = true;
+        input.checked = true;  // all values start on
         input.classList.add(filterClass);
         jobFilterHeader.appendChild(input);
 
         const label = document.createElement('label');
         label.setAttribute('for', job);
-        label.textContent = job.replace(/\-(.*)$/g, '');
+        label.textContent = job.replace(/\-(.*)$/g, '');  //remove layer name from text content
         label.classList.add(filterClass);
         jobFilterHeader.appendChild(label);
 
         // When the checkbox changes, update the visibility of the layer.
+        // doesn't consider the selections under other headers => FIX!!
         input.addEventListener('change', (e) => {
           console.log(jobsFilter);
           geoJSONFiltered.features = [];
