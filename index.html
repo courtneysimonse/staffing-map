@@ -112,7 +112,7 @@
               'source': 'candidates',
               'filter': ['has', 'point_count'],
               'paint': {
-                  'circle-color': '#4264fb',
+                  'circle-color': '#fe9414',
                   'circle-radius': [
                     'step',
                     ['get', 'point_count'],
@@ -147,7 +147,7 @@
             source: 'candidates',
             filter: ['!', ['has', 'point_count']],
             paint: {
-              'circle-color': '#4264fb',
+              'circle-color': '#fe9414',
               'circle-radius': 4,
               'circle-stroke-width': 1,
               'circle-stroke-color': '#fff'
@@ -242,7 +242,7 @@
               'source': 'clients',
               'filter': ['has', 'point_count'],
               'paint': {
-                  'circle-color': 'green',
+                  'circle-color': '#fcf424',
                   'circle-radius': [
                     'step',
                     ['get', 'point_count'],
@@ -253,7 +253,7 @@
                     17
                     ],
                   'circle-stroke-width': 1,
-                  'circle-stroke-color': '#ffffff'
+                  'circle-stroke-color': 'black'
               }
           });
           map.addLayer({
@@ -267,7 +267,7 @@
               'text-size': 12
             },
             paint:{
-              'text-color': 'white'
+              'text-color': 'black'
             }
           });
 
@@ -277,10 +277,10 @@
             source: 'clients',
             filter: ['!', ['has', 'point_count']],
             paint: {
-              'circle-color': 'green',
+              'circle-color': '#fcf424',
               'circle-radius': 4,
               'circle-stroke-width': 1,
-              'circle-stroke-color': '#fff'
+              'circle-stroke-color': 'black'
             }
           });
 
