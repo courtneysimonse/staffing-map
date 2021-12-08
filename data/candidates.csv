@@ -1,11 +1,11 @@
-﻿FIRST NAME,LAST NAME,ADDRESS,CITY,STATE,ZIP,TEMP ID,POSITION,PAY,SHIFT,CAR,STATUS
-Dalila ,Lopez,1050 woodlane road,Beverly ,NJ ,08010,17228,Stationary Machine Operator,16,1,no,ACTIVE
-Manuel,Bolivar,35 colonial ave,Trenton,NJ ,08618,17235,Office Assistant,18,2,yes,ACTIVE
-Luis,Prado,130 Handy St,New brunswick,NJ ,08901,17158,Warehouse labor,20,3,yes,ACTIVE
-Edith,Guzman ,930 Carteret Ave,Trenton,NJ ,08618,17225,Stationary Machine Operator,6,1,no,ACTIVE
-Narcisa,Arguello,55 Garden View Terrace,East Windsor,NJ ,08520,17255,Office Assistant,18,2,yes,ACTIVE
-Rosa,Pe–a,16 Hertel Ave,Buffalo ,NY,14207,17218,Porduction Line,14,1,no,INACTIVE
-Tasha ,Adorno,2 uper east ln,Buffalo ,NY,14207,17201,Garment Inspector,13.25,1,no,INACTIVE
-Omaira,Fontanez,25 center st,Lakawana,NY,14218,17118,Packer,14,2,yes,ACTIVE
-Cristal,Melendez,25 center st,Lakawana,NY,14218,17210,Packer,14,3,yes,ACTIVE
-Leila ,Santana ,516 Lasalle ave,Buffalo ,NY,14215,17167,Garment Inspector,13.25,1,yes,ACTIVE
+﻿ID,FIRST NAME,LAST NAME,ADDRESS,CITY,STATE,ZIP,TEMP ID,POSITION,PAY,SHIFT,CAR,STATUS
+1,Dalila ,Lopez,1050 woodlane road,Beverly ,NJ ,08010,17228,Stationary Machine Operator,16,1,no,ACTIVE
+2,Manuel,Bolivar,35 colonial ave,Trenton,NJ ,08618,17235,Office Assistant,18,2,yes,ACTIVE
+3,Luis,Prado,130 Handy St,New brunswick,NJ ,08901,17158,Warehouse labor,20,3,yes,ACTIVE
+4,Edith,Guzman ,930 Carteret Ave,Trenton,NJ ,08618,17225,Stationary Machine Operator,6,1,no,ACTIVE
+5,Narcisa,Arguello,55 Garden View Terrace,East Windsor,NJ ,08520,17255,Office Assistant,18,2,yes,ACTIVE
+6,Rosa,Pe–a,16 Hertel Ave,Buffalo ,NY,14207,17218,Porduction Line,14,1,no,INACTIVE
+7,Tasha ,Adorno,2 uper east ln,Buffalo ,NY,14207,17201,Garment Inspector,13.25,1,no,INACTIVE
+8,Omaira,Fontanez,25 center st,Lakawana,NY,14218,17118,Packer,14,2,yes,ACTIVE
+9,Cristal,Melendez,25 center st,Lakawana,NY,14218,17210,Packer,14,3,yes,ACTIVE
+10,Leila ,Santana ,516 Lasalle ave,Buffalo ,NY,14215,17167,Garment Inspector,13.25,1,yes,ACTIVE
