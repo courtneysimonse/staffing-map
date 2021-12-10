@@ -7,7 +7,7 @@
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
   <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
-  <link href="vendor/spiderify.css" rel="stylesheet">
+  <!-- <link href="vendor/spiderify.css" rel="stylesheet"> -->
   <link href="css/styles.css" rel="stylesheet">
 
 </head>
@@ -19,7 +19,7 @@
   <nav id="filter-group-clients" class="filter-group"></nav>
   <nav id="filter-group-candidates" class="filter-group"></nav>
 
-  <script src="vendor/spiderify.js"></script>
+  <!-- <script src="vendor/spiderify.js"></script> -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <!-- <script src="vendor/papaparse.min.js" charset="utf-8"></script> -->
   <!-- <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
@@ -48,31 +48,6 @@
     // disable map rotation using touch rotation gesture
     map.touchZoomRotate.disableRotation();
 
-    // spiderifier
-    spiderifier = new MapboxglSpiderifier(map, {
-      markerWidth: 40,
-      markerHeight: 40,
-      customPin: true,
-      initializeLeg: function (spiderLeg) {
-
-        var content = createPopupContent(spiderLeg.feature);
-
-        var popup = new mapboxgl.Popup({
-            // closeOnClick: false,
-            offset: MapboxglSpiderifier.popupOffsetForSpiderLeg(spiderLeg)
-          }).setHTML(content);
-
-        spiderLeg.mapboxMarker.setPopup(popup);
-        popup.addTo(map);
-
-      },
-      onClick: function (event, spiderLeg) {
-
-      }
-    });
-    const SPIDERFY_FROM_ZOOM = 13;
-
-
     var mapboxClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoiY291cnRuZXlzaW1vbnNlIiwiYSI6ImNrd3Y5dzE1bjA5bG0ycmxhYmFzZWU0MGgifQ.WJyXNWlvycMOcCWn-xjS5w' });
 
     function getCSVs() {
@@ -98,116 +73,31 @@
         candidatesGeoJSON = response[0];
         clientsGeoJSON = response[1];
 
+          // map.addImage('marker', )
+
           map.addSource('candidates', {
               'type': 'geojson',
-              'data': candidatesGeoJSON,
-              'cluster': true,
-              'clusterMaxZoom': 14, // Max zoom to cluster points on
-              'clusterRadius': 40 // Radius of each cluster when clustering points (defaults to 50)
+              'data': candidatesGeoJSON
           });
           // Add a layer showing the candidates.
           map.addLayer({
-              'id': 'candidates-clusters',
+              'id': 'candidates',
               'type': 'circle',
               'source': 'candidates',
-              'filter': ['has', 'point_count'],
               'paint': {
                   'circle-color': '#fe9414',
-                  'circle-radius': [
-                    'step',
-                    ['get', 'point_count'],
-                    8,
-                    3,
-                    13,
-                    6,
-                    17
-                    ],
+                  'circle-radius': 5,
                   'circle-stroke-width': 1,
                   'circle-stroke-color': '#ffffff'
               }
           });
-          map.addLayer({
-            id: 'candidates-cluster-count',
-            type: 'symbol',
-            source: 'candidates',
-            filter: ['has', 'point_count'],
-            layout: {
-              'text-field': '{point_count_abbreviated}',
-              'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-              'text-size': 12
-            },
-            paint:{
-              'text-color': 'white'
-            }
-          });
 
-          map.addLayer({
-            id: 'candidates-unclustered-point',
-            type: 'circle',
-            source: 'candidates',
-            filter: ['!', ['has', 'point_count']],
-            paint: {
-              'circle-color': '#fe9414',
-              'circle-radius': 4,
-              'circle-stroke-width': 1,
-              'circle-stroke-color': '#fff'
-            }
-          });
-
-          // inspect a cluster on click
-          map.on('click', 'candidates-clusters', (e) => {
-            const features = map.queryRenderedFeatures(e.point, {
-              layers: ['candidates-clusters']
-            });
-            const clusterId = features[0].properties.cluster_id;
-            map.getSource('candidates').getClusterExpansionZoom(
-              clusterId,
-              (err, zoom) => {
-                if (err) return;
-
-                // console.log(map.getZoom());
-
-                map.easeTo({
-                  center: features[0].geometry.coordinates,
-                  zoom: zoom
-                });
-
-                // console.log(zoom);
-                // spiderifier.spiderfy(e.lngLat, features);
-
-              }
-            );
-
-
-            spiderifier.unspiderfy();
-            if (!features.length) {
-              return;
-            } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
-              map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
-            } else {
-              map.getSource('candidates').getClusterLeaves(
-                features[0].properties.cluster_id,
-                100,
-                0,
-                function(err, leafFeatures){
-                  if (err) {
-                    return console.error('error while getting leaves of a cluster', err);
-                  }
-                  var markers = leafFeatures.map(function(leafFeature){
-                    // console.log(leafFeature.properties);
-                    return leafFeature.properties;
-                  });
-                  spiderifier.spiderfy(features[0].geometry.coordinates, markers);
-                }
-              );
-            }
-          });
 
           // When a click event occurs on a feature in
           // the unclustered-point layer, open a popup at
           // the location of the feature, with
           // description HTML from its properties.
-          map.on('click', 'candidates-unclustered-point', (e) => {
+          map.on('click', 'candidates', (e) => {
             const coordinates = e.features[0].geometry.coordinates.slice();
             const props = e.features[0].properties;
             const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
@@ -230,114 +120,27 @@
 
           map.addSource('clients', {
               'type': 'geojson',
-              'data': clientsGeoJSON,
-              'cluster': true,
-              'clusterMaxZoom': 14, // Max zoom to cluster points on
-              'clusterRadius': 40 // Radius of each cluster when clustering points (defaults to 50)
+              'data': clientsGeoJSON
           });
           // Add a layer showing the clients.
           map.addLayer({
-              'id': 'clients-clusters',
+              'id': 'clients',
               'type': 'circle',
               'source': 'clients',
-              'filter': ['has', 'point_count'],
               'paint': {
                   'circle-color': '#fcf424',
-                  'circle-radius': [
-                    'step',
-                    ['get', 'point_count'],
-                    8,
-                    3,
-                    13,
-                    6,
-                    17
-                    ],
+                  'circle-radius': 5,
                   'circle-stroke-width': 1,
                   'circle-stroke-color': 'black'
               }
           });
-          map.addLayer({
-            id: 'clients-cluster-count',
-            type: 'symbol',
-            source: 'clients',
-            filter: ['has', 'point_count'],
-            layout: {
-              'text-field': '{point_count_abbreviated}',
-              'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-              'text-size': 12
-            },
-            paint:{
-              'text-color': 'black'
-            }
-          });
 
-          map.addLayer({
-            id: 'clients-unclustered-point',
-            type: 'circle',
-            source: 'clients',
-            filter: ['!', ['has', 'point_count']],
-            paint: {
-              'circle-color': '#fcf424',
-              'circle-radius': 4,
-              'circle-stroke-width': 1,
-              'circle-stroke-color': 'black'
-            }
-          });
-
-          // inspect a cluster on click
-          map.on('click', 'clients-clusters', (e) => {
-            const features = map.queryRenderedFeatures(e.point, {
-              layers: ['clients-clusters']
-            });
-            const clusterId = features[0].properties.cluster_id;
-            map.getSource('clients').getClusterExpansionZoom(
-              clusterId,
-              (err, zoom) => {
-                if (err) return;
-
-                // console.log(map.getZoom());
-
-                map.easeTo({
-                  center: features[0].geometry.coordinates,
-                  zoom: zoom
-                });
-
-                // console.log(zoom);
-                // spiderifier.spiderfy(e.lngLat, features);
-
-              }
-            );
-
-
-            spiderifier.unspiderfy();
-            if (!features.length) {
-              return;
-            } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
-              map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
-            } else {
-              map.getSource('clients').getClusterLeaves(
-                features[0].properties.cluster_id,
-                100,
-                0,
-                function(err, leafFeatures){
-                  if (err) {
-                    return console.error('error while getting leaves of a cluster', err);
-                  }
-                  var markers = leafFeatures.map(function(leafFeature){
-                    // console.log(leafFeature.properties);
-                    return leafFeature.properties;
-                  });
-                  spiderifier.spiderfy(features[0].geometry.coordinates, markers);
-                }
-              );
-            }
-          });
 
           // When a click event occurs on a feature in
           // the unclustered-point layer, open a popup at
           // the location of the feature, with
           // description HTML from its properties.
-          map.on('click', 'clients-unclustered-point', (e) => {
+          map.on('click', 'clients', (e) => {
             const coordinates = e.features[0].geometry.coordinates.slice();
             const props = e.features[0].properties;
             const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
@@ -365,13 +168,8 @@
               closeOnClick: false
           });
 
-          map.on('mouseenter', 'candidates-clusters' || 'candidates-cluster-count', (e) => {
-              // Change the cursor style as a UI indicator.
-              map.getCanvas().style.cursor = 'pointer';
 
-          });
-
-          map.on('mouseenter', 'candidates-unclustered-point', (e) => {
+          map.on('mouseenter', 'candidates', (e) => {
               // Change the cursor style as a UI indicator.
               map.getCanvas().style.cursor = 'pointer';
 
@@ -395,14 +193,8 @@
 
           });
 
-          map.on('mouseleave', 'candidates-clusters' || 'candidates-cluster-count', (e) => {
-              // Change the cursor style as a UI indicator.
-              map.getCanvas().style.cursor = '';
-              popup.remove();
 
-          });
-
-          map.on('mouseenter', 'clients-unclustered-point', (e) => {
+          map.on('mouseenter', 'clients', (e) => {
               // Change the cursor style as a UI indicator.
               map.getCanvas().style.cursor = 'pointer';
 
@@ -427,12 +219,12 @@
               popup.setLngLat(coordinates).setHTML(description).addTo(map);
           });
 
-          map.on('mouseleave', 'clients-unclustered-point', () => {
+          map.on('mouseleave', 'clients', () => {
               map.getCanvas().style.cursor = '';
               popup.remove();
           });
 
-          map.on('mouseleave', 'candidates-unclustered-point', () => {
+          map.on('mouseleave', 'candidates', () => {
               map.getCanvas().style.cursor = '';
               popup.remove();
           });
@@ -442,7 +234,7 @@
           // After the last frame rendered before the map enters an "idle" state.
           map.on('idle', () => {
             // If these two layers were not added to the map, abort
-            if (!map.getLayer('candidates-clusters') || !map.getLayer('clients-clusters')) {
+            if (!map.getLayer('candidates') || !map.getLayer('clients')) {
               return;
             }
 
@@ -450,11 +242,11 @@
             const toggleableLayerIds = [
               {'name': 'Candidates',
                 'id': 'candidates',
-                'layer': ['candidates-clusters','candidates-cluster-count','candidates-unclustered-point']
+                'layer': ['candidates']
               },
               {'name': 'Clients',
                 'id': 'clients',
-                'layer': ['clients-clusters','clients-cluster-count','clients-unclustered-point']
+                'layer': ['clients']
               }
             ];
 
@@ -521,11 +313,6 @@
         createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
 
       });
-
-      // const checkboxes = document.getElementsByTagName('input');
-      // for (const item of checkboxes) {
-      //   item.addEventListener('change', getFilter);
-      // }
 
     });
 
@@ -701,11 +488,6 @@
     }
 
 
-
-
-    map.on('zoomstart', () => {
-      spiderifier.unspiderfy();
-    });
 
     function createPopupContent(props) {
       console.log(props);
