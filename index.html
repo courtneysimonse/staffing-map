@@ -510,13 +510,13 @@
 
           });
 
-      const filterHeadersClients = ['JOB POSITION','PAY RATE','SCHEDULE','NUMBER OF PEOPLE','ENGLISH LEVEL','STATUS'];
+      const filterHeadersClients = ['JOB POSITION','NUMBER OF PEOPLE','ENGLISH LEVEL','STATUS'];
       filterHeadersClients.forEach((header, i) => {
         createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
 
       });
 
-      const filterHeadersCandidates = ['POSITION','PAY','SHIFT','CAR','STATUS'];
+      const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
       filterHeadersCandidates.forEach((header, i) => {
         createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
 
