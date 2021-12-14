@@ -510,7 +510,7 @@
 
           });
 
-      const filterHeadersClients = ['JOB POSITION','NUMBER OF PEOPLE','ENGLISH LEVEL','STATUS'];
+      const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
       filterHeadersClients.forEach((header, i) => {
         createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
 
@@ -584,90 +584,73 @@
           geoJSONFiltered.type = "FeatureCollection";
           geoJSONFiltered.features = [];
 
-          let jobsFilter = [];
+          let jobsFilter = {};
 
-          const filterGroupSelection = document.getElementById('filter-group-'+source);
-          for (var category of filterGroupCandidates.childNodes) {
-            // console.log(category.childNodes[0].id);
-
+          // const filterGroupSelection = document.getElementById('filter-group-'+source);
+          if (source == 'clients') {
+            var filteredFile = filterGroupClients;
+          } else if (source == 'candidates') {
+            var filteredFile = filterGroupCandidates;
+          }
+          for (var category of filteredFile.childNodes) {
+            console.log(category.childNodes[0].id);
+            // console.log(category);
             const values = category.getElementsByTagName('input');
+            console.log(values);
             for (var value of values) {
+              console.log(value);
               // console.log(value.id+": "+value.checked);
-              if (value.checked == false) {
+              if (value.checked == true) {
                 // console.log([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, ''),value.checked]);
-                jobsFilter.push([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, '')]);
+                // jobsFilter.push([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, '')]);
+                if (jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')] == undefined) {
+                  jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')] = [value.id.replace(/\-(.*)$/g, '')]
+                } else {
+                  jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')].push(value.id.replace(/\-(.*)$/g, ''));
+                  // console.log(jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')]);
+
+                }
               }
+            }
+
           }
 
-          // if (input.checked) {
-          //   jobsFilter.push(job);
-          //   // console.log(jobsFilter);
-          // } else {
-          //   jobsFilter = jobsFilter.filter( (item) => {
-          //     if (item != job) {
-          //       return item
-          //     }
-          //   });
-            // console.log(jobsFilter);
-          }
+        console.log(jobsFilter);
 
-        // console.log(jobsFilter);
-        let deleteFeatures = [];
-        for (const item of geoJSON.features) {
-          console.log(item);
-          checkProps(item,jobsFilter);
-          // console.log(checkProps(item,jobsFilter));
-        }
+        // console.log(Object.keys(jobsFilter));
+        var useConditions = search => a => Object.keys(search).every(k =>
+              a.properties[k] === search[k] ||
+              Array.isArray(search[k]) && search[k].includes(a.properties[k])
+               // ||
+              // typeof search[k] === 'object' && +search[k].min <= a[k] &&  a[k] <= +search[k].max ||
+              // typeof search[k] === 'function' && search[k](a[k])
+            );
 
-        // geoJSON.features.forEach((item, i) => {
-        //   // console.log(item);
-        //   // console.log(item.properties);
-        // //   checkProps: {
-        // //     for (var unchecked of jobsFilter) {
-        // //       if (unchecked.includes(item.properties[unchecked[0]])) {
-        // //         // geoJSONFiltered.features.push(item);
-        // //         console.log(item);
-        // //         break checkProps;
-        // //       }
-        // //   }
-        // // }
-        //
-        //   // console.log(Object.entries(item.properties));
-        //   for (const [key, value] of Object.entries(item.properties)) {
-        //     console.log(`${key} ${value}`);
-        //     if (jobsFilter.includes([key,value])) {
-        //       return;
-        //     }
-        //   }
-        //
-        //   geoJSONFiltered.features.push(item);
-        //
-        // });
+        console.log(geoJSON.features.filter(useConditions(jobsFilter)));
+        geoJSONFiltered.features = geoJSON.features.filter(useConditions(jobsFilter));
 
-        // console.log(clientsGeoJSON);
-        // console.log(clientsGeoJSONFiltered);
-        // console.log(geoJSONFiltered.features);
         sourceID.setData(geoJSONFiltered);
-        // console.log(map.getSource('clients'));
+
       });
 
     }
 
   }  // end createFilters
 
-    function checkProps(item, jobsFilter) {
-      for (const [key, value] of Object.entries(item.properties)) {
-        console.log([key,value]);
-        console.log(jobsFilter);
-        console.log(jobsFilter[0]===[key,value]);
-
-        if (jobsFilter.includes([key,value])) {
-          console.log(item.properties.id);
-          return item.properties.id;
-        }
-
-      }
-    }  //end checkProps
+    // function checkProps(item, jobsFilter) {
+    //   console.log(item.properties);
+    //   for (const [key, value] of Object.entries(item.properties)) {
+    //     // console.log([key,value]);
+    //     // console.log(jobsFilter[0]);
+    //     // console.log(jobsFilter[0]===[key,value]);
+    //
+    //     if (jobsFilter.includes([key,value])) {
+    //       // console.log(item.properties.id);
+    //       return item.properties.id;
+    //     }
+    //
+    //   }
+    // }  //end checkProps
 
 
     map.on('zoomstart', () => {

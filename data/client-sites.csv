@@ -1,4 +1,4 @@
-﻿ID,COMPANY,ADDRESS,CITY,STATE,ZIP,JOB POSITION,PAY RATE,SCHEDULE,DESCRIPTION,NUMBER OF PEOPLE,ENGLISH LEVEL,STATUS
+﻿ID,COMPANY,ADDRESS,CITY,STATE,ZIP,POSITION,PAY RATE,SCHEDULE,DESCRIPTION,NUMPEOPLE,ENGLISHLEVEL,STATUS
 1,Core Industry,40 Groset Dr,Kirkwood,NY,13795,cherry pickers & Dock Workers,$17 ,Mon to Friday with some wqeekend 7 am to 8 pm, loading and unloading personnel with some cherry pickers,50,basic,ACTIVE
 2,Oral b commerce,241 Central Ave ,Edison,NJ,08817,picker packer,$13 ,Mon to Frid 8 to 5 pm,E-commerce workers will be picking orders,10,basic,ACTIVE
 3,Pentel manufactures,109 Mill st,Cornwall,NY,12518,forklifting unloading and loading picking orders,$14 ,Mon to Friday 7 am to 5 pm,forklifting and some other task in the warehouse,5,Advance,INACTIVE
