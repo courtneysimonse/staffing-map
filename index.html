@@ -20,6 +20,8 @@
   <nav id="filter-group-candidates" class="filter-group"></nav>
 
   <script src="vendor/spiderify.js"></script>
+  <!-- <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script> -->
+
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <!-- <script src="vendor/papaparse.min.js" charset="utf-8"></script> -->
   <!-- <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
@@ -76,6 +78,23 @@
     var mapboxClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIjoiY2t3dmNzbHhsMXl2MDJxanYwcmw0OHYzZCJ9.Rr2kb4WqAzr_5EgH8ZjK3A' });
 
     function getCSVs() {
+      // var excelUrl = "https://1drv.ms/x/s!AjLaV8K64jrVgvNDVx1WYCctbhwN1A?e=I2D6P6";
+      //
+      // /* set up async GET request */
+      // var req = new XMLHttpRequest();
+      // req.open("GET", excelUrl, true);
+      // req.responseType = "arraybuffer";
+      //
+      // req.onload = function(e) {
+      //   var workbook = XLSX.read(req.response);
+      //
+      //   var candidatesSheet = workbook.Sheets['candidates'];
+      //   var clientsSheet = workbook.Sheets['client-sites'];
+      //
+      //   processData([XLSX.utils.sheet_to_json(candidatesSheet),XLSX.utils.sheet_to_json(candidatesSheet)]);
+      // }
+      //
+      // req.send();
       var candidatesCSV = d3.csv("./data/candidates.csv");
       var clientsCSV = d3.csv("./data/client-sites.csv");
       Promise.all([candidatesCSV,clientsCSV]).then(processData, error);
@@ -341,10 +360,10 @@
             const coordinates = e.features[0].geometry.coordinates.slice();
             const props = e.features[0].properties;
             const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
-              "<strong>Position:</strong> " + props['JOB POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
+              "<strong>Position:</strong> " + props['POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
               props['DESCRIPTION'] + "<br>" +
               props['SCHEDULE'] + "<br>" +
-              "<strong>No. of People: </strong>" + props['NUMBER OF PEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISH LEVEL'];
+              "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'];
 
             // Ensure that if the map is zoomed out such that
             // multiple copies of the feature are visible, the
@@ -410,10 +429,10 @@
               const coordinates = e.features[0].geometry.coordinates.slice();
               const props = e.features[0].properties;
               const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
-                        "<strong>Position:</strong> " + props['JOB POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
+                        "<strong>Position:</strong> " + props['POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
                         props['DESCRIPTION'] + "<br>" +
                         props['SCHEDULE'] + "<br>" +
-                        "<strong>No. of People: </strong>" + props['NUMBER OF PEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISH LEVEL'];
+                        "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'];
 
               // Ensure that if the map is zoomed out such that multiple
               // copies of the feature are visible, the popup appears

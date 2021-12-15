@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Titan Staffing Map - Recruiting</title>
+  <style>
+    th, td, p, input {
+        font:14px Verdana;
+    }
+    table, th, td
+    {
+        border: solid 1px #DDD;
+        border-collapse: collapse;
+        padding: 2px 3px;
+        text-align: center;
+    }
+    th {
+        font-weight:bold;
+    }
+
+  </style>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="css/styles.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/jqueryui-editable/css/jqueryui-editable.css" rel="stylesheet"/>
+
+</head>
+<body>
+
+  <h1>Recruiting Data Editing</h1>
+
+  <div id="showData">
+
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js" integrity="sha256-hlKLmzaRlE8SCJC1Kw8zoUbU8BxA+8kR3gseuKfMjxA=" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/jqueryui-editable/js/jqueryui-editable.min.js"></script>
+
+  <script type="text/javascript">
+
+    d3.csv('data/candidates.csv').then(constructTable);
+
+
+
+    function constructTable(data) {
+
+    // EXTRACT VALUE FOR HTML HEADER.
+     var col = [];
+     for (var i = 0; i < data.length; i++) {
+         for (var key in data[i]) {
+             if (col.indexOf(key) === -1) {
+                 col.push(key);
+             }
+         }
+     }
+     // CREATE DYNAMIC TABLE.
+     var table = document.createElement("table");
+
+     // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+
+     var tr = table.insertRow(-1);                   // TABLE ROW.
+
+     for (var i = 0; i < col.length; i++) {
+         var th = document.createElement("th");      // TABLE HEADER.
+         th.innerHTML = col[i];
+         tr.appendChild(th);
+     }
+
+     // ADD JSON DATA TO THE TABLE AS ROWS.
+     for (var i = 0; i < data.length; i++) {
+
+         tr = table.insertRow(-1);
+
+         for (var j = 0; j < col.length; j++) {
+             var tabCell = tr.insertCell(-1);
+             tabCell.innerHTML = data[i][col[j]];
+             tabCell.setAttribute('data-name',col[j]);
+             tabCell.setAttribute('data-pk',data[i]['ID']);
+             tabCell.setAttribute('id',col[j]);
+             // console.log(col[j]);
+         }
+     }
+
+     // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+     var divContainer = document.getElementById("showData");
+     divContainer.innerHTML = "";
+     divContainer.appendChild(table);
+
+     //turn to inline mode
+     $.fn.editable.defaults.mode = 'inline';
+     $('td').editable();
+
+    }
+
+
+  </script>
+
+</body>
+</html>
