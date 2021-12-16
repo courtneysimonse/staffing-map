@@ -202,13 +202,17 @@
          type: 'text'
        });
 
-       $('.FIRSTNAME, .LASTNAME, .ADDRESS, .CITY, .STATE, .TEMPID, .PAY, .SHIFT').editable();
+       $('.COMPANY, .ADDRESS, .CITY, .STATE, .PAYRATE, .NUMPEOPLE').editable();
 
-       $('.CAR').editable({
+       $('.SCHEDULE, .DESCRIPTION').editable({
+         type: 'textarea'
+       });
+
+       $('.ENGLISHLEVEL').editable({
          type: 'select',
          source: [
-           {value: 1, text: 'Yes'},
-           {value: 2, text: 'No'}
+           {value: 1, text: 'Basic'},
+           {value: 2, text: 'Advanced'}
          ]
        });
 
