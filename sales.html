@@ -50,14 +50,13 @@
 </head>
 <body>
 
-  <h1>Recruiting Data Editing</h1>
+  <h1>Sales Data Editing</h1>
 
   <div id="showData"></div>
   <div id="buttons">
     <input class="button" id="new-row" type="button" name="new" value="new record">
     <input class="button" id="save-btn" type="button" name="submit" value="submit">
   </div>
-
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -66,7 +65,7 @@
 
   <script type="text/javascript">
 
-    d3.csv('data/candidates.csv').then(constructTable);
+    d3.csv('data/client-sites.csv').then(constructTable);
 
     var saveBtn = document.getElementById('save-btn');
     var newBtn = document.getElementById('new-row');
@@ -84,13 +83,12 @@
         }
       }
 
-      // console.log(table);
       var json = exportTableToJSON(table);
       console.log(JSON.stringify(json));
 
       $.ajax({
         method: "POST",
-        url: "post-recruiting.php",
+        url: "post-sales.php",
         dataType: 'json',
         processData: false,
         contentType: 'application/json',
