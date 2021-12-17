@@ -57,7 +57,7 @@
       customPin: true,
       initializeLeg: function (spiderLeg) {
 
-        var content = createPopupContent(spiderLeg.feature);
+        var content = createPopupCandidates(spiderLeg.feature);
 
         var popup = new mapboxgl.Popup({
             // closeOnClick: false,
@@ -78,27 +78,12 @@
     var mapboxClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIjoiY2t3dmNzbHhsMXl2MDJxanYwcmw0OHYzZCJ9.Rr2kb4WqAzr_5EgH8ZjK3A' });
 
     function getCSVs() {
-      // var excelUrl = "https://1drv.ms/x/s!AjLaV8K64jrVgvNDVx1WYCctbhwN1A?e=I2D6P6";
-      //
-      // /* set up async GET request */
-      // var req = new XMLHttpRequest();
-      // req.open("GET", excelUrl, true);
-      // req.responseType = "arraybuffer";
-      //
-      // req.onload = function(e) {
-      //   var workbook = XLSX.read(req.response);
-      //
-      //   var candidatesSheet = workbook.Sheets['candidates'];
-      //   var clientsSheet = workbook.Sheets['client-sites'];
-      //
-      //   processData([XLSX.utils.sheet_to_json(candidatesSheet),XLSX.utils.sheet_to_json(candidatesSheet)]);
-      // }
-      //
-      // req.send();
-      var candidatesCSV = d3.csv("./data/candidates.csv");
-      var clientsCSV = d3.csv("./data/client-sites.csv");
+
+      var candidatesCSV = d3.csv("./data/candidates.csv", init = {RequestCache: 'no-cache'});
+      var clientsCSV = d3.csv("./data/client-sites.csv", init = {RequestCache: 'no-cache'});
       Promise.all([candidatesCSV,clientsCSV]).then(processData, error);
       document.getElementById('geocode').style.visibility = 'hidden';
+
     }
 
     // function fired if there is an error
@@ -229,10 +214,7 @@
           map.on('click', 'candidates-unclustered-point', (e) => {
             const coordinates = e.features[0].geometry.coordinates.slice();
             const props = e.features[0].properties;
-            const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
-              "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
-              "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
-              "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'];
+            const description = createPopupCandidates(props);
 
             // Ensure that if the map is zoomed out such that
             // multiple copies of the feature are visible, the
@@ -359,11 +341,7 @@
           map.on('click', 'clients-unclustered-point', (e) => {
             const coordinates = e.features[0].geometry.coordinates.slice();
             const props = e.features[0].properties;
-            const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
-              "<strong>Position:</strong> " + props['POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
-              props['DESCRIPTION'] + "<br>" +
-              props['SCHEDULE'] + "<br>" +
-              "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'];
+            const description = createPopupClients(props);
 
             // Ensure that if the map is zoomed out such that
             // multiple copies of the feature are visible, the
@@ -396,10 +374,7 @@
 
               const coordinates = e.features[0].geometry.coordinates.slice();
               const props = e.features[0].properties;
-              const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
-                "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
-                "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
-                "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'];
+              const description = createPopupCandidates(props);
 
               // Ensure that if the map is zoomed out such that multiple
               // copies of the feature are visible, the popup appears
@@ -428,11 +403,7 @@
               // Copy coordinates array.
               const coordinates = e.features[0].geometry.coordinates.slice();
               const props = e.features[0].properties;
-              const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
-                        "<strong>Position:</strong> " + props['POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
-                        props['DESCRIPTION'] + "<br>" +
-                        props['SCHEDULE'] + "<br>" +
-                        "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'];
+              const description = createPopupClients(props);
 
               // Ensure that if the map is zoomed out such that multiple
               // copies of the feature are visible, the popup appears
@@ -541,11 +512,6 @@
 
       });
 
-      // const checkboxes = document.getElementsByTagName('input');
-      // for (const item of checkboxes) {
-      //   item.addEventListener('change', getFilter);
-      // }
-
     });
 
     }
@@ -612,12 +578,12 @@
             var filteredFile = filterGroupCandidates;
           }
           for (var category of filteredFile.childNodes) {
-            console.log(category.childNodes[0].id);
+            // console.log(category.childNodes[0].id);
             // console.log(category);
             const values = category.getElementsByTagName('input');
-            console.log(values);
+            // console.log(values);
             for (var value of values) {
-              console.log(value);
+              // console.log(value);
               // console.log(value.id+": "+value.checked);
               if (value.checked == true) {
                 // console.log([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, ''),value.checked]);
@@ -645,7 +611,7 @@
               // typeof search[k] === 'function' && search[k](a[k])
             );
 
-        console.log(geoJSON.features.filter(useConditions(jobsFilter)));
+        // console.log(geoJSON.features.filter(useConditions(jobsFilter)));
         geoJSONFiltered.features = geoJSON.features.filter(useConditions(jobsFilter));
 
         sourceID.setData(geoJSONFiltered);
@@ -655,21 +621,6 @@
     }
 
   }  // end createFilters
-
-    // function checkProps(item, jobsFilter) {
-    //   console.log(item.properties);
-    //   for (const [key, value] of Object.entries(item.properties)) {
-    //     // console.log([key,value]);
-    //     // console.log(jobsFilter[0]);
-    //     // console.log(jobsFilter[0]===[key,value]);
-    //
-    //     if (jobsFilter.includes([key,value])) {
-    //       // console.log(item.properties.id);
-    //       return item.properties.id;
-    //     }
-    //
-    //   }
-    // }  //end checkProps
 
 
     map.on('zoomstart', () => {
@@ -707,13 +658,34 @@
 
     } // end getCoords
 
-    function createPopupContent(props) {
-      console.log(props);
-      const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
-        "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
-        "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
-        "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'];
+    function createPopupCandidates(props) {
+      let toggleStatus = '';
+      if (props['STATUS'] == 'ACTIVE') {
+        toggleStatus = ' toggle-on';
+      }
+      const description = "<p><strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong></p>" +
+        "<p><strong>Temp ID:</strong> " + props['TEMP ID'] + "</p>" +
+        "<p><strong>Position:</strong> " + props['POSITION'] + "</p>" +
+        "<p><strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'] + "</p>" +
+        "<div class='switch toggle" + toggleStatus +"' id=" + props['ID'] + " onclick='flipToggle()'><div class='toggle-text-off'>INACTIVE</div>"+
+        "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
       return description;
+    }
+
+    function createPopupClients(props) {
+      const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
+        "<strong>Position:</strong> " + props['POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
+        props['DESCRIPTION'] + "<br>" +
+        props['SCHEDULE'] + "<br>" +
+        "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'];
+      return description;
+    }
+
+    function flipToggle() {
+      let toggle = document.getElementsByClassName('switch')[0];
+      toggle.classList.toggle('toggle-on');
+
+      console.log(toggle);
     }
   </script>
 
