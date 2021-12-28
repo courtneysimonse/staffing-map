@@ -79,8 +79,8 @@
 
     function getCSVs() {
 
-      var candidatesCSV = d3.csv("./data/candidates.csv", init = {RequestCache: 'no-cache'});
-      var clientsCSV = d3.csv("./data/client-sites.csv", init = {RequestCache: 'no-cache'});
+      var candidatesCSV = d3.csv("../data/candidates.csv", init = {RequestCache: 'no-cache'});
+      var clientsCSV = d3.csv("../data/client-sites.csv", init = {RequestCache: 'no-cache'});
       Promise.all([candidatesCSV,clientsCSV]).then(processData, error);
       document.getElementById('geocode').style.visibility = 'hidden';
 
