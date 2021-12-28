@@ -2,5 +2,12 @@
   from = "/"
   to = "/sales"
   status = 200
-  force = true # COMMENT: ensure that we always redirect
+  force = false
   conditions = {Role = ["sales"]}
+
+  [[redirects]]
+    from = "/"
+    to = "/recruiting"
+    status = 200
+    force = false
+    conditions = {Role = ["recruiting"]}
