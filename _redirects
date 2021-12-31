@@ -1,5 +1,5 @@
 /sales/*            200!  Role=sales
-# /sales/*      /login     401!
+ /sales/*      /login     401!
 /recruiting/*       200!  Role=recruiting
-# /recruiting/* /login     401!
+ /recruiting/* /login     401!
 /login  /index.html  200!
