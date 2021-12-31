@@ -1,0 +1,4 @@
+/sales/*            200!  Role=sales
+/sales/*      /     401!
+/recruiting/*       200!  Role=recruiting
+/recruiting/* /     401!
