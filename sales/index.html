@@ -276,7 +276,9 @@
               .setHTML(description)
               .addTo(map);
 
-            console.log(popupContent._content.childNodes);
+            popupContent._content.childNodes[4].addEventListener('click', flipToggle);
+
+            console.log(popupContent._content.childNodes[4]);
           });
 
           map.addSource('clients', {
@@ -718,7 +720,7 @@
         "<p><strong>Temp ID:</strong> " + props['TEMP ID'] + "</p>" +
         "<p><strong>Position:</strong> " + props['POSITION'] + "</p>" +
         "<p><strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'] + "</p>" +
-        "<div class='switch toggle" + toggleStatus +"' id=" + props['ID'] + "><div class='toggle-text-off'>INACTIVE</div>"+
+        "<div class='switch toggle" + toggleStatus +"' id=" + props['id'] + "><div class='toggle-text-off'>INACTIVE</div>"+
         "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
       return description;
     }
@@ -737,6 +739,7 @@
       toggle.classList.toggle('toggle-on');
 
       console.log(toggle);
+      console.log(toggle.id);
 
       // change geoJSON
       // refilter
