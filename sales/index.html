@@ -53,7 +53,15 @@
     async function getDB(db,dataset) {
       const col = collection(db, dataset);
       const snapshot = await getDocs(col);
-      const docList = snapshot.docs.map(doc => doc.data());
+      // const docList = snapshot.docs.map(doc => doc.data());
+      const docList = [];
+      snapshot.docs.forEach((doc, i) => {
+        let docData = doc.data();
+        docData.id = (doc.id);
+        console.log(docData);
+        docList.push(docData);
+      });
+
       return docList;
     }
 
@@ -132,6 +140,8 @@
     function processData(data) {
       var candidatesData = data[0],
           clientsData = data[1];
+
+      console.log(data);
 
       var candidatesGeoJSON = getCoords(candidatesData);
       var clientsGeoJSON = getCoords(clientsData);
@@ -261,10 +271,12 @@
               coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
             }
 
-            new mapboxgl.Popup()
+            const popupContent = new mapboxgl.Popup()
               .setLngLat(coordinates)
               .setHTML(description)
               .addTo(map);
+
+            console.log(popupContent._content.childNodes);
           });
 
           map.addSource('clients', {
@@ -699,14 +711,14 @@
 
     function createPopupCandidates(props) {
       let toggleStatus = '';
-      if (props['STATUS'] == 'ACTIVE') {
+      if (props['STATUS'] == true) {
         toggleStatus = ' toggle-on';
       }
       const description = "<p><strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong></p>" +
         "<p><strong>Temp ID:</strong> " + props['TEMP ID'] + "</p>" +
         "<p><strong>Position:</strong> " + props['POSITION'] + "</p>" +
         "<p><strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'] + "</p>" +
-        "<div class='switch toggle" + toggleStatus +"' id=" + props['ID'] + " onclick='flipToggle()'><div class='toggle-text-off'>INACTIVE</div>"+
+        "<div class='switch toggle" + toggleStatus +"' id=" + props['ID'] + "><div class='toggle-text-off'>INACTIVE</div>"+
         "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
       return description;
     }
