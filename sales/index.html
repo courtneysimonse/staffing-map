@@ -18,6 +18,58 @@
   <button id="geocode" class="button">Load Data</button>
   <nav id="filter-group-clients" class="filter-group"></nav>
   <nav id="filter-group-candidates" class="filter-group"></nav>
+  <button id="add-data" class="button">Add a Candidate</button>
+
+  <!-- The Modal -->
+  <div id="add-data-div" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+     <div class="modal-header">
+       <span class="close">&times;</span>
+       <h2>Add a Candidate Record</h2>
+     </div>
+     <div class="modal-body">
+       <form>
+         <p>
+           <label for="FIRST NAME">Name:</label>
+           <input type="text" name="FIRST NAME" required value=""></input>
+           <input type="text" name="LAST NAME" required value=""></input>
+         </p>
+         <p>
+           <label for="TEMP ID">Temp ID:</label>
+           <input type="text" name="TEMP ID" required value=""></input>
+         </p>
+         <p>
+           <label for="ADDRESS">Address:</label>
+           <input type="text" name="ADDRESS" required value=""></input>
+         </p>
+         <p>
+           <input type="text" name="CITY" required value=""></input>
+           <input type="text" name="STATE" required value=""></input>
+           <input type="text" name="ZIP" required value=""></input>
+         </p>
+         <select id="position" name="POSITION">
+           <option value="Packer">Packer</option>
+           <option value="Shipping">Shipping</option>
+           <option value="Clerical">Clerical</option>
+           <option value="Forklift">Forklift</option>
+           <option value="Machine Operator">Machine Operator</option>
+        </select>
+         <p>
+           <label for="PAY">Pay:</label>
+           <input type="text" name="PAY" required value=""></input>
+           <label for="SHIFT">SHIFT:</label>
+           <input type="text" name="SHIFT" required value=""></input>
+         </p>
+       </form>
+     </div>
+     <div class="modal-footer">
+       <button id="submit-new" class="button">Submit</button>
+     </div>
+    </div>
+
+  </div>
 
   <script src="../vendor/spiderify.js"></script>
 
@@ -29,7 +81,7 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
-    import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+    import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
 
     // Your web app's Firebase configuration
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -81,6 +133,9 @@
     const filterGroupClients = document.getElementById('filter-group-clients');
     const filterGroupCandidates = document.getElementById('filter-group-candidates');
 
+    const addBtn = document.getElementById('add-data');
+    addBtn.addEventListener('click', addCandidate);
+
     // disable map rotation using right click + drag
     map.dragRotate.disable();
 
@@ -127,6 +182,7 @@
       const clientsDB = getDB(db, 'client-sites');
       Promise.all([candidatesDB,clientsDB]).then(processData, error);
       document.getElementById('geocode').style.visibility = 'hidden';
+      addBtn.style.visibility = 'visible';
 
     }
 
@@ -734,16 +790,44 @@
       return description;
     }
 
-    function flipToggle() {
+    async function flipToggle() {
       let toggle = document.getElementsByClassName('switch')[0];
       toggle.classList.toggle('toggle-on');
 
       console.log(toggle);
       console.log(toggle.id);
 
+      let docStatus = true;
+
+      if (toggle.classList.contains('toggle-on')) {
+        console.log('toggle-on');
+        docStatus = true;
+      } else {
+        console.log('toggle-off');
+        docStatus = false;
+      }
+
       // change geoJSON
+
       // refilter
-      // save to file
+
+      // save to database
+      const docID = toggle.id;
+      const docRef = doc(db, 'candidates', docID);
+      await updateDoc(docRef, {
+        "STATUS": docStatus
+      });
+
+    }
+
+    function addCandidate() {
+      const formModal = document.getElementById('add-data-div');
+      formModal.style.display = "block";
+
+      const closeBtn = document.getElementsByClassName("close")[0];
+      closeBtn.onclick = function () {
+        formModal.style.display = "none";
+      }
     }
   </script>
 
