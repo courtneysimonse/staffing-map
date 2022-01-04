@@ -33,7 +33,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form>
+            <form id="newCandidateForm">
                <div class="input-group">
                  <label class="form-label" for="FIRST NAME">Name:</label>
                  <input class="form-control" type="text" name="FIRST NAME" placeholder="First Name" required value=""></input>
@@ -45,13 +45,13 @@
                </p>
                <p>
                  <label class="form-label" for="ADDRESS">Address:</label>
-                 <input class="form-control" type="text" name="ADDRESS" required value=""></input>
+                 <input class="form-control" type="text" name="ADDRESS" placeholder="Street Address" required value=""></input>
                </p>
-               <p>
-                 <input class="form-control" type="text" name="CITY" required value=""></input>
-                 <input class="form-control" type="text" name="STATE" required value=""></input>
-                 <input class="form-control" type="text" name="ZIP" required value=""></input>
-               </p>
+               <div class="input-group">
+                 <input class="form-control" type="text" name="CITY" placeholder="City" required value=""></input>
+                 <input class="form-control" type="text" name="STATE" placeholder="State" required value=""></input>
+                 <input class="form-control" type="text" name="ZIP" placeholder="Zip Code" required value=""></input>
+               </div>
                <select class="form-select" id="position" name="POSITION">
                  <option value="Packer">Packer</option>
                  <option value="Shipping">Shipping</option>
@@ -59,12 +59,26 @@
                  <option value="Forklift">Forklift</option>
                  <option value="Machine Operator">Machine Operator</option>
               </select>
-               <p>
+               <div class="input-group">
                  <label class="form-label" for="PAY">Pay:</label>
                  <input class="form-control" type="text" name="PAY" required value=""></input>
-                 <label class="form-label" for="SHIFT">SHIFT:</label>
-                 <input class="form-control" type="text" name="SHIFT" required value=""></input>
-               </p>
+                 <label class="form-label" for="SHIFT">Shift:</label>
+                 <select class="form-control" id="shift" name="SHIFT">
+                   <option value="1">1</option>
+                   <option value="2">2</option>
+                   <option value="3">3</option>
+                 </select>
+                 <label class="form-label" for="CAR">Car:</label>
+                 <select class="form-control" id="car" name="CAR">
+                   <option value=true>Yes</option>
+                   <option value=false>No</option>
+                 </select>
+               </div>
+               <label class="form-label" for="STATUS">Status:</label>
+               <select class="form-control" id="status" name="STATUS">
+                 <option value=true>ACTIVE</option>
+                 <option value=false>INACTIVE</option>
+               </select>
              </form>
           </div>
           <div class="modal-footer">
@@ -88,7 +102,7 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+    import { getFirestore, collection, getDocs, doc, updateDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
 
     // Your web app's Firebase configuration
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -827,8 +841,12 @@
 
     }
 
-    function addCandidate() {
-      const formModal = document.getElementById('addDataModal');
+    const addCandidate = document.getElementById('newCandidateForm');
+    addCandidate.onsubmit = async (e) => {
+
+      e.preventDefault;
+      const formData = new FormData(addCandidate);
+      console.log(addCandidate);
 
     }
   </script>
