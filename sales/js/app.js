@@ -87,6 +87,8 @@ let spiderifier = new MapboxglSpiderifier(map, {
     spiderLeg.mapboxMarker.setPopup(popup);
     popup.addTo(map);
 
+    popupContent._content.childNodes[4].addEventListener('click', flipToggle);
+
   },
   onClick: function (event, spiderLeg) {
 
@@ -262,7 +264,7 @@ function processData(data) {
 
         popupContent._content.childNodes[4].addEventListener('click', flipToggle);
 
-        console.log(popupContent._content.childNodes[4]);
+        // console.log(popupContent._content.childNodes[4]);
       });
 
       map.addSource('clients', {
