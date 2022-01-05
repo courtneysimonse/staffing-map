@@ -773,4 +773,9 @@ async function submitNewCandidate(e) {
 
   const docRef = await addDoc(collection(db, 'candidates'), formProps);
   console.log(docRef.id);
+
+  newCandidateForm.reset();  //reset after submission
+
+  // const addDataModal = new bootstrap.Modal(document.getElementById('addDataModal'));
+  // addDataModal.hide();
 }
