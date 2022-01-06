@@ -87,7 +87,8 @@ let spiderifier = new MapboxglSpiderifier(map, {
     spiderLeg.mapboxMarker.setPopup(popup);
     popup.addTo(map);
 
-    popupContent._content.childNodes[4].addEventListener('click', flipToggle);
+    // find the toggle div and add function on click
+    popupContent._content.childNodes[5].addEventListener('click', flipToggle);
 
   },
   onClick: function (event, spiderLeg) {
@@ -262,9 +263,13 @@ function processData(data) {
           .setHTML(description)
           .addTo(map);
 
-        popupContent._content.childNodes[4].addEventListener('click', flipToggle);
+        popupContent._content.childNodes[5].addEventListener('click', flipToggle);
 
-        // console.log(popupContent._content.childNodes[4]);
+        // console.log(popupContent._content.childNodes);
+
+        const editLink = document.getElementById(props['id']+"-edit");
+        console.log(editLink);
+        editLink.addEventListener('click', editCandidate(props));
       });
 
       map.addSource('clients', {
@@ -706,6 +711,7 @@ function createPopupCandidates(props) {
     "<p><strong>Temp ID:</strong> " + props['TEMP ID'] + "</p>" +
     "<p><strong>Position:</strong> " + props['POSITION'] + "</p>" +
     "<p><strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'] + "</p>" +
+    "<div><a href='#' data-bs-toggle='modal' data-bs-target='#editModal' class='link-primary' id='"+props['id']+"-edit'>Edit</a> / <a href='#' class='link-primary' id='"+props['id']+"-delete'>Delete</a></div>"+
     "<div class='switch toggle" + toggleStatus +"' id=" + props['id'] + "><div class='toggle-text-off'>INACTIVE</div>"+
     "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
   return description;
@@ -780,4 +786,25 @@ async function submitNewCandidate(e) {
 
   // const addDataModal = new bootstrap.Modal(document.getElementById('addDataModal'));
   // addDataModal.hide();
+}  // end submitNewCandidate()
+
+function editCandidate(props) {
+  // const editModal = new bootstrap.Modal(document.getElementById('editModal'), {
+  //   backdrop: 'static'
+  // });
+  // console.log(editModal);
+  // editModal.show();
+
+  document.getElementById('editFirstName').setAttribute('value',props["FIRST NAME"]);
+  document.getElementById('editLastName').setAttribute('value',props["LAST NAME"]);
+  document.getElementById('editTempID').setAttribute('value',props["TEMP ID"]);
+  document.getElementById('editAddress').setAttribute('value',props["ADDRESS"]);
+  document.getElementById('editCity').setAttribute('value',props["CITY"]);
+  document.getElementById('editState').setAttribute('value',props["STATE"]);
+  document.getElementById('editZip').setAttribute('value',props["ZIP"]);
+  document.getElementById('editPay').setAttribute('value',props["PAY"]);
+  document.getElementById('editPosition').setAttribute('value',props["POSITION"]);
+  document.getElementById('editCar').setAttribute('value',props["CAR"]);
+  document.getElementById('editStatus').setAttribute('value',props["STATUS"]);
+
 }
