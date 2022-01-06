@@ -39,13 +39,13 @@ async function getDB(db,dataset) {
 }
 
 mapboxgl.accessToken = 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIjoiY2t3dmNzbHhsMXl2MDJxanYwcmw0OHYzZCJ9.Rr2kb4WqAzr_5EgH8ZjK3A';
-  const map = new mapboxgl.Map({
+const map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [-74.5, 42.0],
       zoom: 6,
       maxZoom: 18
-  });
+});
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
@@ -102,8 +102,9 @@ const mapboxClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIj
 
 
 const loadBtn = document.getElementById('geocode');
+loadBtn.addEventListener('click', getData);
 
-loadBtn.onclick = function getData() {
+function getData() {
 
   // var candidatesCSV = d3.csv("../data/candidates.csv", init = {RequestCache: 'no-cache'});
   // var clientsCSV = d3.csv("../data/client-sites.csv", init = {RequestCache: 'no-cache'});
@@ -115,7 +116,7 @@ loadBtn.onclick = function getData() {
   document.getElementById('geocode').style.visibility = 'hidden';
   addBtn.style.visibility = 'visible';
 
-}
+}  // end getData
 
 
 
@@ -807,4 +808,45 @@ function editCandidate(props) {
   document.getElementById('editCar').setAttribute('value',props["CAR"]);
   document.getElementById('editStatus').setAttribute('value',props["STATUS"]);
 
+  const ediCandidateForm = document.getElementById('ediCandidateForm');
+  editCandidateForm.addEventListener('submit', async function (e) {
+
+    e.preventDefault();
+
+    let formData = new FormData(e.target);
+    const formProps = Object.fromEntries(formData);
+
+    console.log(formProps);
+    console.log('submit');
+
+    formProps["PAY"] = +formProps["PAY"];
+    formProps["SHIFT"] = +formProps["SHIFT"];
+    if (formProps["CAR"] == "true") {
+      formProps["CAR"] = true;
+    } else {
+      formProps["CAR"] =false;
+    }
+    if (formProps["STATUS"] == "true") {
+      formProps["STATUS"] = true;
+    } else {
+      formProps["STATUS"] =false;
+    }
+    console.log(formProps);
+
+    await updateDoc(doc(db, 'candidates', props.id), formProps);
+    console.log(doc(db, 'candidates', props.id));
+
+    updateMap(map);
+  });
+
+
+} // end editCandidate
+
+async function updateMap() {
+  const candidatesDB = await getDB(db, 'candidates');
+  // console.log(candidatesDB);
+  const newGeoJSON = await getCoords(candidatesDB);
+
+  // console.log(newGeoJSON);
+  map.getSource('candidates').setData(newGeoJSON);
 }
