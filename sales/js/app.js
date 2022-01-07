@@ -544,19 +544,19 @@ function processData(data) {
 
       });
 
-  const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
-  filterHeadersClients.forEach((header, i) => {
-    createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
+    const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
+    filterHeadersClients.forEach((header, i) => {
+      createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
+
+    });
+
+    const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
+    filterHeadersCandidates.forEach((header, i) => {
+      createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
+
+    });
 
   });
-
-  const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
-  filterHeadersCandidates.forEach((header, i) => {
-    createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
-
-  });
-
-});
 
 }
 
@@ -576,8 +576,8 @@ function createFilters(header, geoJSON, source, filterGroup) {
     // console.log(item.properties[header]);
     // console.log(header);
     // add the values for the selected property
-    if (!jobTypes.includes(item.properties[header]+"-"+header+"-"+source)) {
-      jobTypes.push(item.properties[header]+"-"+header+"-"+source);
+    if (!jobTypes.includes(item.properties[header]+"-"+source)) {
+      jobTypes.push(item.properties[header]+"-"+source);
     }
   });
   // console.log(jobTypes);
@@ -657,15 +657,15 @@ function createFilters(header, geoJSON, source, filterGroup) {
 
     // console.log(geoJSON.features.filter(useConditions(jobsFilter)));
     geoJSONFiltered.features = geoJSON.features.filter(useConditions(jobsFilter));
+    console.log(geoJSONFiltered);
 
     sourceID.setData(geoJSONFiltered);
 
   });
 
-}
+  }
 
 }  // end createFilters
-
 
 map.on('zoomstart', () => {
   spiderifier.unspiderfy();
@@ -705,7 +705,7 @@ async function getCoords(data) {
 
 function createPopupCandidates(props) {
   let toggleStatus = '';
-  if (props['STATUS'] == true) {
+  if (props['STATUS'] == "ACTIVE") {
     toggleStatus = ' toggle-on';
   }
   const description = "<p><strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong></p>" +
@@ -738,10 +738,10 @@ async function flipToggle() {
 
   if (toggle.classList.contains('toggle-on')) {
     console.log('toggle-on');
-    docStatus = true;
+    docStatus = "ACTIVE";
   } else {
     console.log('toggle-off');
-    docStatus = false;
+    docStatus = "INACTIVE";
   }
 
   // change geoJSON
@@ -768,16 +768,16 @@ async function submitNewCandidate(e) {
 
   formProps["PAY"] = +formProps["PAY"];
   formProps["SHIFT"] = +formProps["SHIFT"];
-  if (formProps["CAR"] == "true") {
-    formProps["CAR"] = true;
-  } else {
-    formProps["CAR"] =false;
-  }
-  if (formProps["STATUS"] == "true") {
-    formProps["STATUS"] = true;
-  } else {
-    formProps["STATUS"] =false;
-  }
+  // if (formProps["CAR"] == "true") {
+  //   formProps["CAR"] = true;
+  // } else {
+  //   formProps["CAR"] =false;
+  // }
+  // if (formProps["STATUS"] == "true") {
+  //   formProps["STATUS"] = true;
+  // } else {
+  //   formProps["STATUS"] =false;
+  // }
   console.log(formProps);
 
   const docRef = await addDoc(collection(db, 'candidates'), formProps);
@@ -821,16 +821,16 @@ function editCandidate(props) {
 
     formProps["PAY"] = +formProps["PAY"];
     formProps["SHIFT"] = +formProps["SHIFT"];
-    if (formProps["CAR"] == "true") {
-      formProps["CAR"] = true;
-    } else {
-      formProps["CAR"] =false;
-    }
-    if (formProps["STATUS"] == "true") {
-      formProps["STATUS"] = true;
-    } else {
-      formProps["STATUS"] =false;
-    }
+    // if (formProps["CAR"] == "true") {
+    //   formProps["CAR"] = true;
+    // } else {
+    //   formProps["CAR"] =false;
+    // }
+    // if (formProps["STATUS"] == "true") {
+    //   formProps["STATUS"] = true;
+    // } else {
+    //   formProps["STATUS"] =false;
+    // }
     console.log(formProps);
 
     await updateDoc(doc(db, 'candidates', props.id), formProps);
