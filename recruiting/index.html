@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Titan Staffing Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+  <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
+  <link href="../vendor/spiderify.css" rel="stylesheet">
+  <link href="../css/styles.css" rel="stylesheet">
+
+</head>
+<body>
+
+  <nav id="menu"></nav>
+  <div id="map"></div>
+  <button id="geocode" class="button">Load Data</button>
+  <nav id="filter-group-clients" class="filter-group"></nav>
+  <nav id="filter-group-candidates" class="filter-group"></nav>
+
+  <button id="add-data" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDataModal">Add a Candidate</button>
+
+  <!-- The Modal -->
+  <div id="addDataModal" class="modal fade" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addDataHeading">Add a Candidate Record</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="newCandidateForm" name="newCandidateForm" class="row g-3">
+                <div class="col-md-6">
+                  <label for="inputFirstName" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="inputFirstName" name="FIRST NAME" placeholder="First Name">
+                </div>
+                <div class="col-md-6">
+                  <label for="inputLastName" class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="inputLastName" name="LAST NAME" placeholder="Last Name">
+                </div>
+                <div class="col-12">
+                  <label for="inputTempID" class="form-label">Temp ID</label>
+                  <input type="text" class="form-control" id="inputTempID" name="TEMP ID">
+                </div>
+                <div class="col-12">
+                  <label for="inputAddress" class="form-label">Address</label>
+                  <input type="text" class="form-control" id="inputAddress" name="ADDRESS" placeholder="1234 Main St">
+                </div>
+                <div class="col-md-6">
+                  <label for="inputCity" class="form-label">City</label>
+                  <input type="text" class="form-control" id="inputCity" name="CITY">
+                </div>
+                <div class="col-md-4">
+                  <label for="inputState" class="form-label">State</label>
+                  <select id="inputState" class="form-select" name="STATE">
+                    <option selected>Choose...</option>
+                    <option value="NJ">NJ</option>
+                    <option value="NY">NY</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label for="inputZip" class="form-label">Zip</label>
+                  <input type="text" class="form-control" id="inputZip" name="ZIP">
+                </div>
+                <div class="col-12">
+                  <select class="form-select" id="inputPosition" name="POSITION">
+                    <option value="Packer">Packer</option>
+                    <option value="Shipping">Shipping</option>
+                    <option value="Clerical">Clerical</option>
+                    <option value="Forklift">Forklift</option>
+                    <option value="Machine Operator">Machine Operator</option>
+                 </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="inputPay" class="form-label">Pay</label>
+                  <input type="number" step="any" class="form-control" id="inputPay" name="PAY">
+                </div>
+                <div class="col-md-4">
+                  <label for="inputShift" class="form-label">Shift</label>
+                  <select class="form-select" id="inputShift" name="SHIFT">
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="CAR">Car:</label>
+                  <select class="form-select" id="car" name="CAR">
+                    <option value="YES">Yes</option>
+                    <option value="NO">No</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="inputStatus">Status:</label>
+                  <select class="form-select" id="inputStatus" name="STATUS">
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                  </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" id="submitNew">Save & Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="editModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Edit Candidate Data</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editCandidateForm" name="editCandidateForm" class="row g-3">
+                <div class="col-md-6">
+                  <label for="inputFirstName" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="editFirstName" name="FIRST NAME" placeholder="First Name">
+                </div>
+                <div class="col-md-6">
+                  <label for="inputLastName" class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="editLastName" name="LAST NAME" placeholder="Last Name">
+                </div>
+                <div class="col-12">
+                  <label for="inputTempID" class="form-label">Temp ID</label>
+                  <input type="text" class="form-control" id="editTempID" name="TEMP ID">
+                </div>
+                <div class="col-12">
+                  <label for="inputAddress" class="form-label">Address</label>
+                  <input type="text" class="form-control" id="editAddress" name="ADDRESS" placeholder="1234 Main St">
+                </div>
+                <div class="col-md-6">
+                  <label for="inputCity" class="form-label">City</label>
+                  <input type="text" class="form-control" id="editCity" name="CITY">
+                </div>
+                <div class="col-md-4">
+                  <label for="inputState" class="form-label">State</label>
+                  <select id="editState" class="form-select" name="STATE">
+                    <option value="NJ">NJ</option>
+                    <option value="NY">NY</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label for="inputZip" class="form-label">Zip</label>
+                  <input type="text" class="form-control" id="editZip" name="ZIP">
+                </div>
+                <div class="col-12">
+                  <select class="form-select" id="editPosition" name="POSITION">
+                    <option value="Packer">Packer</option>
+                    <option value="Shipping">Shipping</option>
+                    <option value="Clerical">Clerical</option>
+                    <option value="Forklift">Forklift</option>
+                    <option value="Machine Operator">Machine Operator</option>
+                 </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="inputPay" class="form-label">Pay</label>
+                  <input type="number" step="any" class="form-control" id="editPay" name="PAY">
+                </div>
+                <div class="col-md-4">
+                  <label for="inputShift" class="form-label">Shift</label>
+                  <select class="form-select" id="editShift" name="SHIFT">
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="CAR">Car:</label>
+                  <select class="form-select" id="editCar" name="CAR">
+                    <option value="YES">Yes</option>
+                    <option value="NO">No</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="inputStatus">Status:</label>
+                  <select class="form-select" id="editStatus" name="STATUS">
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                  </select>
+                </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" id="submitEdit">Save & Submit</button>
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  <script src="../vendor/spiderify.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <script type="module" src="../sales/js/app.js">  </script>
+
+</body>
+</html>
