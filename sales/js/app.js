@@ -744,16 +744,20 @@ async function flipToggle() {
     docStatus = "INACTIVE";
   }
 
-  // change geoJSON
-
-  // refilter
-
   // save to database
   const docID = toggle.id;
   const docRef = doc(db, 'candidates', docID);
   await updateDoc(docRef, {
     "STATUS": docStatus
   });
+
+  // change geoJSON
+  console.log(map.getSource('candidates')._data);
+  const geoJSON = map.getSource('candidates')._data;
+  console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
+  const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
+  geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
+  map.getSource('candidates').setData(geoJSON);
 
 }  //end flipToggle()
 
@@ -784,6 +788,8 @@ async function submitNewCandidate(e) {
   console.log(docRef.id);
 
   newCandidateForm.reset();  //reset after submission
+
+  updateMap(map);
 
   // const addDataModal = new bootstrap.Modal(document.getElementById('addDataModal'));
   // addDataModal.hide();
