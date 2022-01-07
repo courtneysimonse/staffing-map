@@ -576,8 +576,8 @@ function createFilters(header, geoJSON, source, filterGroup) {
     // console.log(item.properties[header]);
     // console.log(header);
     // add the values for the selected property
-    if (!jobTypes.includes(item.properties[header]+"-"+source)) {
-      jobTypes.push(item.properties[header]+"-"+source);
+    if (!jobTypes.includes(item.properties[header]+"-"+header+"-"+source)) {
+      jobTypes.push(item.properties[header]+"-"+header+"-"+source);
     }
   });
   // console.log(jobTypes);
