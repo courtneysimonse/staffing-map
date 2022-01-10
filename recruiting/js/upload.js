@@ -49,27 +49,27 @@ async function getFile(event) {
 
 async function uploadData(data) {
   console.log(data);
-  const docList = await getDocIds("client-sites");
+  const docList = await getDocIds("candidates");
   console.log(docList);
-  let docClientIDs = [];
+  let docCandidateIDs = [];
   docList.forEach((doc, i) => {
-    docClientIDs.push(doc["CLIENTID"]);
+    docCandidateIDs.push(doc["CANDIDATEID"]);
   });
 
 
   for (const item of data) {
     console.log(item);
-    console.log(item["CLIENTID"]);
+    console.log(item["CANDIDATEID"]);
 
-    if (docClientIDs.includes(item["CLIENTID"])) {
-      let docIndex = docList.findIndex((doc) => doc["CLIENTID"] = item["CLIENTID"]);
+    if (docCandidateIDs.includes(item["CANDIDATEID"])) {
+      let docIndex = docList.findIndex((doc) => doc["CANDIDATEID"] = item["CANDIDATEID"]);
       console.log(docList[docIndex].id);
-      const docRef = await updateDoc(doc(db, 'client-sites', docList[docIndex].id), item)
-      console.log(item["CLIENTID"]+" updated");
+      const docRef = await updateDoc(doc(db, 'candidates', docList[docIndex].id), item)
+      console.log(item["CANDIDATEID"]+" updated");
 
     } else {
-      const docRef = await addDoc(collection(db, 'client-sites'), item);
-      console.log(item["CLIENTID"]+" added");
+      const docRef = await addDoc(collection(db, 'candidates'), item);
+      console.log(item["CANDIDATEID"]+" added");
     }
   }
 
