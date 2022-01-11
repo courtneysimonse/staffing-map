@@ -150,13 +150,14 @@ body { margin: 0; padding: 0; }
   position: absolute;
   left: 50px;
   top: 10px;
-  background-color: #3887be;
-  color: whitesmoke;
-  border-radius: 3px;
-  box-shadow: ;
-  font-family: 'Open Sans', sans-serif;
-  padding: 10px;
-  border: none;
+}
+
+#showRadius {
+   z-index: 100;
+   position: absolute;
+   left: 50px;
+   top: 50px;
+   visibility: hidden;
 }
 
 p {
