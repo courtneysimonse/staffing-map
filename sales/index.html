@@ -18,33 +18,30 @@
 
   <nav id="menu"></nav>
   <div id="map"></div>
-  <button id="geocode" class="button">Load Data</button>
+  <button id="geocode" class="btn btn-primary">Load Data</button>
+  <button id="showRadius" class="btn btn-secondary">Show Radius around Point</button>
   <nav id="filter-group-clients" class="filter-group"></nav>
   <nav id="filter-group-candidates" class="filter-group"></nav>
 
-  <button id="add-data" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDataModal">Add a Candidate</button>
+  <button id="add-data" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDataModal">Add a Client</button>
 
   <!-- The Modal -->
   <div id="addDataModal" class="modal fade" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addDataHeading">Add a Candidate Record</h5>
+            <h5 class="modal-title" id="addDataHeading">Add a Client Record</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form id="newCandidateForm" name="newCandidateForm" class="row g-3">
+            <form id="newClientForm" name="newClientForm" class="row g-3">
                 <div class="col-md-6">
-                  <label for="inputFirstName" class="form-label">First Name</label>
-                  <input type="text" class="form-control" id="inputFirstName" name="FIRST NAME" placeholder="First Name">
-                </div>
-                <div class="col-md-6">
-                  <label for="inputLastName" class="form-label">Last Name</label>
-                  <input type="text" class="form-control" id="inputLastName" name="LAST NAME" placeholder="Last Name">
+                  <label for="inputCompany" class="form-label">Company</label>
+                  <input type="text" class="form-control" id="inputCompany" name="COMPANY" placeholder="Company Name">
                 </div>
                 <div class="col-12">
-                  <label for="inputTempID" class="form-label">Temp ID</label>
-                  <input type="text" class="form-control" id="inputTempID" name="TEMP ID">
+                  <label for="inputClientID" class="form-label">Client ID</label>
+                  <input type="text" class="form-control" id="inputClientID" name="CLIENT ID">
                 </div>
                 <div class="col-12">
                   <label for="inputAddress" class="form-label">Address</label>
@@ -75,24 +72,25 @@
                     <option value="Machine Operator">Machine Operator</option>
                  </select>
                 </div>
+                <div class="col-12">
+                  <label for="inputDescription" class="form-label">Description</label>
+                  <input type="text" class="form-control" id="inputDescription" name="DESCRIPTION" placeholder="Job Description">
+                </div>
                 <div class="col-md-4">
                   <label for="inputPay" class="form-label">Pay</label>
-                  <input type="number" step="any" class="form-control" id="inputPay" name="PAY">
+                  <input type="number" step="any" class="form-control" id="inputPay" name="PAY RATE">
                 </div>
                 <div class="col-md-4">
-                  <label for="inputShift" class="form-label">Shift</label>
-                  <select class="form-select" id="inputShift" name="SHIFT">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                  </select>
+                  <label for="inputEnglishLevel" class="form-label">English Level</label>
+                  <select class="form-select" id="inputEnglishLevel" name="ENGLISHLEVEL">
+                    <option value="None">None</option>
+                    <option value="Conversational">Conversational</option>
+                    <option value="Fluent">Fluent</option>
+                 </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label" for="CAR">Car:</label>
-                  <select class="form-select" id="car" name="CAR">
-                    <option value="YES">Yes</option>
-                    <option value="NO">No</option>
-                  </select>
+                  <label for="inputNumPpl" class="form-label">Number of People</label>
+                  <input type="number" step="any" class="form-control" id="inputNumPpl" name="NUMPEOPLE">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label" for="inputStatus">Status:</label>
@@ -115,77 +113,75 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">Edit Candidate Data</h5>
+            <h5 class="modal-title" id="staticBackdropLabel">Edit Client Data</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form id="editCandidateForm" name="editCandidateForm" class="row g-3">
-                <div class="col-md-6">
-                  <label for="inputFirstName" class="form-label">First Name</label>
-                  <input type="text" class="form-control" id="editFirstName" name="FIRST NAME" placeholder="First Name">
-                </div>
-                <div class="col-md-6">
-                  <label for="inputLastName" class="form-label">Last Name</label>
-                  <input type="text" class="form-control" id="editLastName" name="LAST NAME" placeholder="Last Name">
-                </div>
-                <div class="col-12">
-                  <label for="inputTempID" class="form-label">Temp ID</label>
-                  <input type="text" class="form-control" id="editTempID" name="TEMP ID">
-                </div>
-                <div class="col-12">
-                  <label for="inputAddress" class="form-label">Address</label>
-                  <input type="text" class="form-control" id="editAddress" name="ADDRESS" placeholder="1234 Main St">
-                </div>
-                <div class="col-md-6">
-                  <label for="inputCity" class="form-label">City</label>
-                  <input type="text" class="form-control" id="editCity" name="CITY">
-                </div>
-                <div class="col-md-4">
-                  <label for="inputState" class="form-label">State</label>
-                  <select id="editState" class="form-select" name="STATE">
-                    <option value="NJ">NJ</option>
-                    <option value="NY">NY</option>
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label for="inputZip" class="form-label">Zip</label>
-                  <input type="text" class="form-control" id="editZip" name="ZIP">
-                </div>
-                <div class="col-12">
-                  <select class="form-select" id="editPosition" name="POSITION">
-                    <option value="Packer">Packer</option>
-                    <option value="Shipping">Shipping</option>
-                    <option value="Clerical">Clerical</option>
-                    <option value="Forklift">Forklift</option>
-                    <option value="Machine Operator">Machine Operator</option>
-                 </select>
-                </div>
-                <div class="col-md-4">
-                  <label for="inputPay" class="form-label">Pay</label>
-                  <input type="number" step="any" class="form-control" id="editPay" name="PAY">
-                </div>
-                <div class="col-md-4">
-                  <label for="inputShift" class="form-label">Shift</label>
-                  <select class="form-select" id="editShift" name="SHIFT">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="CAR">Car:</label>
-                  <select class="form-select" id="editCar" name="CAR">
-                    <option value="YES">Yes</option>
-                    <option value="NO">No</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="inputStatus">Status:</label>
-                  <select class="form-select" id="editStatus" name="STATUS">
-                    <option value="ACTIVE">ACTIVE</option>
-                    <option value="INACTIVE">INACTIVE</option>
-                  </select>
-                </div>
+            <form id="editClientForm" name="editClientForm" class="row g-3">
+              <div class="col-md-6">
+                <label for="inputCompany" class="form-label">Company</label>
+                <input type="text" class="form-control" id="inputCompany" name="COMPANY" placeholder="Company Name">
+              </div>
+              <div class="col-12">
+                <label for="inputClientID" class="form-label">Client ID</label>
+                <input type="text" class="form-control" id="inputClientID" name="CLIENT ID">
+              </div>
+              <div class="col-12">
+                <label for="inputAddress" class="form-label">Address</label>
+                <input type="text" class="form-control" id="inputAddress" name="ADDRESS" placeholder="1234 Main St">
+              </div>
+              <div class="col-md-6">
+                <label for="inputCity" class="form-label">City</label>
+                <input type="text" class="form-control" id="inputCity" name="CITY">
+              </div>
+              <div class="col-md-4">
+                <label for="inputState" class="form-label">State</label>
+                <select id="inputState" class="form-select" name="STATE">
+                  <option selected>Choose...</option>
+                  <option value="NJ">NJ</option>
+                  <option value="NY">NY</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="inputZip" class="form-label">Zip</label>
+                <input type="text" class="form-control" id="inputZip" name="ZIP">
+              </div>
+              <div class="col-12">
+                <select class="form-select" id="inputPosition" name="POSITION">
+                  <option value="Packer">Packer</option>
+                  <option value="Shipping">Shipping</option>
+                  <option value="Clerical">Clerical</option>
+                  <option value="Forklift">Forklift</option>
+                  <option value="Machine Operator">Machine Operator</option>
+               </select>
+              </div>
+              <div class="col-12">
+                <label for="inputDescription" class="form-label">Description</label>
+                <input type="text" class="form-control" id="inputDescription" name="DESCRIPTION" placeholder="Job Description">
+              </div>
+              <div class="col-md-4">
+                <label for="inputPay" class="form-label">Pay</label>
+                <input type="number" step="any" class="form-control" id="inputPay" name="PAY RATE">
+              </div>
+              <div class="col-md-4">
+                <label for="inputEnglishLevel" class="form-label">English Level</label>
+                <select class="form-select" id="inputEnglishLevel" name="ENGLISHLEVEL">
+                  <option value="None">None</option>
+                  <option value="Conversational">Conversational</option>
+                  <option value="Fluent">Fluent</option>
+               </select>
+              </div>
+              <div class="col-md-4">
+                <label for="inputNumPpl" class="form-label">Number of People</label>
+                <input type="number" step="any" class="form-control" id="inputNumPpl" name="NUMPEOPLE">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="inputStatus">Status:</label>
+                <select class="form-select" id="inputStatus" name="STATUS">
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="INACTIVE">INACTIVE</option>
+                </select>
+              </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

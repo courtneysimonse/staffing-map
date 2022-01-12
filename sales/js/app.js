@@ -57,11 +57,11 @@ const filterGroupCandidates = document.getElementById('filter-group-candidates')
 const addBtn = document.getElementById('add-data');
 const submitNew = document.getElementById('submitNew');
 // submitNew.addEventListener('click', submitNewCandidate);
-const newCandidateForm = document.getElementById('newCandidateForm');
-newCandidateForm.addEventListener('submit', function ( event ) {
+const newClientForm = document.getElementById('newClientForm');
+newClientForm.addEventListener('submit', function ( event ) {
   event.preventDefault();
 
-  submitNewCandidate(event);
+  submitNewClient(event);
 });
 
 const radiusBtn = document.getElementById('showRadius');
@@ -315,7 +315,7 @@ function processData(data) {
 
         const editLink = document.getElementById(props['id']+"-edit");
         console.log(editLink);
-        editLink.addEventListener('click', editCandidate(props));
+        editLink.addEventListener('click', editClient(props));
 
         if (showRadiusToggle) {
 
@@ -855,7 +855,7 @@ async function flipToggle() {
 
 }  //end flipToggle()
 
-async function submitNewCandidate(e) {
+async function submitNewClient(e) {
 
   let formData = new FormData(e.target);
   const formProps = Object.fromEntries(formData);
@@ -881,15 +881,15 @@ async function submitNewCandidate(e) {
   const docRef = await addDoc(collection(db, 'candidates'), formProps);
   console.log(docRef.id);
 
-  newCandidateForm.reset();  //reset after submission
+  newClientForm.reset();  //reset after submission
 
   updateMap(map);
 
   // const addDataModal = new bootstrap.Modal(document.getElementById('addDataModal'));
   // addDataModal.hide();
-}  // end submitNewCandidate()
+}  // end submitNewClient()
 
-function editCandidate(props) {
+function editClient(props) {
   // const editModal = new bootstrap.Modal(document.getElementById('editModal'), {
   //   backdrop: 'static'
   // });
@@ -908,8 +908,8 @@ function editCandidate(props) {
   document.getElementById('editCar').setAttribute('value',props["CAR"]);
   document.getElementById('editStatus').setAttribute('value',props["STATUS"]);
 
-  const ediCandidateForm = document.getElementById('ediCandidateForm');
-  editCandidateForm.addEventListener('submit', async function (e) {
+  const ediClientForm = document.getElementById('ediClientForm');
+  editClientForm.addEventListener('submit', async function (e) {
 
     e.preventDefault();
 
@@ -940,7 +940,7 @@ function editCandidate(props) {
   });
 
 
-} // end editCandidate
+} // end editClient
 
 async function updateMap() {
   const candidatesDB = await getDB(db, 'candidates');
