@@ -93,14 +93,36 @@ let spiderifier = new MapboxglSpiderifier(map, {
     popup.addTo(map);
 
     // find the toggle div and add function on click
-    popupContent._content.childNodes[5].addEventListener('click', flipToggle);
+    const popupDiv = spiderLeg.mapboxMarker._popup;
+    popupDiv._content.childNodes[5].addEventListener('click', flipToggle);
 
   },
-  onClick: function (event, spiderLeg) {
+  onClick: function (e, spiderLeg) {
 
+    // const editLink = document.getElementById(props['id']+"-edit");
+    // console.log(editLink);
+    // editLink.addEventListener('click', editCandidate(props));
+    // console.log([spiderLeg.mapboxMarker._lngLat.lng,spiderLeg.mapboxMarker._lngLat.lat]);
+    const coordinates = [spiderLeg.mapboxMarker._lngLat.lng,spiderLeg.mapboxMarker._lngLat.lat];
+    const props = spiderLeg.feature;
+
+    if (showRadiusToggle) {
+
+      const radius = prompt("Enter circle radius in miles");
+      const circleOpts = {units: 'miles'};
+      const circle = turf.circle(coordinates, radius, circleOpts);
+      console.log(circle);
+      circlesCandidates.push(circle);
+
+      map.getSource('radius-candidates').setData({
+        "type": "FeatureCollection",
+        "features": circlesCandidates
+      });
+
+    }
   }
 });
-const SPIDERFY_FROM_ZOOM = 13;
+const SPIDERFY_FROM_ZOOM = 14;
 
 
 const mapboxClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIjoiY2t3dmNzbHhsMXl2MDJxanYwcmw0OHYzZCJ9.Rr2kb4WqAzr_5EgH8ZjK3A' });
@@ -147,7 +169,7 @@ function processData(data) {
           'type': 'geojson',
           'data': candidatesGeoJSON,
           'cluster': true,
-          'clusterMaxZoom': 14, // Max zoom to cluster points on
+          'clusterMaxZoom': 19, // Max zoom to cluster points on
           'clusterRadius': 30 // Radius of each cluster when clustering points (defaults to 50)
       });
       // Add a layer showing the candidates.
@@ -218,6 +240,8 @@ function processData(data) {
 
       // inspect a cluster on click
       map.on('click', 'candidates-clusters', (e) => {
+        spiderifier.unspiderfy();
+
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['candidates-clusters']
         });
@@ -227,42 +251,41 @@ function processData(data) {
           (err, zoom) => {
             if (err) return;
 
-            // console.log(map.getZoom());
+            // console.log("Current Zoom: "+map.getZoom());
 
-            map.easeTo({
-              center: features[0].geometry.coordinates,
-              zoom: zoom
-            });
+            if (zoom < SPIDERFY_FROM_ZOOM) {
+              map.easeTo({
+                center: features[0].geometry.coordinates,
+                zoom: zoom
+              });
+            } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
+              map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
+            } else {
+              map.getSource('candidates').getClusterLeaves(
+                features[0].properties.cluster_id,
+                100,
+                0,
+                function(err, leafFeatures){
+                  if (err) {
+                    return console.error('error while getting leaves of a cluster', err);
+                  }
+                  var markers = leafFeatures.map(function(leafFeature){
+                    // console.log(leafFeature.properties);
+                    return leafFeature.properties;
+                  });
+                  spiderifier.spiderfy(features[0].geometry.coordinates, markers);
+                }
+              );
 
-            // console.log(zoom);
+            }
+
+            // console.log("Cluster Expansion Zoom: "+zoom);
             // spiderifier.spiderfy(e.lngLat, features);
 
           }
         );
 
 
-        spiderifier.unspiderfy();
-        if (!features.length) {
-          return;
-        } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
-          map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
-        } else {
-          map.getSource('candidates').getClusterLeaves(
-            features[0].properties.cluster_id,
-            100,
-            0,
-            function(err, leafFeatures){
-              if (err) {
-                return console.error('error while getting leaves of a cluster', err);
-              }
-              var markers = leafFeatures.map(function(leafFeature){
-                // console.log(leafFeature.properties);
-                return leafFeature.properties;
-              });
-              spiderifier.spiderfy(features[0].geometry.coordinates, markers);
-            }
-          );
-        }
       });
 
       // When a click event occurs on a feature in
