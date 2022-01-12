@@ -36,7 +36,7 @@ async function getDB(db,dataset) {
   });
 
   return docList;
-}
+}  //end getDB()
 
 mapboxgl.accessToken = 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIjoiY2t3dmNzbHhsMXl2MDJxanYwcmw0OHYzZCJ9.Rr2kb4WqAzr_5EgH8ZjK3A';
 const map = new mapboxgl.Map({
@@ -94,7 +94,7 @@ let spiderifier = new MapboxglSpiderifier(map, {
 
     // find the toggle div and add function on click
     const popupDiv = spiderLeg.mapboxMarker._popup;
-    popupDiv._content.childNodes[5].addEventListener('click', flipToggle);
+    // popupDiv._content.childNodes[5].addEventListener('click', flipToggle);
 
   },
   onClick: function (e, spiderLeg) {
@@ -309,13 +309,13 @@ function processData(data) {
           .setHTML(description)
           .addTo(map);
 
-        popupContent._content.childNodes[5].addEventListener('click', flipToggle);
+        // popupContent._content.childNodes[5].addEventListener('click', flipToggle);
 
         // console.log(popupContent._content.childNodes);
 
-        const editLink = document.getElementById(props['id']+"-edit");
-        console.log(editLink);
-        editLink.addEventListener('click', editClient(props));
+        // const editLink = document.getElementById(props['id']+"-edit");
+        // console.log(editLink);
+        // editLink.addEventListener('click', editClient(props));
 
         if (showRadiusToggle) {
 
@@ -471,10 +471,18 @@ function processData(data) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
 
-        new mapboxgl.Popup()
+        const popupContent = new mapboxgl.Popup()
           .setLngLat(coordinates)
           .setHTML(description)
           .addTo(map);
+
+        popupContent._content.childNodes[5].addEventListener('click', flipToggle);
+
+        // console.log(popupContent._content.childNodes);
+
+        const editLink = document.getElementById(props['id']+"-edit");
+        // console.log(editLink);
+        editLink.addEventListener('click', editClient(props));
 
         if (showRadiusToggle) {
 
@@ -798,26 +806,30 @@ async function getCoords(data) {
 } // end getCoords
 
 function createPopupCandidates(props) {
-  let toggleStatus = '';
-  if (props['STATUS'] == "ACTIVE") {
-    toggleStatus = ' toggle-on';
-  }
+  // let toggleStatus = '';
+  // if (props['STATUS'] == "ACTIVE") {
+  //   toggleStatus = ' toggle-on';
+  // }
   const description = "<p><strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong></p>" +
     "<p><strong>Temp ID:</strong> " + props['TEMP ID'] + "</p>" +
     "<p><strong>Position:</strong> " + props['POSITION'] + "</p>" +
-    "<p><strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'] + "</p>" +
-    "<div><a href='#' data-bs-toggle='modal' data-bs-target='#editModal' class='link-primary' id='"+props['id']+"-edit'>Edit</a> / <a href='#' class='link-primary' id='"+props['id']+"-delete'>Delete</a></div>"+
-    "<div class='switch toggle" + toggleStatus +"' id=" + props['id'] + "><div class='toggle-text-off'>INACTIVE</div>"+
-    "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
+    "<p><strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'] + "</p>";
   return description;
 }
 
 function createPopupClients(props) {
+  let toggleStatus = '';
+  if (props['STATUS'] == "ACTIVE") {
+    toggleStatus = ' toggle-on';
+  }
   const description = "<strong>" + props['COMPANY'] + "</strong><br>" +
     "<strong>Position:</strong> " + props['POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
     props['DESCRIPTION'] + "<br>" +
     props['SCHEDULE'] + "<br>" +
-    "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'];
+    "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'] +
+    "<div><a href='#' data-bs-toggle='modal' data-bs-target='#editModal' class='link-primary' id='"+props['id']+"-edit'>Edit</a> / <a href='#' class='link-primary' id='"+props['id']+"-delete'>Delete</a></div>"+
+    "<div class='switch toggle" + toggleStatus +"' id=" + props['id'] + "><div class='toggle-text-off'>INACTIVE</div>"+
+    "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
   return description;
 }
 
@@ -840,18 +852,18 @@ async function flipToggle() {
 
   // save to database
   const docID = toggle.id;
-  const docRef = doc(db, 'candidates', docID);
+  const docRef = doc(db, 'client-sites', docID);
   await updateDoc(docRef, {
     "STATUS": docStatus
   });
 
   // change geoJSON
-  console.log(map.getSource('candidates')._data);
-  const geoJSON = map.getSource('candidates')._data;
+  console.log(map.getSource('client-sites')._data);
+  const geoJSON = map.getSource('client-sites')._data;
   console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
   const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
   geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
-  map.getSource('candidates').setData(geoJSON);
+  map.getSource('client-sites').setData(geoJSON);
 
 }  //end flipToggle()
 
@@ -864,8 +876,8 @@ async function submitNewClient(e) {
   console.log(formProps);
   console.log('submit');
 
-  formProps["PAY"] = +formProps["PAY"];
-  formProps["SHIFT"] = +formProps["SHIFT"];
+  // formProps["PAY"] = +formProps["PAY"];
+  // formProps["SHIFT"] = +formProps["SHIFT"];
   // if (formProps["CAR"] == "true") {
   //   formProps["CAR"] = true;
   // } else {
@@ -878,7 +890,7 @@ async function submitNewClient(e) {
   // }
   console.log(formProps);
 
-  const docRef = await addDoc(collection(db, 'candidates'), formProps);
+  const docRef = await addDoc(collection(db, 'client-sites'), formProps);
   console.log(docRef.id);
 
   newClientForm.reset();  //reset after submission
@@ -896,16 +908,17 @@ function editClient(props) {
   // console.log(editModal);
   // editModal.show();
 
-  document.getElementById('editFirstName').setAttribute('value',props["FIRST NAME"]);
-  document.getElementById('editLastName').setAttribute('value',props["LAST NAME"]);
-  document.getElementById('editTempID').setAttribute('value',props["TEMP ID"]);
+  document.getElementById('editCompany').setAttribute('value',props["COMPANY"]);
+  document.getElementById('editClientID').setAttribute('value',props["CLIENTID"]);
   document.getElementById('editAddress').setAttribute('value',props["ADDRESS"]);
   document.getElementById('editCity').setAttribute('value',props["CITY"]);
   document.getElementById('editState').setAttribute('value',props["STATE"]);
   document.getElementById('editZip').setAttribute('value',props["ZIP"]);
-  document.getElementById('editPay').setAttribute('value',props["PAY"]);
+  document.getElementById('editPay').setAttribute('value',props["PAY RATE"]);
   document.getElementById('editPosition').setAttribute('value',props["POSITION"]);
-  document.getElementById('editCar').setAttribute('value',props["CAR"]);
+  document.getElementById('editDescription').setAttribute('value',props["DESCRIPTION"]);
+  document.getElementById('editEnglishLevel').setAttribute('value',props["ENGLISHLEVEL"]);
+  document.getElementById('editNumPpl').setAttribute('value',props["NUMPEOPLE"]);
   document.getElementById('editStatus').setAttribute('value',props["STATUS"]);
 
   const ediClientForm = document.getElementById('ediClientForm');
@@ -919,8 +932,8 @@ function editClient(props) {
     console.log(formProps);
     console.log('submit');
 
-    formProps["PAY"] = +formProps["PAY"];
-    formProps["SHIFT"] = +formProps["SHIFT"];
+    // formProps["PAY"] = +formProps["PAY"];
+    // formProps["SHIFT"] = +formProps["SHIFT"];
     // if (formProps["CAR"] == "true") {
     //   formProps["CAR"] = true;
     // } else {
@@ -933,8 +946,8 @@ function editClient(props) {
     // }
     console.log(formProps);
 
-    await updateDoc(doc(db, 'candidates', props.id), formProps);
-    console.log(doc(db, 'candidates', props.id));
+    await updateDoc(doc(db, 'client-sites', props.id), formProps);
+    console.log(doc(db, 'client-sites', props.id));
 
     updateMap(map);
   });
@@ -943,12 +956,12 @@ function editClient(props) {
 } // end editClient
 
 async function updateMap() {
-  const candidatesDB = await getDB(db, 'candidates');
+  const clientsDB = await getDB(db, 'clients');
   // console.log(candidatesDB);
-  const newGeoJSON = await getCoords(candidatesDB);
+  const newGeoJSON = await getCoords(clientsDB);
 
   // console.log(newGeoJSON);
-  map.getSource('candidates').setData(newGeoJSON);
+  map.getSource('clients').setData(newGeoJSON);
 }
 
 function showRadius() {
