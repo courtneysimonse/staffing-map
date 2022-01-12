@@ -64,6 +64,11 @@ newCandidateForm.addEventListener('submit', function ( event ) {
   submitNewCandidate(event);
 });
 
+const radiusBtn = document.getElementById('showRadius');
+let showRadiusToggle = false;
+let circlesCandidates = [];
+let circlesClients = [];
+
 // disable map rotation using right click + drag
 map.dragRotate.disable();
 
@@ -194,6 +199,23 @@ function processData(data) {
         }
       });
 
+      map.addSource('radius-candidates', {
+        type: 'geojson',
+        data: {
+          "type": "FeatureCollection",
+          "features": []
+        }
+      }).addLayer({
+        id: 'radius-candidates',
+        source: 'radius-candidates',
+        type: 'fill',
+        paint: {
+          'fill-color': '#fe9414',
+          'fill-opacity': 0.5,
+          'fill-outline-color': '#fff'
+        }
+      });
+
       // inspect a cluster on click
       map.on('click', 'candidates-clusters', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
@@ -271,6 +293,21 @@ function processData(data) {
         const editLink = document.getElementById(props['id']+"-edit");
         console.log(editLink);
         editLink.addEventListener('click', editCandidate(props));
+
+        if (showRadiusToggle) {
+
+          const radius = prompt("Enter circle radius in miles");
+          const circleOpts = {units: 'miles'};
+          const circle = turf.circle(coordinates, radius, circleOpts);
+          console.log(circle);
+          circlesCandidates.push(circle);
+
+          map.getSource('radius-candidates').setData({
+            "type": "FeatureCollection",
+            "features": circlesCandidates
+          });
+
+        }
       });
 
       map.addSource('clients', {
@@ -326,6 +363,23 @@ function processData(data) {
           'circle-radius': 4,
           'circle-stroke-width': 1,
           'circle-stroke-color': 'black'
+        }
+      });
+
+      map.addSource('radius-clients', {
+        type: 'geojson',
+        data: {
+          "type": "FeatureCollection",
+          "features": []
+        }
+      }).addLayer({
+        id: 'radius-clients',
+        source: 'radius-clients',
+        type: 'fill',
+        paint: {
+          'fill-color': '#fcf424',
+          'fill-opacity': 0.5,
+          'fill-outline-color': '#fff'
         }
       });
 
@@ -398,6 +452,21 @@ function processData(data) {
           .setLngLat(coordinates)
           .setHTML(description)
           .addTo(map);
+
+        if (showRadiusToggle) {
+
+          const radius = prompt("Enter circle radius in miles");
+          const circleOpts = {units: 'miles'};
+          const circle = turf.circle(coordinates, radius, circleOpts);
+          console.log(circle);
+          circlesClients.push(circle);
+
+          map.getSource('radius-clients').setData({
+            "type": "FeatureCollection",
+            "features": circlesClients
+          });
+        }
+
       });
 
       // Create a popup, but don't add it to the map yet.
@@ -475,6 +544,7 @@ function processData(data) {
 
       // After the last frame rendered before the map enters an "idle" state.
       map.on('idle', () => {
+        radiusBtn.style.visibility = 'visible';
         // If these two layers were not added to the map, abort
         if (!map.getLayer('candidates-clusters') || !map.getLayer('clients-clusters')) {
           return;
@@ -541,6 +611,7 @@ function processData(data) {
           layers.appendChild(link);
         }
 
+        radiusBtn.addEventListener('click', showRadius);
 
       });
 
@@ -855,4 +926,24 @@ async function updateMap() {
 
   // console.log(newGeoJSON);
   map.getSource('candidates').setData(newGeoJSON);
+}
+
+function showRadius() {
+  if (showRadiusToggle) {
+    showRadiusToggle = false;
+    radiusBtn.innerText = "Show Radius around Point";
+    map.getSource('radius-clients').setData({
+      "type": "FeatureCollection",
+      "features": []
+    });
+    map.getSource('radius-candidates').setData({
+      "type": "FeatureCollection",
+      "features": []
+    });
+  } else {
+    showRadiusToggle = true;
+    circlesCandidates = [];
+    circlesClients = [];
+    radiusBtn.innerText = "Remove Radius";
+  }
 }

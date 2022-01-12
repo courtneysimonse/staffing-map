@@ -66,6 +66,8 @@ newCandidateForm.addEventListener('submit', function ( event ) {
 
 const radiusBtn = document.getElementById('showRadius');
 let showRadiusToggle = false;
+let circlesCandidates = [];
+let circlesClients = [];
 
 // disable map rotation using right click + drag
 map.dragRotate.disable();
@@ -197,15 +199,15 @@ function processData(data) {
         }
       });
 
-      map.addSource('radius', {
+      map.addSource('radius-candidates', {
         type: 'geojson',
         data: {
           "type": "FeatureCollection",
           "features": []
         }
       }).addLayer({
-        id: 'radius',
-        source: 'radius',
+        id: 'radius-candidates',
+        source: 'radius-candidates',
         type: 'fill',
         paint: {
           'fill-color': '#fe9414',
@@ -298,10 +300,11 @@ function processData(data) {
           const circleOpts = {units: 'miles'};
           const circle = turf.circle(coordinates, radius, circleOpts);
           console.log(circle);
+          circlesCandidates.push(circle);
 
-          map.getSource('radius').setData({
+          map.getSource('radius-candidates').setData({
             "type": "FeatureCollection",
-            "features": [circle]
+            "features": circlesCandidates
           });
 
         }
@@ -360,6 +363,23 @@ function processData(data) {
           'circle-radius': 4,
           'circle-stroke-width': 1,
           'circle-stroke-color': 'black'
+        }
+      });
+
+      map.addSource('radius-clients', {
+        type: 'geojson',
+        data: {
+          "type": "FeatureCollection",
+          "features": []
+        }
+      }).addLayer({
+        id: 'radius-clients',
+        source: 'radius-clients',
+        type: 'fill',
+        paint: {
+          'fill-color': '#fcf424',
+          'fill-opacity': 0.5,
+          'fill-outline-color': '#fff'
         }
       });
 
@@ -432,6 +452,21 @@ function processData(data) {
           .setLngLat(coordinates)
           .setHTML(description)
           .addTo(map);
+
+        if (showRadiusToggle) {
+
+          const radius = prompt("Enter circle radius in miles");
+          const circleOpts = {units: 'miles'};
+          const circle = turf.circle(coordinates, radius, circleOpts);
+          console.log(circle);
+          circlesClients.push(circle);
+
+          map.getSource('radius-clients').setData({
+            "type": "FeatureCollection",
+            "features": circlesClients
+          });
+        }
+
       });
 
       // Create a popup, but don't add it to the map yet.
@@ -896,13 +931,19 @@ async function updateMap() {
 function showRadius() {
   if (showRadiusToggle) {
     showRadiusToggle = false;
-    radiusBtn.innerText = "Show Radius around Candidate";
-    map.getSource('radius').setData({
+    radiusBtn.innerText = "Show Radius around Point";
+    map.getSource('radius-clients').setData({
+      "type": "FeatureCollection",
+      "features": []
+    });
+    map.getSource('radius-candidates').setData({
       "type": "FeatureCollection",
       "features": []
     });
   } else {
     showRadiusToggle = true;
+    circlesCandidates = [];
+    circlesClients = [];
     radiusBtn.innerText = "Remove Radius";
   }
 }
