@@ -2,7 +2,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -316,6 +316,10 @@ function processData(data) {
         const editLink = document.getElementById(props['id']+"-edit");
         console.log(editLink);
         editLink.addEventListener('click', editCandidate(props));
+
+        const deleteLink = document.getElementById(props['id']+"-delete");
+        // console.log(deleteLink);
+        deleteLink.addEventListener('click', deleteCandidate(props['id']));
 
         if (showRadiusToggle) {
 
@@ -941,6 +945,12 @@ function editCandidate(props) {
 
 
 } // end editCandidate
+
+async function deleteCandidate(id) {
+  await deleteDoc(doc(db, 'candidates', id));
+
+  updateMap();
+}
 
 async function updateMap() {
   const candidatesDB = await getDB(db, 'candidates');

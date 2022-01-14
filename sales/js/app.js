@@ -2,7 +2,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -21,8 +21,63 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// const unsub = onSnapshot(doc(db, "client-sites", "9uhh21WDzNenLXwHpdDu"), (doc) => {
+//   const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+//   console.log(source, " data: ", doc.data());
+// });
 
-// Get a list of candidates from your database
+var toastLiveExample = document.getElementById('liveToast');
+var dbNameToast = document.getElementById('db-name-toast');
+var editTime = document.getElementById('edit-time');
+var updatedData = document.getElementById('updated-doc');
+
+// Get a list of documents from your database
+function getSnapshotDB(db,dataset) {
+  const col = collection(db, dataset);
+  const snapshot = onSnapshot(col, (snap) => {
+    const data = snap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    console.log("All data in ",dataset," collection", data);
+
+    snap.docChanges().forEach((change) => {
+    if (change.type === "added") {
+        console.log("New client: ", change.doc.data());
+    }
+    if (change.type === "modified") {
+        console.log("Modified client: ", change.doc.data());
+        console.log(change);
+        var toast = new bootstrap.Toast(toastLiveExample);
+        // updatedData.innerText = JSON.stringify(change.doc.data());
+        const description = "<strong>" + change.doc.data()['COMPANY'] + "</strong><br>" +
+          "<strong>Position:</strong> " + change.doc.data()['POSITION'] + " <strong>Pay:</strong> " + change.doc.data()['PAY RATE'] +
+          "<br>" + change.doc.data()['DESCRIPTION'] + "<br>" + change.doc.data()['SCHEDULE'] + "<br>" +
+          "<strong>No. of People: </strong>" + change.doc.data()['NUMPEOPLE'] + " <strong>English Level:</strong> " +
+          change.doc.data()['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + change.doc.data()['STATUS'];
+        updatedData.innerHTML = description;
+        editTime.innerText = new Date().toString();
+        toast.show();
+    }
+    if (change.type === "removed") {
+        console.log("Removed client: ", change.doc.data());
+    }
+  });
+
+  });
+  // const docList = snapshot.docs.map(doc => doc.data());
+  // const docList = [];
+  // snapshot.docs.forEach((doc, i) => {
+  //   let docData = doc.data();
+  //   docData.id = (doc.id);
+  //   console.log(docData);
+  //   docList.push(docData);
+  // });
+
+  return snapshot;
+}  //end getSnapshotDB()
+
+// Get a list of documents from your database
 async function getDB(db,dataset) {
   const col = collection(db, dataset);
   const snapshot = await getDocs(col);
@@ -40,11 +95,11 @@ async function getDB(db,dataset) {
 
 mapboxgl.accessToken = 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIjoiY2t3dmNzbHhsMXl2MDJxanYwcmw0OHYzZCJ9.Rr2kb4WqAzr_5EgH8ZjK3A';
 const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-74.5, 42.0],
-      zoom: 6,
-      maxZoom: 18
+  container: 'map',
+  style: 'mapbox://styles/mapbox/streets-v11',
+  center: [-74.5, 42.0],
+  zoom: 6,
+  maxZoom: 18
 });
 
 
@@ -55,8 +110,7 @@ const filterGroupClients = document.getElementById('filter-group-clients');
 const filterGroupCandidates = document.getElementById('filter-group-candidates');
 
 const addBtn = document.getElementById('add-data');
-const submitNew = document.getElementById('submitNew');
-// submitNew.addEventListener('click', submitNewCandidate);
+
 const newClientForm = document.getElementById('newClientForm');
 newClientForm.addEventListener('submit', function ( event ) {
   event.preventDefault();
@@ -76,7 +130,7 @@ map.dragRotate.disable();
 map.touchZoomRotate.disableRotation();
 
 // spiderifier
-let spiderifier = new MapboxglSpiderifier(map, {
+let spiderifierCandidate = new MapboxglSpiderifier(map, {
   markerWidth: 40,
   markerHeight: 40,
   customPin: true,
@@ -93,8 +147,8 @@ let spiderifier = new MapboxglSpiderifier(map, {
     popup.addTo(map);
 
     // find the toggle div and add function on click
-    const popupDiv = spiderLeg.mapboxMarker._popup;
-    // popupDiv._content.childNodes[5].addEventListener('click', flipToggle);
+    // const popupDiv = spiderLeg.mapboxMarker._popup;
+    // popupDiv._content.childNodes[16].addEventListener('click', flipToggle);
 
   },
   onClick: function (e, spiderLeg) {
@@ -122,10 +176,58 @@ let spiderifier = new MapboxglSpiderifier(map, {
     }
   }
 });
+
+// spiderifier
+let spiderifierClients = new MapboxglSpiderifier(map, {
+  markerWidth: 40,
+  markerHeight: 40,
+  customPin: true,
+  initializeLeg: function (spiderLeg) {
+
+    var content = createPopupClients(spiderLeg.feature);
+
+    var popup = new mapboxgl.Popup({
+        // closeOnClick: false,
+        offset: MapboxglSpiderifier.popupOffsetForSpiderLeg(spiderLeg)
+      }).setHTML(content);
+
+    spiderLeg.mapboxMarker.setPopup(popup);
+    popup.addTo(map);
+
+    // find the toggle div and add function on click
+    const popupDiv = spiderLeg.mapboxMarker._popup;
+    popupDiv._content.childNodes[16].addEventListener('click', flipToggle);
+
+  },
+  onClick: function (e, spiderLeg) {
+
+    const editLink = document.getElementById(props['id']+"-edit");
+    // console.log(editLink);
+    editLink.addEventListener('click', editClient(props));
+    // console.log([spiderLeg.mapboxMarker._lngLat.lng,spiderLeg.mapboxMarker._lngLat.lat]);
+    const coordinates = [spiderLeg.mapboxMarker._lngLat.lng,spiderLeg.mapboxMarker._lngLat.lat];
+    const props = spiderLeg.feature;
+
+    if (showRadiusToggle) {
+
+      const radius = prompt("Enter circle radius in miles");
+      const circleOpts = {units: 'miles'};
+      const circle = turf.circle(coordinates, radius, circleOpts);
+      console.log(circle);
+      circlesCandidates.push(circle);
+
+      map.getSource('radius-candidates').setData({
+        "type": "FeatureCollection",
+        "features": circlesCandidates
+      });
+
+    }
+  }
+});
 const SPIDERFY_FROM_ZOOM = 14;
 
 
-const mapboxClient = mapboxSdk({ accessToken: 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIjoiY2t3dmNzbHhsMXl2MDJxanYwcmw0OHYzZCJ9.Rr2kb4WqAzr_5EgH8ZjK3A' });
+const mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
 
 
 const loadBtn = document.getElementById('geocode');
@@ -139,7 +241,8 @@ function getData() {
 
   const candidatesDB = getDB(db, 'candidates');
   const clientsDB = getDB(db, 'client-sites');
-  Promise.all([candidatesDB,clientsDB]).then(processData, error);
+  const clientsSnapshot = getSnapshotDB(db, 'client-sites');
+  Promise.all([candidatesDB,clientsDB,clientsSnapshot]).then(processData, error);
   document.getElementById('geocode').style.visibility = 'hidden';
   addBtn.style.visibility = 'visible';
 
@@ -154,7 +257,8 @@ function error(error) {
 
 function processData(data) {
   var candidatesData = data[0],
-      clientsData = data[1];
+      clientsData = data[1],
+      clientsSnapshot = data[2];
 
   console.log(data);
 
@@ -240,7 +344,7 @@ function processData(data) {
 
       // inspect a cluster on click
       map.on('click', 'candidates-clusters', (e) => {
-        spiderifier.unspiderfy();
+        spiderifierCandidate.unspiderfy();
 
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['candidates-clusters']
@@ -273,7 +377,7 @@ function processData(data) {
                     // console.log(leafFeature.properties);
                     return leafFeature.properties;
                   });
-                  spiderifier.spiderfy(features[0].geometry.coordinates, markers);
+                  spiderifierCandidate.spiderfy(features[0].geometry.coordinates, markers);
                 }
               );
 
@@ -431,7 +535,7 @@ function processData(data) {
         );
 
 
-        spiderifier.unspiderfy();
+        spiderifierClients.unspiderfy();
         if (!features.length) {
           return;
         } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
@@ -449,7 +553,7 @@ function processData(data) {
                 // console.log(leafFeature.properties);
                 return leafFeature.properties;
               });
-              spiderifier.spiderfy(features[0].geometry.coordinates, markers);
+              spiderifierClients.spiderfy(features[0].geometry.coordinates, markers);
             }
           );
         }
@@ -462,6 +566,7 @@ function processData(data) {
       map.on('click', 'clients-unclustered-point', (e) => {
         const coordinates = e.features[0].geometry.coordinates.slice();
         const props = e.features[0].properties;
+        console.log(props);
         const description = createPopupClients(props);
 
         // Ensure that if the map is zoomed out such that
@@ -476,13 +581,18 @@ function processData(data) {
           .setHTML(description)
           .addTo(map);
 
-        popupContent._content.childNodes[5].addEventListener('click', flipToggle);
+        console.log(popupContent._content.childNodes);
+        popupContent._content.childNodes[16].addEventListener('click', flipToggle);
 
         // console.log(popupContent._content.childNodes);
 
         const editLink = document.getElementById(props['id']+"-edit");
         // console.log(editLink);
         editLink.addEventListener('click', editClient(props));
+
+        const deleteLink = document.getElementById(props['id']+"-delete");
+        // console.log(deleteLink);
+        deleteLink.addEventListener('click', deleteClient(props['id']));
 
         if (showRadiusToggle) {
 
@@ -770,7 +880,8 @@ function createFilters(header, geoJSON, source, filterGroup) {
 }  // end createFilters
 
 map.on('zoomstart', () => {
-  spiderifier.unspiderfy();
+  spiderifierCandidate.unspiderfy();
+  spiderifierClients.unspiderfy();
 });
 
 async function getCoords(data) {
@@ -858,12 +969,12 @@ async function flipToggle() {
   });
 
   // change geoJSON
-  console.log(map.getSource('client-sites')._data);
-  const geoJSON = map.getSource('client-sites')._data;
+  console.log(map.getSource('clients')._data);
+  const geoJSON = map.getSource('clients')._data;
   console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
   const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
   geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
-  map.getSource('client-sites').setData(geoJSON);
+  map.getSource('clients').setData(geoJSON);
 
 }  //end flipToggle()
 
@@ -895,13 +1006,13 @@ async function submitNewClient(e) {
 
   newClientForm.reset();  //reset after submission
 
-  updateMap(map);
+  updateMap();
 
   // const addDataModal = new bootstrap.Modal(document.getElementById('addDataModal'));
   // addDataModal.hide();
 }  // end submitNewClient()
 
-function editClient(props) {
+async function editClient(props) {
   // const editModal = new bootstrap.Modal(document.getElementById('editModal'), {
   //   backdrop: 'static'
   // });
@@ -949,11 +1060,21 @@ function editClient(props) {
     await updateDoc(doc(db, 'client-sites', props.id), formProps);
     console.log(doc(db, 'client-sites', props.id));
 
-    updateMap(map);
+    updateMap();
   });
 
 
 } // end editClient
+
+async function deleteClient(id) {
+  if (window.confirm("Do you really want to delete?")) {
+
+  }
+
+  // await deleteDoc(doc(db, 'client-sites', id));
+  //
+  // updateMap();
+}
 
 async function updateMap() {
   const clientsDB = await getDB(db, 'clients');
