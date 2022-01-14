@@ -30,6 +30,7 @@ var toastLiveExample = document.getElementById('liveToast');
 var dbNameToast = document.getElementById('db-name-toast');
 var editTime = document.getElementById('edit-time');
 var updatedData = document.getElementById('updated-doc');
+var changeType = document.getElementById('doc-change-type');
 
 // Get a list of documents from your database
 function getSnapshotDB(db,dataset) {
@@ -42,27 +43,59 @@ function getSnapshotDB(db,dataset) {
     console.log("All data in ",dataset," collection", data);
 
     snap.docChanges().forEach((change) => {
-    if (change.type === "added") {
-        console.log("New client: ", change.doc.data());
-    }
-    if (change.type === "modified") {
-        console.log("Modified client: ", change.doc.data());
-        console.log(change);
-        var toast = new bootstrap.Toast(toastLiveExample);
-        // updatedData.innerText = JSON.stringify(change.doc.data());
-        const description = "<strong>" + change.doc.data()['COMPANY'] + "</strong><br>" +
-          "<strong>Position:</strong> " + change.doc.data()['POSITION'] + " <strong>Pay:</strong> " + change.doc.data()['PAY RATE'] +
-          "<br>" + change.doc.data()['DESCRIPTION'] + "<br>" + change.doc.data()['SCHEDULE'] + "<br>" +
-          "<strong>No. of People: </strong>" + change.doc.data()['NUMPEOPLE'] + " <strong>English Level:</strong> " +
-          change.doc.data()['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + change.doc.data()['STATUS'];
-        updatedData.innerHTML = description;
-        editTime.innerText = new Date().toString();
-        toast.show();
-    }
-    if (change.type === "removed") {
-        console.log("Removed client: ", change.doc.data());
-    }
-  });
+      let doc = change.doc.data();
+      doc.id = change.doc.id;
+      if (change.type === "added") {
+          console.log("New client: ", change.doc.data());
+          var toast = new bootstrap.Toast(toastLiveExample);
+          // updatedData.innerText = JSON.stringify(change.doc.data());
+          const description = "<strong>" + change.doc.data()['COMPANY'] + "</strong><br>" +
+            "<strong>Position:</strong> " + change.doc.data()['POSITION'] + " <strong>Pay:</strong> " + change.doc.data()['PAY RATE'] +
+            "<br>" + change.doc.data()['DESCRIPTION'] + "<br>" + change.doc.data()['SCHEDULE'] + "<br>" +
+            "<strong>No. of People: </strong>" + change.doc.data()['NUMPEOPLE'] + " <strong>English Level:</strong> " +
+            change.doc.data()['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + change.doc.data()['STATUS'];
+          updatedData.innerHTML = description;
+          editTime.innerText = new Date().toString();
+          changeType.innerText = 'Added';
+          toast.show();
+
+          // updateMap();
+          return doc;
+      }
+      if (change.type === "modified") {
+          console.log("Modified client: ", change.doc.data());
+          console.log(change);
+          var toast = new bootstrap.Toast(toastLiveExample);
+          // updatedData.innerText = JSON.stringify(change.doc.data());
+          const description = "<strong>" + change.doc.data()['COMPANY'] + "</strong><br>" +
+            "<strong>Position:</strong> " + change.doc.data()['POSITION'] + " <strong>Pay:</strong> " + change.doc.data()['PAY RATE'] +
+            "<br>" + change.doc.data()['DESCRIPTION'] + "<br>" + change.doc.data()['SCHEDULE'] + "<br>" +
+            "<strong>No. of People: </strong>" + change.doc.data()['NUMPEOPLE'] + " <strong>English Level:</strong> " +
+            change.doc.data()['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + change.doc.data()['STATUS'];
+          updatedData.innerHTML = description;
+          editTime.innerText = new Date().toString();
+          changeType.innerText = 'Updated';
+          toast.show();
+
+          updateMap();
+          return doc;
+      }
+      if (change.type === "removed") {
+          console.log("Removed client: ", change.doc.data());
+          var toast = new bootstrap.Toast(toastLiveExample);
+          const description = "<strike><strong>" + change.doc.data()['COMPANY'] + "</strong><br>" +
+            "<strong>Position:</strong> " + change.doc.data()['POSITION'] + " <strong>Pay:</strong> " + change.doc.data()['PAY RATE'] +
+            "<br>" + change.doc.data()['DESCRIPTION'] + "<br>" + change.doc.data()['SCHEDULE'] + "<br>" +
+            "<strong>No. of People: </strong>" + change.doc.data()['NUMPEOPLE'] + " <strong>English Level:</strong> " +
+            change.doc.data()['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + change.doc.data()['STATUS'] + "</strike>";
+          updatedData.innerHTML = description;
+          editTime.innerText = new Date().toString();
+          changeType.innerText = 'Deleted';
+          toast.show();
+
+          updateMap();
+      }
+    });
 
   });
   // const docList = snapshot.docs.map(doc => doc.data());
@@ -74,7 +107,7 @@ function getSnapshotDB(db,dataset) {
   //   docList.push(docData);
   // });
 
-  return snapshot;
+
 }  //end getSnapshotDB()
 
 // Get a list of documents from your database
@@ -86,7 +119,7 @@ async function getDB(db,dataset) {
   snapshot.docs.forEach((doc, i) => {
     let docData = doc.data();
     docData.id = (doc.id);
-    console.log(docData);
+    // console.log(docData);
     docList.push(docData);
   });
 
@@ -239,10 +272,12 @@ function getData() {
   // var clientsCSV = d3.csv("../data/client-sites.csv", init = {RequestCache: 'no-cache'});
   // Promise.all([candidatesCSV,clientsCSV]).then(processData, error);
 
+  let clientsDocs = [];
+
   const candidatesDB = getDB(db, 'candidates');
   const clientsDB = getDB(db, 'client-sites');
-  const clientsSnapshot = getSnapshotDB(db, 'client-sites');
-  Promise.all([candidatesDB,clientsDB,clientsSnapshot]).then(processData, error);
+  // const clientsSnapshot = getSnapshotDB(db, 'client-sites');
+  Promise.all([candidatesDB,clientsDB]).then(processData, error);
   document.getElementById('geocode').style.visibility = 'hidden';
   addBtn.style.visibility = 'visible';
 
@@ -255,293 +290,114 @@ function error(error) {
   console.log(error)
 }
 
-function processData(data) {
+async function processData(data) {
   var candidatesData = data[0],
-      clientsData = data[1],
-      clientsSnapshot = data[2];
+      clientsData = data[1];
 
   console.log(data);
 
-  var candidatesGeoJSON = getCoords(candidatesData);
-  var clientsGeoJSON = getCoords(clientsData);
+  var candidatesGeoJSON = await getCoords(candidatesData);
+  var clientsGeoJSON = await getCoords(clientsData);
 
-  Promise.all([candidatesGeoJSON,clientsGeoJSON]).then((response) => {
-    candidatesGeoJSON = response[0];
-    clientsGeoJSON = response[1];
+  await getSnapshotDB(db, 'client-sites');
 
-      map.addSource('candidates', {
-          'type': 'geojson',
-          'data': candidatesGeoJSON,
-          'cluster': true,
-          'clusterMaxZoom': 19, // Max zoom to cluster points on
-          'clusterRadius': 30 // Radius of each cluster when clustering points (defaults to 50)
-      });
-      // Add a layer showing the candidates.
-      map.addLayer({
-          'id': 'candidates-clusters',
-          'type': 'circle',
-          'source': 'candidates',
-          'filter': ['has', 'point_count'],
-          'paint': {
-              'circle-color': '#fe9414',
-              'circle-radius': [
-                'step',
-                ['get', 'point_count'],
-                8,
-                3,
-                13,
-                6,
-                17
-                ],
-              'circle-stroke-width': 1,
-              'circle-stroke-color': '#ffffff'
-          }
-      });
-      map.addLayer({
-        id: 'candidates-cluster-count',
-        type: 'symbol',
-        source: 'candidates',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 12
-        },
-        paint:{
-          'text-color': 'white'
-        }
-      });
-
-      map.addLayer({
-        id: 'candidates-unclustered-point',
-        type: 'circle',
-        source: 'candidates',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
+  map.addSource('candidates', {
+      'type': 'geojson',
+      'data': candidatesGeoJSON,
+      'cluster': true,
+      'clusterMaxZoom': 19, // Max zoom to cluster points on
+      'clusterRadius': 30 // Radius of each cluster when clustering points (defaults to 50)
+  });
+  // Add a layer showing the candidates.
+  map.addLayer({
+      'id': 'candidates-clusters',
+      'type': 'circle',
+      'source': 'candidates',
+      'filter': ['has', 'point_count'],
+      'paint': {
           'circle-color': '#fe9414',
-          'circle-radius': 4,
+          'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            8,
+            3,
+            13,
+            6,
+            17
+            ],
           'circle-stroke-width': 1,
-          'circle-stroke-color': '#fff'
-        }
-      });
+          'circle-stroke-color': '#ffffff'
+      }
+  });
+  map.addLayer({
+    id: 'candidates-cluster-count',
+    type: 'symbol',
+    source: 'candidates',
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': '{point_count_abbreviated}',
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 12
+    },
+    paint:{
+      'text-color': 'white'
+    }
+  });
 
-      map.addSource('radius-candidates', {
-        type: 'geojson',
-        data: {
-          "type": "FeatureCollection",
-          "features": []
-        }
-      }).addLayer({
-        id: 'radius-candidates',
-        source: 'radius-candidates',
-        type: 'fill',
-        paint: {
-          'fill-color': '#fe9414',
-          'fill-opacity': 0.5,
-          'fill-outline-color': '#fff'
-        }
-      });
+  map.addLayer({
+    id: 'candidates-unclustered-point',
+    type: 'circle',
+    source: 'candidates',
+    filter: ['!', ['has', 'point_count']],
+    paint: {
+      'circle-color': '#fe9414',
+      'circle-radius': 4,
+      'circle-stroke-width': 1,
+      'circle-stroke-color': '#fff'
+    }
+  });
 
-      // inspect a cluster on click
-      map.on('click', 'candidates-clusters', (e) => {
-        spiderifierCandidate.unspiderfy();
+  map.addSource('radius-candidates', {
+    type: 'geojson',
+    data: {
+      "type": "FeatureCollection",
+      "features": []
+    }
+  }).addLayer({
+    id: 'radius-candidates',
+    source: 'radius-candidates',
+    type: 'fill',
+    paint: {
+      'fill-color': '#fe9414',
+      'fill-opacity': 0.5,
+      'fill-outline-color': '#fff'
+    }
+  });
 
-        const features = map.queryRenderedFeatures(e.point, {
-          layers: ['candidates-clusters']
-        });
-        const clusterId = features[0].properties.cluster_id;
-        map.getSource('candidates').getClusterExpansionZoom(
-          clusterId,
-          (err, zoom) => {
-            if (err) return;
+  // inspect a cluster on click
+  map.on('click', 'candidates-clusters', (e) => {
+    spiderifierCandidate.unspiderfy();
 
-            // console.log("Current Zoom: "+map.getZoom());
+    const features = map.queryRenderedFeatures(e.point, {
+      layers: ['candidates-clusters']
+    });
+    const clusterId = features[0].properties.cluster_id;
+    map.getSource('candidates').getClusterExpansionZoom(
+      clusterId,
+      (err, zoom) => {
+        if (err) return;
 
-            if (zoom < SPIDERFY_FROM_ZOOM) {
-              map.easeTo({
-                center: features[0].geometry.coordinates,
-                zoom: zoom
-              });
-            } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
-              map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
-            } else {
-              map.getSource('candidates').getClusterLeaves(
-                features[0].properties.cluster_id,
-                100,
-                0,
-                function(err, leafFeatures){
-                  if (err) {
-                    return console.error('error while getting leaves of a cluster', err);
-                  }
-                  var markers = leafFeatures.map(function(leafFeature){
-                    // console.log(leafFeature.properties);
-                    return leafFeature.properties;
-                  });
-                  spiderifierCandidate.spiderfy(features[0].geometry.coordinates, markers);
-                }
-              );
+        // console.log("Current Zoom: "+map.getZoom());
 
-            }
-
-            // console.log("Cluster Expansion Zoom: "+zoom);
-            // spiderifier.spiderfy(e.lngLat, features);
-
-          }
-        );
-
-
-      });
-
-      // When a click event occurs on a feature in
-      // the unclustered-point layer, open a popup at
-      // the location of the feature, with
-      // description HTML from its properties.
-      map.on('click', 'candidates-unclustered-point', (e) => {
-        const coordinates = e.features[0].geometry.coordinates.slice();
-        const props = e.features[0].properties;
-        const description = createPopupCandidates(props);
-
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        }
-
-        const popupContent = new mapboxgl.Popup()
-          .setLngLat(coordinates)
-          .setHTML(description)
-          .addTo(map);
-
-        // popupContent._content.childNodes[5].addEventListener('click', flipToggle);
-
-        // console.log(popupContent._content.childNodes);
-
-        // const editLink = document.getElementById(props['id']+"-edit");
-        // console.log(editLink);
-        // editLink.addEventListener('click', editClient(props));
-
-        if (showRadiusToggle) {
-
-          const radius = prompt("Enter circle radius in miles");
-          const circleOpts = {units: 'miles'};
-          const circle = turf.circle(coordinates, radius, circleOpts);
-          console.log(circle);
-          circlesCandidates.push(circle);
-
-          map.getSource('radius-candidates').setData({
-            "type": "FeatureCollection",
-            "features": circlesCandidates
+        if (zoom < SPIDERFY_FROM_ZOOM) {
+          map.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom: zoom
           });
-
-        }
-      });
-
-      map.addSource('clients', {
-          'type': 'geojson',
-          'data': clientsGeoJSON,
-          'cluster': true,
-          'clusterMaxZoom': 14, // Max zoom to cluster points on
-          'clusterRadius': 30 // Radius of each cluster when clustering points (defaults to 50)
-      });
-      // Add a layer showing the clients.
-      map.addLayer({
-          'id': 'clients-clusters',
-          'type': 'circle',
-          'source': 'clients',
-          'filter': ['has', 'point_count'],
-          'paint': {
-              'circle-color': '#fcf424',
-              'circle-radius': [
-                'step',
-                ['get', 'point_count'],
-                8,
-                3,
-                13,
-                6,
-                17
-                ],
-              'circle-stroke-width': 1,
-              'circle-stroke-color': 'black'
-          }
-      });
-      map.addLayer({
-        id: 'clients-cluster-count',
-        type: 'symbol',
-        source: 'clients',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 12
-        },
-        paint:{
-          'text-color': 'black'
-        }
-      });
-
-      map.addLayer({
-        id: 'clients-unclustered-point',
-        type: 'circle',
-        source: 'clients',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': '#fcf424',
-          'circle-radius': 4,
-          'circle-stroke-width': 1,
-          'circle-stroke-color': 'black'
-        }
-      });
-
-      map.addSource('radius-clients', {
-        type: 'geojson',
-        data: {
-          "type": "FeatureCollection",
-          "features": []
-        }
-      }).addLayer({
-        id: 'radius-clients',
-        source: 'radius-clients',
-        type: 'fill',
-        paint: {
-          'fill-color': '#fcf424',
-          'fill-opacity': 0.5,
-          'fill-outline-color': '#fff'
-        }
-      });
-
-      // inspect a cluster on click
-      map.on('click', 'clients-clusters', (e) => {
-        const features = map.queryRenderedFeatures(e.point, {
-          layers: ['clients-clusters']
-        });
-        const clusterId = features[0].properties.cluster_id;
-        map.getSource('clients').getClusterExpansionZoom(
-          clusterId,
-          (err, zoom) => {
-            if (err) return;
-
-            // console.log(map.getZoom());
-
-            map.easeTo({
-              center: features[0].geometry.coordinates,
-              zoom: zoom
-            });
-
-            // console.log(zoom);
-            // spiderifier.spiderfy(e.lngLat, features);
-
-          }
-        );
-
-
-        spiderifierClients.unspiderfy();
-        if (!features.length) {
-          return;
         } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
           map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
         } else {
-          map.getSource('clients').getClusterLeaves(
+          map.getSource('candidates').getClusterLeaves(
             features[0].properties.cluster_id,
             100,
             0,
@@ -553,222 +409,313 @@ function processData(data) {
                 // console.log(leafFeature.properties);
                 return leafFeature.properties;
               });
-              spiderifierClients.spiderfy(features[0].geometry.coordinates, markers);
+              spiderifierCandidate.spiderfy(features[0].geometry.coordinates, markers);
             }
           );
-        }
-      });
 
-      // When a click event occurs on a feature in
-      // the unclustered-point layer, open a popup at
-      // the location of the feature, with
-      // description HTML from its properties.
-      map.on('click', 'clients-unclustered-point', (e) => {
-        const coordinates = e.features[0].geometry.coordinates.slice();
-        const props = e.features[0].properties;
-        console.log(props);
-        const description = createPopupClients(props);
-
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
 
-        const popupContent = new mapboxgl.Popup()
-          .setLngLat(coordinates)
-          .setHTML(description)
-          .addTo(map);
+        // console.log("Cluster Expansion Zoom: "+zoom);
+        // spiderifier.spiderfy(e.lngLat, features);
 
-        console.log(popupContent._content.childNodes);
-        popupContent._content.childNodes[16].addEventListener('click', flipToggle);
+      }
+    );
 
-        // console.log(popupContent._content.childNodes);
-
-        const editLink = document.getElementById(props['id']+"-edit");
-        // console.log(editLink);
-        editLink.addEventListener('click', editClient(props));
-
-        const deleteLink = document.getElementById(props['id']+"-delete");
-        // console.log(deleteLink);
-        deleteLink.addEventListener('click', deleteClient(props['id']));
-
-        if (showRadiusToggle) {
-
-          const radius = prompt("Enter circle radius in miles");
-          const circleOpts = {units: 'miles'};
-          const circle = turf.circle(coordinates, radius, circleOpts);
-          console.log(circle);
-          circlesClients.push(circle);
-
-          map.getSource('radius-clients').setData({
-            "type": "FeatureCollection",
-            "features": circlesClients
-          });
-        }
-
-      });
-
-      // Create a popup, but don't add it to the map yet.
-      const popup = new mapboxgl.Popup({
-          closeButton: false,
-          closeOnClick: false
-      });
-
-      map.on('mouseenter', 'candidates-clusters' || 'candidates-cluster-count', (e) => {
-          // Change the cursor style as a UI indicator.
-          map.getCanvas().style.cursor = 'pointer';
-
-      });
-
-      map.on('mouseenter', 'candidates-unclustered-point', (e) => {
-          // Change the cursor style as a UI indicator.
-          map.getCanvas().style.cursor = 'pointer';
-
-          const coordinates = e.features[0].geometry.coordinates.slice();
-          const props = e.features[0].properties;
-          const description = createPopupCandidates(props);
-
-          // Ensure that if the map is zoomed out such that multiple
-          // copies of the feature are visible, the popup appears
-          // over the copy being pointed to.
-          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-          }
-
-          // Populate the popup and set its coordinates
-          // based on the feature found.
-          popup.setLngLat(coordinates).setHTML(description).addTo(map);
-
-      });
-
-      map.on('mouseleave', 'candidates-clusters' || 'candidates-cluster-count', (e) => {
-          // Change the cursor style as a UI indicator.
-          map.getCanvas().style.cursor = '';
-          popup.remove();
-
-      });
-
-      map.on('mouseenter', 'clients-unclustered-point', (e) => {
-          // Change the cursor style as a UI indicator.
-          map.getCanvas().style.cursor = 'pointer';
-
-          // Copy coordinates array.
-          const coordinates = e.features[0].geometry.coordinates.slice();
-          const props = e.features[0].properties;
-          const description = createPopupClients(props);
-
-          // Ensure that if the map is zoomed out such that multiple
-          // copies of the feature are visible, the popup appears
-          // over the copy being pointed to.
-          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-          }
-
-          // Populate the popup and set its coordinates
-          // based on the feature found.
-          popup.setLngLat(coordinates).setHTML(description).addTo(map);
-      });
-
-      map.on('mouseleave', 'clients-unclustered-point', () => {
-          map.getCanvas().style.cursor = '';
-          popup.remove();
-      });
-
-      map.on('mouseleave', 'candidates-unclustered-point', () => {
-          map.getCanvas().style.cursor = '';
-          popup.remove();
-      });
-
-
-
-      // After the last frame rendered before the map enters an "idle" state.
-      map.on('idle', () => {
-        radiusBtn.style.visibility = 'visible';
-        // If these two layers were not added to the map, abort
-        if (!map.getLayer('candidates-clusters') || !map.getLayer('clients-clusters')) {
-          return;
-        }
-
-        // Enumerate ids of the layers.
-        const toggleableLayerIds = [
-          {'name': 'Candidates',
-            'id': 'candidates',
-            'layer': ['candidates-clusters','candidates-cluster-count','candidates-unclustered-point']
-          },
-          {'name': 'Clients',
-            'id': 'clients',
-            'layer': ['clients-clusters','clients-cluster-count','clients-unclustered-point']
-          }
-        ];
-
-        // Set up the corresponding toggle button for each layer.
-        for (const id of toggleableLayerIds) {
-          // Skip layers that already have a button set up.
-          if (document.getElementById(id.id)) {
-            continue;
-          }
-
-          // Create a link.
-          const link = document.createElement('a');
-          link.id = id.id;
-          link.href = '#';
-          link.textContent = id.name;
-          link.className = 'active';
-
-          // Show or hide layer when the toggle is clicked.
-          link.onclick = function (e) {
-            const clickedLayer = toggleableLayerIds.find( ({ id }) => id === this.id );
-            e.preventDefault();
-            e.stopPropagation();
-
-            // console.log(clickedLayer);
-            clickedLayer.layer.forEach((layer, i) => {
-
-              const visibility = map.getLayoutProperty(
-                layer,
-                'visibility'
-              );
-
-              // Toggle layer visibility by changing the layout object's visibility property.
-              if (visibility === 'visible') {
-                map.setLayoutProperty(layer, 'visibility', 'none');
-                this.className = '';
-              } else {
-                this.className = 'active';
-                map.setLayoutProperty(
-                  layer,
-                  'visibility',
-                  'visible'
-                );
-              }
-
-            });
-
-          };
-
-          const layers = document.getElementById('menu');
-          layers.appendChild(link);
-        }
-
-        radiusBtn.addEventListener('click', showRadius);
-
-      });
-
-    const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
-    filterHeadersClients.forEach((header, i) => {
-      createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
-
-    });
-
-    const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
-    filterHeadersCandidates.forEach((header, i) => {
-      createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
-
-    });
 
   });
+
+  // When a click event occurs on a feature in
+  // the unclustered-point layer, open a popup at
+  // the location of the feature, with
+  // description HTML from its properties.
+  map.on('click', 'candidates-unclustered-point', (e) => {addPopup(e, 'candidates');});
+
+  map.addSource('clients', {
+      'type': 'geojson',
+      'data': clientsGeoJSON,
+      'cluster': true,
+      'clusterMaxZoom': 14, // Max zoom to cluster points on
+      'clusterRadius': 30 // Radius of each cluster when clustering points (defaults to 50)
+  });
+  // Add a layer showing the clients.
+  map.addLayer({
+      'id': 'clients-clusters',
+      'type': 'circle',
+      'source': 'clients',
+      'filter': ['has', 'point_count'],
+      'paint': {
+          'circle-color': '#fcf424',
+          'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            8,
+            3,
+            13,
+            6,
+            17
+            ],
+          'circle-stroke-width': 1,
+          'circle-stroke-color': 'black'
+      }
+  });
+  map.addLayer({
+    id: 'clients-cluster-count',
+    type: 'symbol',
+    source: 'clients',
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': '{point_count_abbreviated}',
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 12
+    },
+    paint:{
+      'text-color': 'black'
+    }
+  });
+
+  map.addLayer({
+    id: 'clients-unclustered-point',
+    type: 'circle',
+    source: 'clients',
+    filter: ['!', ['has', 'point_count']],
+    paint: {
+      'circle-color': '#fcf424',
+      'circle-radius': 4,
+      'circle-stroke-width': 1,
+      'circle-stroke-color': 'black'
+    }
+  });
+
+  map.addSource('radius-clients', {
+    type: 'geojson',
+    data: {
+      "type": "FeatureCollection",
+      "features": []
+    }
+  }).addLayer({
+    id: 'radius-clients',
+    source: 'radius-clients',
+    type: 'fill',
+    paint: {
+      'fill-color': '#fcf424',
+      'fill-opacity': 0.5,
+      'fill-outline-color': '#fff'
+    }
+  });
+
+  // inspect a cluster on click
+  map.on('click', 'clients-clusters', (e) => {
+    const features = map.queryRenderedFeatures(e.point, {
+      layers: ['clients-clusters']
+    });
+    const clusterId = features[0].properties.cluster_id;
+    map.getSource('clients').getClusterExpansionZoom(
+      clusterId,
+      (err, zoom) => {
+        if (err) return;
+
+        // console.log(map.getZoom());
+
+        map.easeTo({
+          center: features[0].geometry.coordinates,
+          zoom: zoom
+        });
+
+        // console.log(zoom);
+        // spiderifier.spiderfy(e.lngLat, features);
+
+      }
+    );
+
+
+    spiderifierClients.unspiderfy();
+    if (!features.length) {
+      return;
+    } else if (map.getZoom() < SPIDERFY_FROM_ZOOM) {
+      map.easeTo({center: e.lngLat, zoom: map.getZoom() + 2});
+    } else {
+      map.getSource('clients').getClusterLeaves(
+        features[0].properties.cluster_id,
+        100,
+        0,
+        function(err, leafFeatures){
+          if (err) {
+            return console.error('error while getting leaves of a cluster', err);
+          }
+          var markers = leafFeatures.map(function(leafFeature){
+            // console.log(leafFeature.properties);
+            return leafFeature.properties;
+          });
+          spiderifierClients.spiderfy(features[0].geometry.coordinates, markers);
+        }
+      );
+    }
+  });
+
+  // When a click event occurs on a feature in
+  // the unclustered-point layer, open a popup at
+  // the location of the feature, with
+  // description HTML from its properties.
+  map.on('click', 'clients-unclustered-point', (e) => {addPopup(e, 'client-sites')});
+
+  // Create a popup, but don't add it to the map yet.
+  const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false
+  });
+
+  map.on('mouseenter', 'candidates-clusters' || 'candidates-cluster-count', (e) => {
+      // Change the cursor style as a UI indicator.
+      map.getCanvas().style.cursor = 'pointer';
+
+  });
+
+  map.on('mouseenter', 'candidates-unclustered-point', (e) => {
+      // Change the cursor style as a UI indicator.
+      map.getCanvas().style.cursor = 'pointer';
+
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      const props = e.features[0].properties;
+      const description = createPopupCandidates(props);
+
+      // Ensure that if the map is zoomed out such that multiple
+      // copies of the feature are visible, the popup appears
+      // over the copy being pointed to.
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      // Populate the popup and set its coordinates
+      // based on the feature found.
+      popup.setLngLat(coordinates).setHTML(description).addTo(map);
+
+  });
+
+  map.on('mouseleave', 'candidates-clusters' || 'candidates-cluster-count', (e) => {
+      // Change the cursor style as a UI indicator.
+      map.getCanvas().style.cursor = '';
+      popup.remove();
+
+  });
+
+  map.on('mouseenter', 'clients-unclustered-point', (e) => {
+      // Change the cursor style as a UI indicator.
+      map.getCanvas().style.cursor = 'pointer';
+
+      // Copy coordinates array.
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      const props = e.features[0].properties;
+      const description = createPopupClients(props);
+
+      // Ensure that if the map is zoomed out such that multiple
+      // copies of the feature are visible, the popup appears
+      // over the copy being pointed to.
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      // Populate the popup and set its coordinates
+      // based on the feature found.
+      popup.setLngLat(coordinates).setHTML(description).addTo(map);
+  });
+
+  map.on('mouseleave', 'clients-unclustered-point', () => {
+      map.getCanvas().style.cursor = '';
+      popup.remove();
+  });
+
+  map.on('mouseleave', 'candidates-unclustered-point', () => {
+      map.getCanvas().style.cursor = '';
+      popup.remove();
+  });
+
+
+
+  // After the last frame rendered before the map enters an "idle" state.
+  map.on('idle', () => {
+    radiusBtn.style.visibility = 'visible';
+    // If these two layers were not added to the map, abort
+    if (!map.getLayer('candidates-clusters') || !map.getLayer('clients-clusters')) {
+      return;
+    }
+
+    // Enumerate ids of the layers.
+    const toggleableLayerIds = [
+      {'name': 'Candidates',
+        'id': 'candidates',
+        'layer': ['candidates-clusters','candidates-cluster-count','candidates-unclustered-point']
+      },
+      {'name': 'Clients',
+        'id': 'clients',
+        'layer': ['clients-clusters','clients-cluster-count','clients-unclustered-point']
+      }
+    ];
+
+    // Set up the corresponding toggle button for each layer.
+    for (const id of toggleableLayerIds) {
+      // Skip layers that already have a button set up.
+      if (document.getElementById(id.id)) {
+        continue;
+      }
+
+      // Create a link.
+      const link = document.createElement('a');
+      link.id = id.id;
+      link.href = '#';
+      link.textContent = id.name;
+      link.className = 'active';
+
+      // Show or hide layer when the toggle is clicked.
+      link.onclick = function (e) {
+        const clickedLayer = toggleableLayerIds.find( ({ id }) => id === this.id );
+        e.preventDefault();
+        e.stopPropagation();
+
+        // console.log(clickedLayer);
+        clickedLayer.layer.forEach((layer, i) => {
+
+          const visibility = map.getLayoutProperty(
+            layer,
+            'visibility'
+          );
+
+          // Toggle layer visibility by changing the layout object's visibility property.
+          if (visibility === 'visible') {
+            map.setLayoutProperty(layer, 'visibility', 'none');
+            this.className = '';
+          } else {
+            this.className = 'active';
+            map.setLayoutProperty(
+              layer,
+              'visibility',
+              'visible'
+            );
+          }
+
+        });
+
+      };
+
+      const layers = document.getElementById('menu');
+      layers.appendChild(link);
+    }
+
+    radiusBtn.addEventListener('click', showRadius);
+
+  });
+
+const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
+filterHeadersClients.forEach((header, i) => {
+  createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
+
+});
+
+const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
+filterHeadersCandidates.forEach((header, i) => {
+  createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
+
+});
+
 
 }
 
@@ -938,7 +885,7 @@ function createPopupClients(props) {
     props['DESCRIPTION'] + "<br>" +
     props['SCHEDULE'] + "<br>" +
     "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'] +
-    "<div><a href='#' data-bs-toggle='modal' data-bs-target='#editModal' class='link-primary' id='"+props['id']+"-edit'>Edit</a> / <a href='#' class='link-primary' id='"+props['id']+"-delete'>Delete</a></div>"+
+    "<button type='button' data-bs-toggle='modal' data-bs-target='#editModal' class='btn btn-primary' id='"+props['id']+"-edit'>Edit</button>"+
     "<div class='switch toggle" + toggleStatus +"' id=" + props['id'] + "><div class='toggle-text-off'>INACTIVE</div>"+
     "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
   return description;
@@ -1032,6 +979,12 @@ async function editClient(props) {
   document.getElementById('editNumPpl').setAttribute('value',props["NUMPEOPLE"]);
   document.getElementById('editStatus').setAttribute('value',props["STATUS"]);
 
+  console.log('click');
+  const deleteBtn = document.getElementById('deleteClient');
+  // console.log(deleteBtn);
+  deleteBtn.addEventListener('click', (e) => {deleteClient(props.id);});
+  // console.log(deleteBtn);
+
   const ediClientForm = document.getElementById('ediClientForm');
   editClientForm.addEventListener('submit', async function (e) {
 
@@ -1045,16 +998,7 @@ async function editClient(props) {
 
     // formProps["PAY"] = +formProps["PAY"];
     // formProps["SHIFT"] = +formProps["SHIFT"];
-    // if (formProps["CAR"] == "true") {
-    //   formProps["CAR"] = true;
-    // } else {
-    //   formProps["CAR"] =false;
-    // }
-    // if (formProps["STATUS"] == "true") {
-    //   formProps["STATUS"] = true;
-    // } else {
-    //   formProps["STATUS"] =false;
-    // }
+
     console.log(formProps);
 
     await updateDoc(doc(db, 'client-sites', props.id), formProps);
@@ -1067,23 +1011,24 @@ async function editClient(props) {
 } // end editClient
 
 async function deleteClient(id) {
-  if (window.confirm("Do you really want to delete?")) {
 
+  if (window.confirm("Do you really want to delete?")) {
+    await deleteDoc(doc(db, 'client-sites', id));
+
+    updateMap();
   }
 
-  // await deleteDoc(doc(db, 'client-sites', id));
-  //
-  // updateMap();
-}
+}  // end deleteClient
 
 async function updateMap() {
-  const clientsDB = await getDB(db, 'clients');
-  // console.log(candidatesDB);
+  const clientsDB = await getDB(db, 'client-sites');
+  console.log(clientsDB);
   const newGeoJSON = await getCoords(clientsDB);
 
-  // console.log(newGeoJSON);
+  console.log(newGeoJSON);
   map.getSource('clients').setData(newGeoJSON);
-}
+
+}  // end updateMap
 
 function showRadius() {
   if (showRadiusToggle) {
@@ -1103,4 +1048,62 @@ function showRadius() {
     circlesClients = [];
     radiusBtn.innerText = "Remove Radius";
   }
+}
+
+function addPopup(e, source)  {
+  const coordinates = e.features[0].geometry.coordinates.slice();
+  const props = e.features[0].properties;
+  console.log(props);
+  let description = '';
+
+  if (source == 'client-sites') {
+    description = createPopupClients(props);
+  } else if (source == 'candidates') {
+    description = createPopupCandidates(props);
+  }
+
+
+  // Ensure that if the map is zoomed out such that
+  // multiple copies of the feature are visible, the
+  // popup appears over the copy being pointed to.
+  while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+  }
+
+  const popupContent = new mapboxgl.Popup()
+    .setLngLat(coordinates)
+    .setHTML(description)
+    .addTo(map);
+
+  if (source == 'client-sites') {
+    popupContent._content.childNodes[16].addEventListener('click', flipToggle);
+    popupContent._content.childNodes[15].addEventListener('click', (e) => {editClient(props);});
+  } else if (source == 'candidates') {
+
+  }
+
+  console.log(popupContent._content.childNodes);
+
+
+  // console.log(popupContent._content.childNodes);
+  console.log(popupContent);
+  // const editBtn = document.getElementById(props['id']+"-edit");
+  // console.log(editLink);
+
+
+
+  if (showRadiusToggle) {
+
+    const radius = prompt("Enter circle radius in miles");
+    const circleOpts = {units: 'miles'};
+    const circle = turf.circle(coordinates, radius, circleOpts);
+    console.log(circle);
+    circlesClients.push(circle);
+
+    map.getSource('radius-clients').setData({
+      "type": "FeatureCollection",
+      "features": circlesClients
+    });
+  }
+
 }

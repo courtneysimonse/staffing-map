@@ -185,7 +185,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary" id="submitEdit">Save & Submit</button>
+            <button type="button" class="btn btn-danger" id="deleteClient" data-bs-dismiss="modal">Delete</button>
+            <button type="submit" class="btn btn-primary" id="submitEdit" data-bs-dismiss="modal">Save & Submit</button>
           </div>
           </form>
         </div>
@@ -195,7 +196,7 @@
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 200">
     <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header">
-        <strong class="me-auto"><span id="db-name-toast">Client</span> Updated</strong>
+        <strong class="me-auto"><span id="db-name-toast">Client</span> <span id="doc-change-type">Updated</span></strong>
         <small><span id="edit-time">11 mins ago</span></small>
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
