@@ -140,7 +140,9 @@ const nav = new mapboxgl.NavigationControl({showCompass: false});
 map.addControl(nav, 'top-left');
 
 const filterGroupClients = document.getElementById('filter-group-clients');
+const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
 const filterGroupCandidates = document.getElementById('filter-group-candidates');
+const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
 
 const addBtn = document.getElementById('add-data');
 
@@ -268,7 +270,7 @@ loadBtn.addEventListener('click', getData);
 
 async function getData() {
 
-  let clientsDocs = [];
+  // let clientsDocs = [];
 
   // const candidatesDB = getDB(db, 'candidates');
   // const clientsDB = getDB(db, 'client-sites');
@@ -284,10 +286,24 @@ async function getData() {
   await getSnapshotDB(db, 'client-sites');
   await getSnapshotDB(db, 'candidates');
   await processData([candidatesGeoJSON, clientsGeoJSON]);
+
+
+  filterHeadersClients.forEach((header, i) => {
+    createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
+
+  });
+
+
+  filterHeadersCandidates.forEach((header, i) => {
+    createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
+
+  });
+
   // Promise.all([candidatesDB,clientsDB]).then(processData, error);
   document.getElementById('geocode').style.visibility = 'hidden';
   loadBtn.style.cursor = "pointer";
   addBtn.style.visibility = 'visible';
+  radiusBtn.addEventListener('click', showRadius);
 
 }  // end getData
 
@@ -712,21 +728,8 @@ async function processData(data) {
       layers.appendChild(link);
     }
 
-    radiusBtn.addEventListener('click', showRadius);
 
   });
-
-const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
-filterHeadersClients.forEach((header, i) => {
-  createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
-
-});
-
-const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
-filterHeadersCandidates.forEach((header, i) => {
-  createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
-
-});
 
 
 }
@@ -734,14 +737,22 @@ filterHeadersCandidates.forEach((header, i) => {
 function createFilters(header, geoJSON, source, filterGroup) {
   // remove spaces in header text and append layer name
   const filterClass = header.replace(/\s/g, '')+"-"+source;
+  var jobFilterHeader = undefined;
 
-  // create details element for header and give id
-  const jobFilterHeader = document.createElement('details');
-  jobFilterHeader.classList.add('filter-group-header');
-  jobFilterHeader.innerHTML = "<summary id='"+filterClass+"'>"+header+"</summary>";
-  filterGroup.appendChild(jobFilterHeader);
+  // check if filter already exists
+  if (document.getElementById(filterClass)) {
+    console.log(document.getElementById(filterClass).parentNode);
+    jobFilterHeader = document.getElementById(filterClass).parentNode;
+  } else {
+    // create details element for header and give id
+    jobFilterHeader = document.createElement('details');
+    jobFilterHeader.classList.add('filter-group-header');
+    jobFilterHeader.innerHTML = "<summary id='"+filterClass+"'>"+header+"</summary>";
+    filterGroup.appendChild(jobFilterHeader);
+  }
 
   const jobTypes = [];
+  console.log(jobFilterHeader.childNodes);
   // loop through features in layer
   geoJSON.features.forEach((item, i) => {
     // console.log(item.properties[header]);
@@ -1096,6 +1107,11 @@ async function addFeature(doc) {
       }
 
       map.getSource('clients').setData(geoJSON);
+      filterHeadersClients.forEach((header, i) => {
+        createFilters(header, geoJSON, 'clients', filterGroupClients);
+
+      });
+
     } else {
       console.log("clients not loaded");
     }
@@ -1111,6 +1127,11 @@ async function addFeature(doc) {
       }
 
       map.getSource('candidates').setData(geoJSON);
+
+      filterHeadersCandidates.forEach((header, i) => {
+        createFilters(header, geoJSON, 'candidates', filterGroupCandidates);
+
+      });
     } else {
       console.log("candidates not loaded");
     }
