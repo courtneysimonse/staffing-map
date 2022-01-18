@@ -45,51 +45,51 @@ function getSnapshotDB(db,dataset) {
     snap.docChanges().forEach((change) => {
       let doc = change.doc.data();
       doc.id = change.doc.id;
+      let description = '';
+
+      var toast = new bootstrap.Toast(toastLiveExample);
+      editTime.innerText = new Date().toString();
+
+      if (dataset == 'client-sites') {
+        dbNameToast.innerText = "Client"
+        description = "<strong>" + doc['COMPANY'] + "</strong><br>" +
+          "<strong>Position:</strong> " + doc['POSITION'] + " <strong>Pay:</strong> " + doc['PAY RATE'] +
+          "<br>" + doc['DESCRIPTION'] + "<br>" + doc['SCHEDULE'] + "<br>" +
+          "<strong>No. of People: </strong>" + doc['NUMPEOPLE'] + " <strong>English Level:</strong> " +
+          doc['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + doc['STATUS'];
+
+      } else if (dataset == 'candidates') {
+        dbNameToast.innerText = "Candidate"
+        description = "<strong>" + doc['FIRST NAME'] + " " + doc['LAST NAME'] + "</strong><br>" +
+          "<strong>Temp ID:</strong> " + doc['TEMP ID'] + "<br>" +
+          "<strong>Position:</strong> " + doc['POSITION'] + "<br>" +
+          "<strong>Pay:</strong> " + doc['PAY'] + "  <strong>Shift:</strong> " + doc['SHIFT'] + "  <strong>Car:</strong> " + doc['CAR'] +
+          '<br>' + "<strong>Status:</strong> " + doc['STATUS'];
+      }
+
+      updatedData.innerHTML = description;
+
       if (change.type === "added") {
-          console.log("New client: ", change.doc.data());
-          var toast = new bootstrap.Toast(toastLiveExample);
-          // updatedData.innerText = JSON.stringify(change.doc.data());
-          const description = "<strong>" + change.doc.data()['COMPANY'] + "</strong><br>" +
-            "<strong>Position:</strong> " + change.doc.data()['POSITION'] + " <strong>Pay:</strong> " + change.doc.data()['PAY RATE'] +
-            "<br>" + change.doc.data()['DESCRIPTION'] + "<br>" + change.doc.data()['SCHEDULE'] + "<br>" +
-            "<strong>No. of People: </strong>" + change.doc.data()['NUMPEOPLE'] + " <strong>English Level:</strong> " +
-            change.doc.data()['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + change.doc.data()['STATUS'];
-          updatedData.innerHTML = description;
-          editTime.innerText = new Date().toString();
+          console.log("New: ", doc);
           changeType.innerText = 'Added';
           toast.show();
 
-          // updateMap();
-          return doc;
+          // const feature = await getCoords(doc.data());
+          // return doc;
       }
       if (change.type === "modified") {
-          console.log("Modified client: ", change.doc.data());
+          console.log("Modified: ", doc);
           console.log(change);
-          var toast = new bootstrap.Toast(toastLiveExample);
-          // updatedData.innerText = JSON.stringify(change.doc.data());
-          const description = "<strong>" + change.doc.data()['COMPANY'] + "</strong><br>" +
-            "<strong>Position:</strong> " + change.doc.data()['POSITION'] + " <strong>Pay:</strong> " + change.doc.data()['PAY RATE'] +
-            "<br>" + change.doc.data()['DESCRIPTION'] + "<br>" + change.doc.data()['SCHEDULE'] + "<br>" +
-            "<strong>No. of People: </strong>" + change.doc.data()['NUMPEOPLE'] + " <strong>English Level:</strong> " +
-            change.doc.data()['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + change.doc.data()['STATUS'];
-          updatedData.innerHTML = description;
-          editTime.innerText = new Date().toString();
           changeType.innerText = 'Updated';
           toast.show();
 
-          updateMap();
-          return doc;
+          const feature = getCoordsIndiv(doc).then(updateFeature, error);
+          // updateFeature(feature);
+          // updateMap();
+          // return doc;
       }
       if (change.type === "removed") {
-          console.log("Removed client: ", change.doc.data());
-          var toast = new bootstrap.Toast(toastLiveExample);
-          const description = "<strike><strong>" + change.doc.data()['COMPANY'] + "</strong><br>" +
-            "<strong>Position:</strong> " + change.doc.data()['POSITION'] + " <strong>Pay:</strong> " + change.doc.data()['PAY RATE'] +
-            "<br>" + change.doc.data()['DESCRIPTION'] + "<br>" + change.doc.data()['SCHEDULE'] + "<br>" +
-            "<strong>No. of People: </strong>" + change.doc.data()['NUMPEOPLE'] + " <strong>English Level:</strong> " +
-            change.doc.data()['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + change.doc.data()['STATUS'] + "</strike>";
-          updatedData.innerHTML = description;
-          editTime.innerText = new Date().toString();
+          console.log("Removed: ", doc);
           changeType.innerText = 'Deleted';
           toast.show();
 
@@ -229,7 +229,7 @@ let spiderifierClients = new MapboxglSpiderifier(map, {
 
     // find the toggle div and add function on click
     const popupDiv = spiderLeg.mapboxMarker._popup;
-    popupDiv._content.childNodes[16].addEventListener('click', flipToggle);
+    popupDiv._content.childNodes[17].addEventListener('click', flipToggle);
 
   },
   onClick: function (e, spiderLeg) {
@@ -300,6 +300,7 @@ async function processData(data) {
   var clientsGeoJSON = await getCoords(clientsData);
 
   await getSnapshotDB(db, 'client-sites');
+  await getSnapshotDB(db, 'candidates');
 
   map.addSource('candidates', {
       'type': 'geojson',
@@ -863,6 +864,27 @@ async function getCoords(data) {
 
 } // end getCoords
 
+async function getCoordsIndiv(item) {
+
+  const itemCoords = await mapboxClient.geocoding.forwardGeocode({
+    query: '"'+item['ADDRESS']+", "+item['CITY']+", "+item["STATE"]+" "+item["ZIP"]+'"',
+    proximity: [-74.5, 42.0],
+    types: ['address']
+  }).send();
+  // console.log(itemCoords);
+  const coords = itemCoords.body.features[0].center;
+  const dataFeature = {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": coords
+    },
+    "properties": item
+  };
+  return dataFeature;
+
+} // end getCoords
+
 function createPopupCandidates(props) {
   // let toggleStatus = '';
   // if (props['STATUS'] == "ACTIVE") {
@@ -871,7 +893,8 @@ function createPopupCandidates(props) {
   const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
     "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
     "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
-    "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'];
+    "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'] +
+    '<br>' + "<strong>Status:</strong> " + props['STATUS'];
   return description;
 }
 
@@ -884,7 +907,7 @@ function createPopupClients(props) {
     "<strong>Position:</strong> " + props['POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
     props['DESCRIPTION'] + "<br>" +
     props['SCHEDULE'] + "<br>" +
-    "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'] + "<br>"
+    "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'] + "<br>" +
     "<button type='button' data-bs-toggle='modal' data-bs-target='#editModal' class='btn btn-primary' id='"+props['id']+"-edit'>Edit</button>"+
     "<div class='switch toggle" + toggleStatus +"' id=" + props['id'] + "><div class='toggle-text-off'>INACTIVE</div>"+
     "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
@@ -941,7 +964,7 @@ async function submitNewClient(e) {
 
   newClientForm.reset();  //reset after submission
 
-  updateMap();
+  // updateMap();
 
   // const addDataModal = new bootstrap.Modal(document.getElementById('addDataModal'));
   // addDataModal.hide();
@@ -990,8 +1013,8 @@ async function editClient(props) {
     // change geoJSON
     console.log(map.getSource('clients')._data);
     const geoJSON = map.getSource('clients')._data;
-    console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
-    const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
+    console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === props.id ));
+    const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
     geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
     map.getSource('clients').setData(geoJSON);
     // updateMap();
@@ -1018,6 +1041,29 @@ async function updateMap() {
 
   console.log(newGeoJSON);
   map.getSource('clients').setData(newGeoJSON);
+
+}  // end updateMap
+
+async function updateFeature(doc) {
+
+  console.log(doc);
+  const props = doc.properties
+
+  if (props["CLIENTID"]) {
+    console.log("Client updated");
+    if (map.getSource('clients')) {
+      const geoJSON = map.getSource('clients')._data;
+      const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
+      geoJSON.features[featureIndex].properties = props;
+      map.getSource('clients').setData(geoJSON);
+    }
+  } else if (props["TEMP ID"]) {
+    console.log("Candidate updated");
+    const geoJSON = map.getSource('candidates')._data;
+    const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
+    geoJSON.features[featureIndex].properties = props;
+    map.getSource('candidates').setData(geoJSON);
+  }
 
 }  // end updateMap
 
@@ -1067,8 +1113,8 @@ function addPopup(e, source)  {
     .addTo(map);
 
   if (source == 'client-sites') {
-    popupContent._content.childNodes[16].addEventListener('click', flipToggle);
-    popupContent._content.childNodes[15].addEventListener('click', (e) => {editClient(props);});
+    popupContent._content.childNodes[17].addEventListener('click', flipToggle);
+    popupContent._content.childNodes[16].addEventListener('click', (e) => {editClient(props);});
   } else if (source == 'candidates') {
 
   }
