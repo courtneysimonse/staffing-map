@@ -74,7 +74,7 @@ function getSnapshotDB(db,dataset) {
           changeType.innerText = 'Added';
           toast.show();
 
-          // const feature = await getCoords(doc.data());
+          const feature = getCoordsIndiv(doc).then(addFeature, error);
           // return doc;
       }
       if (change.type === "modified") {
@@ -266,19 +266,27 @@ const mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
 const loadBtn = document.getElementById('geocode');
 loadBtn.addEventListener('click', getData);
 
-function getData() {
-
-  // var candidatesCSV = d3.csv("../data/candidates.csv", init = {RequestCache: 'no-cache'});
-  // var clientsCSV = d3.csv("../data/client-sites.csv", init = {RequestCache: 'no-cache'});
-  // Promise.all([candidatesCSV,clientsCSV]).then(processData, error);
+async function getData() {
 
   let clientsDocs = [];
 
-  const candidatesDB = getDB(db, 'candidates');
-  const clientsDB = getDB(db, 'client-sites');
-  // const clientsSnapshot = getSnapshotDB(db, 'client-sites');
-  Promise.all([candidatesDB,clientsDB]).then(processData, error);
+  // const candidatesDB = getDB(db, 'candidates');
+  // const clientsDB = getDB(db, 'client-sites');
+  const candidatesGeoJSON =  {
+      "type": "FeatureCollection",
+      "features": []
+    };
+  const clientsGeoJSON = {
+      "type": "FeatureCollection",
+      "features": []
+    };
+  loadBtn.style.cursor = "wait";
+  await getSnapshotDB(db, 'client-sites');
+  await getSnapshotDB(db, 'candidates');
+  await processData([candidatesGeoJSON, clientsGeoJSON]);
+  // Promise.all([candidatesDB,clientsDB]).then(processData, error);
   document.getElementById('geocode').style.visibility = 'hidden';
+  loadBtn.style.cursor = "pointer";
   addBtn.style.visibility = 'visible';
 
 }  // end getData
@@ -291,16 +299,19 @@ function error(error) {
 }
 
 async function processData(data) {
-  var candidatesData = data[0],
-      clientsData = data[1];
+  // var candidatesData = data[0],
+  //     clientsData = data[1];
+  //
+  // console.log(data);
+  //
+  // var candidatesGeoJSON = await getCoords(candidatesData);
+  // var clientsGeoJSON = await getCoords(clientsData);
+  //
+  // await getSnapshotDB(db, 'client-sites');
+  // await getSnapshotDB(db, 'candidates');
 
-  console.log(data);
-
-  var candidatesGeoJSON = await getCoords(candidatesData);
-  var clientsGeoJSON = await getCoords(clientsData);
-
-  await getSnapshotDB(db, 'client-sites');
-  await getSnapshotDB(db, 'candidates');
+  var candidatesGeoJSON = data[0],
+      clientsGeoJSON = data[1];
 
   map.addSource('candidates', {
       'type': 'geojson',
@@ -1058,14 +1069,54 @@ async function updateFeature(doc) {
       map.getSource('clients').setData(geoJSON);
     }
   } else if (props["TEMP ID"]) {
-    console.log("Candidate updated");
-    const geoJSON = map.getSource('candidates')._data;
-    const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
-    geoJSON.features[featureIndex].properties = props;
-    map.getSource('candidates').setData(geoJSON);
+    if (map.getSource('candidates')) {
+      console.log("Candidate updated");
+      const geoJSON = map.getSource('candidates')._data;
+      const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
+      geoJSON.features[featureIndex].properties = props;
+      map.getSource('candidates').setData(geoJSON);
+    }
   }
 
-}  // end updateMap
+}  // end updateFeature
+
+async function addFeature(doc) {
+  console.log(doc);
+  const props = doc.properties
+
+  if (props["CLIENTID"]) {
+    console.log("Client added");
+    if (map.getSource('clients')) {
+      const geoJSON = map.getSource('clients')._data;
+      const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
+      if (featureIndex == -1) {
+        geoJSON.features.push(doc);
+      } else {
+        geoJSON.features[featureIndex].properties = props;
+      }
+
+      map.getSource('clients').setData(geoJSON);
+    } else {
+      console.log("clients not loaded");
+    }
+  } else if (props["TEMP ID"]) {
+    if (map.getSource('candidates')) {
+      console.log("Candidate added");
+      const geoJSON = map.getSource('candidates')._data;
+      const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
+      if (featureIndex == -1) {
+        geoJSON.features.push(doc);
+      } else {
+        geoJSON.features[featureIndex].properties = props;
+      }
+
+      map.getSource('candidates').setData(geoJSON);
+    } else {
+      console.log("candidates not loaded");
+    }
+
+  }
+}  // end addFeature
 
 function showRadius() {
   if (showRadiusToggle) {
