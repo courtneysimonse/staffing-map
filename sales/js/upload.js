@@ -21,6 +21,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const outputLog = document.getElementById('outputLog');
+
 // form for file upload
 const uploadForm = document.getElementById('uploadForm');
 uploadForm.addEventListener('submit', function ( event ) {
@@ -60,17 +62,23 @@ async function uploadData(data) {
   for (const item of data) {
     console.log(item);
     console.log(item["CLIENTID"]);
+    let output = document.createElement('p');
+    output.classList = "small mb-0 pb-0";
 
     if (docClientIDs.includes(item["CLIENTID"])) {
-      let docIndex = docList.findIndex((doc) => doc["CLIENTID"] = item["CLIENTID"]);
+      let docIndex = docList.findIndex((doc) => doc["CLIENTID"] == item["CLIENTID"]);
       console.log(docList[docIndex].id);
       const docRef = await updateDoc(doc(db, 'client-sites', docList[docIndex].id), item)
       console.log(item["CLIENTID"]+" updated");
+      output.innerText = item["CLIENTID"]+" - "+item["COMPANY"]+" updated";
 
     } else {
       const docRef = await addDoc(collection(db, 'client-sites'), item);
       console.log(item["CLIENTID"]+" added");
+      output.innerText = item["CLIENTID"]+item["COMPANY"]+" added";
     }
+
+    outputLog.appendChild(output);
   }
 
 }  // end uploadData

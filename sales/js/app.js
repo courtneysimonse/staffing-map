@@ -868,10 +868,10 @@ function createPopupCandidates(props) {
   // if (props['STATUS'] == "ACTIVE") {
   //   toggleStatus = ' toggle-on';
   // }
-  const description = "<p><strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong></p>" +
-    "<p><strong>Temp ID:</strong> " + props['TEMP ID'] + "</p>" +
-    "<p><strong>Position:</strong> " + props['POSITION'] + "</p>" +
-    "<p><strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'] + "</p>";
+  const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
+    "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
+    "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
+    "<strong>Pay:</strong> " + props['PAY'] + "  <strong>Shift:</strong> " + props['SHIFT'] + "  <strong>Car:</strong> " + props['CAR'];
   return description;
 }
 
@@ -884,7 +884,7 @@ function createPopupClients(props) {
     "<strong>Position:</strong> " + props['POSITION'] + " <strong>Pay:</strong> " + props['PAY RATE'] + "<br>" +
     props['DESCRIPTION'] + "<br>" +
     props['SCHEDULE'] + "<br>" +
-    "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'] +
+    "<strong>No. of People: </strong>" + props['NUMPEOPLE'] + " <strong>English Level:</strong> " + props['ENGLISHLEVEL'] + "<br>"
     "<button type='button' data-bs-toggle='modal' data-bs-target='#editModal' class='btn btn-primary' id='"+props['id']+"-edit'>Edit</button>"+
     "<div class='switch toggle" + toggleStatus +"' id=" + props['id'] + "><div class='toggle-text-off'>INACTIVE</div>"+
     "<div class='toggle-button'></div><div class='toggle-text-on'>ACTIVE</div></div>";
@@ -895,16 +895,16 @@ async function flipToggle() {
   let toggle = document.getElementsByClassName('switch')[0];
   toggle.classList.toggle('toggle-on');
 
-  console.log(toggle);
-  console.log(toggle.id);
+  // console.log(toggle);
+  // console.log(toggle.id);
 
   let docStatus = true;
 
   if (toggle.classList.contains('toggle-on')) {
-    console.log('toggle-on');
+    // console.log('toggle-on');
     docStatus = "ACTIVE";
   } else {
-    console.log('toggle-off');
+    // console.log('toggle-off');
     docStatus = "INACTIVE";
   }
 
@@ -916,9 +916,9 @@ async function flipToggle() {
   });
 
   // change geoJSON
-  console.log(map.getSource('clients')._data);
+  // console.log(map.getSource('clients')._data);
   const geoJSON = map.getSource('clients')._data;
-  console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
+  // console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
   const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
   geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
   map.getSource('clients').setData(geoJSON);
@@ -931,22 +931,10 @@ async function submitNewClient(e) {
   const formProps = Object.fromEntries(formData);
 
 
-  console.log(formProps);
+  // console.log(formProps);
   console.log('submit');
 
-  // formProps["PAY"] = +formProps["PAY"];
-  // formProps["SHIFT"] = +formProps["SHIFT"];
-  // if (formProps["CAR"] == "true") {
-  //   formProps["CAR"] = true;
-  // } else {
-  //   formProps["CAR"] =false;
-  // }
-  // if (formProps["STATUS"] == "true") {
-  //   formProps["STATUS"] = true;
-  // } else {
-  //   formProps["STATUS"] =false;
-  // }
-  console.log(formProps);
+  // console.log(formProps);
 
   const docRef = await addDoc(collection(db, 'client-sites'), formProps);
   console.log(docRef.id);
@@ -993,18 +981,20 @@ async function editClient(props) {
     let formData = new FormData(e.target);
     const formProps = Object.fromEntries(formData);
 
-    console.log(formProps);
+    // console.log(formProps);
     console.log('submit');
 
-    // formProps["PAY"] = +formProps["PAY"];
-    // formProps["SHIFT"] = +formProps["SHIFT"];
-
-    console.log(formProps);
-
     await updateDoc(doc(db, 'client-sites', props.id), formProps);
-    console.log(doc(db, 'client-sites', props.id));
+    // console.log(doc(db, 'client-sites', props.id));
 
-    updateMap();
+    // change geoJSON
+    console.log(map.getSource('clients')._data);
+    const geoJSON = map.getSource('clients')._data;
+    console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
+    const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
+    geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
+    map.getSource('clients').setData(geoJSON);
+    // updateMap();
   });
 
 
@@ -1015,12 +1005,13 @@ async function deleteClient(id) {
   if (window.confirm("Do you really want to delete?")) {
     await deleteDoc(doc(db, 'client-sites', id));
 
-    updateMap();
+    // updateMap();
   }
 
 }  // end deleteClient
 
 async function updateMap() {
+
   const clientsDB = await getDB(db, 'client-sites');
   console.log(clientsDB);
   const newGeoJSON = await getCoords(clientsDB);
