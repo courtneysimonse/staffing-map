@@ -21,6 +21,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const clientHeaders = ["COMPANY","CLIENTID","ADDRESS","CITY","STATE","ZIP","POSITION","PAY RATE","SCHEDULE","DESCRIPTION","NUMPEOPLE","ENGLISHLEVEL","STATUS"];
+
 const outputLog = document.getElementById('outputLog');
 
 // form for file upload
@@ -40,7 +42,14 @@ async function getFile(event) {
   reader.addEventListener('load', function (e) {
 
       let csvdata = e.target.result;
-      let parsedata = d3.csvParse(csvdata);
+      let parsedata = d3.csvParse(csvdata, (d) => {
+        let data = {};
+        clientHeaders.forEach((item, i) => {
+          data[item] = d[item]
+        });
+        console.log(data);
+        return data;
+      });
       uploadData(parsedata);
   });
 
@@ -56,6 +65,15 @@ async function uploadData(data) {
   let docClientIDs = [];
   docList.forEach((doc, i) => {
     docClientIDs.push(doc["CLIENTID"]);
+  });
+
+
+  clientHeaders.forEach((item, i) => {
+    if (data.columns.find(x => x == item)) {
+      console.log(item);
+    } else {
+      console.log(item+" not in csv");
+    }
   });
 
 
@@ -75,7 +93,7 @@ async function uploadData(data) {
     } else {
       const docRef = await addDoc(collection(db, 'client-sites'), item);
       console.log(item["CLIENTID"]+" added");
-      output.innerText = item["CLIENTID"]+item["COMPANY"]+" added";
+      output.innerText = item["CLIENTID"]+" - "+item["COMPANY"]+" added";
     }
 
     outputLog.appendChild(output);

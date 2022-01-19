@@ -1,11 +1,11 @@
-COMPANY,CLIENTID,ADDRESS,CITY,STATE,ZIP,POSITION,"PAY RATE",SCHEDULE,DESCRIPTION,NUMPEOPLE,ENGLISHLEVEL,STATUS
-"Core Industry",1234,"40 Groset Dr",Kirkwood,NY,13795,Packer,"$17 ","Mon to Friday with some wqeekend 7 am to 8 pm"," loading and unloading personnel with some cherry pickers",50,Basic,ACTIVE
-"Oral b commerce",222,"241 Central Ave ",Edison,NJ,08817,Packer,"$13 ","Mon to Frid 8 to 5 pm","E-commerce workers will be picking orders",10,Basic,ACTIVE
-"Pentel manufactures",999,"109 Mill st",Cornwall,NY,12518,Forklift,"$14 ","Mon to Friday 7 am to 5 pm","forklifting and some other task in the warehouse",5,Advanced,ACTIVE
-"Prodigy products",0987,"379 County Rte 571 ","East Windsor",NJ,08520,Shipping,"$15 ","Mon to Frid 6am to 2:30pm, 2:30pm to 11pm","they will be doing Picking & Packing and lifting 40lbs boxes",10,Advanced,ACTIVE
-"Alpha omega",8889,"195 N Broadway ","Hicksville ",NY,11801,Packer,"$16 "," Mon to Frid 12pm -8 pm ","Loading and unloading trucks can be up to 80 pounds per bag and filling jars.",2,Advanced,ACTIVE
-"Argum ",7896,"179 Broadway "," Hammonton",NJ,08037,Packer,"$13 ","Mon to Frid 8:30-4:30 PM 8:30-12:30 PM    "," Picking and Packing and unloading containers.",3,Basic,ACTIVE
-"Forza electronics",3456,"55 Jeffrey Drv",Buffalo,NY,14228,Clerical,"$14 ","Mon to Frid '7 am to 5 pm","QA garment inspectors and preping the materials for the end product",6,Basic,ACTIVE
-"Energize inc",3333,"1705 Oak St",Lakewood,NJ,08701,Shipping,"$14 ","Mon to frid 8 to 4 pm","Loading and unloading trucks Boxes can wiegh up to 30 lbs",2,Basic,ACTIVE
-"Green nature",66678,"1940 Route 32N",Gansevoort,NY,12831,"Machine Operator","$15 "," 6 to 3 pm","sweeping, building pallets, working the shipping & receiving area ",20,Basic,INACTIVE
-"Valley Trees",23411,"144 W White Horse Pike ",Berlin,NJ,08009,"Machine Operator","$14 "," 7am-330pm and 2pm -10 30pm","be able to lift 100lb bags concrete manufacturing facility.",2,Basic,ACTIVE
+COMPANY,CLIENTID,ADDRESS,CITY,STATE,ZIP,POSITION,PAY RATE,SCHEDULE,DESCRIPTION,NUMPEOPLE,ENGLISHLEVEL,STATUS
+Core Industry,1234,40 Groset Dr,Kirkwood,NY,13795,Packer,$17 ,Mon to Friday with some wqeekend 7 am to 8 pm, loading and unloading personnel with some cherry pickers,50,Conversational,ACTIVE
+Oral b commerce,222,241 Central Ave ,Edison,NJ,8817,Packer,$13 ,Mon to Frid 8 to 5 pm,E-commerce workers will be picking orders,10,None,ACTIVE
+Pentel manufactures,999,109 Mill st,Cornwall,NY,12518,Forklift,$14 ,Mon to Friday 7 am to 5 pm,forklifting and some other task in the warehouse,5,Fluent,ACTIVE
+Prodigy products,987,379 County Rte 571 ,East Windsor,NJ,8520,Shipping,$15 ,"Mon to Frid 6am to 2:30pm, 2:30pm to 11pm",they will be doing Picking & Packing and lifting 40lbs boxes,10,Fluent,ACTIVE
+Alpha omega,8889,195 N Broadway ,Hicksville ,NY,11801,Packer,$16 , Mon to Frid 12pm -8 pm ,Loading and unloading trucks can be up to 80 pounds per bag and filling jars.,2,Fluent,ACTIVE
+Argum ,7896,179 Broadway , Hammonton,NJ,8037,Packer,$13 ,Mon to Frid 8:30-4:30 PM 8:30-12:30 PM    , Picking and Packing and unloading containers.,3,None,ACTIVE
+Forza electronics,3456,55 Jeffrey Drv,Buffalo,NY,14228,Clerical,$14 ,Mon to Frid '7 am to 5 pm,QA garment inspectors and preping the materials for the end product,6,Conversational,ACTIVE
+Energize inc,3333,1705 Oak St,Lakewood,NJ,8701,Shipping,$14 ,Mon to frid 8 to 4 pm,Loading and unloading trucks Boxes can wiegh up to 30 lbs,2,Conversational,ACTIVE
+Green nature,66678,1940 Route 32N,Gansevoort,NY,12831,Machine Operator,$15 , 6 to 3 pm,"sweeping, building pallets, working the shipping & receiving area ",20,None,INACTIVE
+Valley Trees,23411,144 W White Horse Pike ,Berlin,NJ,8009,Machine Operator,$14 , 7am-330pm and 2pm -10 30pm,be able to lift 100lb bags concrete manufacturing facility.,2,Fluent,ACTIVE
