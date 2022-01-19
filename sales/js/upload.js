@@ -21,7 +21,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const clientHeaders = ["COMPANY","CLIENTID","ADDRESS","CITY","STATE","ZIP","POSITION","PAY RATE","SCHEDULE","DESCRIPTION","NUMPEOPLE","ENGLISHLEVEL","STATUS"];
+const headers = ["COMPANY","CLIENTID","ADDRESS","CITY","STATE","ZIP","POSITION","PAY RATE","SCHEDULE","DESCRIPTION","NUMPEOPLE","ENGLISHLEVEL","STATUS"];
 
 const outputLog = document.getElementById('outputLog');
 const errorLog = document.getElementById('errorLog');
@@ -46,7 +46,7 @@ async function getFile(event) {
       let parsedata = d3.csvParse(csvdata, (d, j) => {
         let data = {};
         let row = j+1;
-        clientHeaders.forEach((item, i) => {
+        headers.forEach((item, i) => {
           if (d[item] == null) {
             console.log(item + " column not in csv");
             console.log(d);

@@ -21,6 +21,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const headers = ["FIRST NAME","LAST NAME","ADDRESS","CITY","STATE","ZIP","TEMP ID","POSITION","PAY","SHIFT","CAR","ENGLISHLEVEL","STATUS"];
+
+const outputLog = document.getElementById('outputLog');
+const errorLog = document.getElementById('errorLog');
+
 // form for file upload
 const uploadForm = document.getElementById('uploadForm');
 uploadForm.addEventListener('submit', function ( event ) {
@@ -38,7 +43,24 @@ async function getFile(event) {
   reader.addEventListener('load', function (e) {
 
       let csvdata = e.target.result;
-      let parsedata = d3.csvParse(csvdata);
+      let parsedata = d3.csvParse(csvdata, (d, j) => {
+        let data = {};
+        let row = j+1;
+        headers.forEach((item, i) => {
+          if (d[item] == null) {
+            console.log(item + " column not in csv");
+            console.log(d);
+            const err = document.createElement("p");
+            err.classList = "small mb-0 pb-0";
+            err.innerText = item + " column not included for row " + row + ". Check your file for correct formatting.";
+            errorLog.appendChild(err);
+          } else {
+            data[item] = d[item];
+          }
+        });
+        console.log(data);
+        return data;
+      });
       uploadData(parsedata);
   });
 
@@ -51,26 +73,31 @@ async function uploadData(data) {
   console.log(data);
   const docList = await getDocIds("candidates");
   console.log(docList);
-  let docCandidateIDs = [];
+  let docIDs = [];
   docList.forEach((doc, i) => {
-    docCandidateIDs.push(doc["CANDIDATEID"]);
+    docIDs.push(doc["TEMP ID"]);
   });
-
 
   for (const item of data) {
     console.log(item);
-    console.log(item["CANDIDATEID"]);
+    console.log(item["TEMP ID"]);
+    let output = document.createElement('p');
+    output.classList = "small mb-0 pb-0";
 
-    if (docCandidateIDs.includes(item["CANDIDATEID"])) {
-      let docIndex = docList.findIndex((doc) => doc["CANDIDATEID"] = item["CANDIDATEID"]);
+    if (docIDs.includes(item["TEMP ID"])) {
+      let docIndex = docList.findIndex((doc) => doc["TEMP ID"] == item["TEMP ID"]);
       console.log(docList[docIndex].id);
       const docRef = await updateDoc(doc(db, 'candidates', docList[docIndex].id), item)
-      console.log(item["CANDIDATEID"]+" updated");
+      console.log(item["TEMP ID"]+" updated");
+      output.innerText = item["TEMP ID"]+" - "+item["FIRST NAME"]+" "+item["LAST NAME"]+" updated";
 
     } else {
       const docRef = await addDoc(collection(db, 'candidates'), item);
-      console.log(item["CANDIDATEID"]+" added");
+      console.log(item["TEMP ID"]+" added");
+      output.innerText = item["TEMP ID"]+" - "+item["FIRST NAME"]+" "+item["LAST NAME"]+" added";
     }
+
+    outputLog.appendChild(output);
   }
 
 }  // end uploadData
