@@ -78,7 +78,7 @@
                 </div>
                 <div class="col-md-4">
                   <label for="inputPay" class="form-label">Pay</label>
-                  <input type="number" step="any" class="form-control" id="inputPay" name="PAY">
+                  <input type="text" class="form-control" id="inputPay" name="PAY">
                 </div>
                 <div class="col-md-4">
                   <label for="inputShift" class="form-label">Shift</label>
@@ -89,8 +89,8 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label" for="CAR">Car:</label>
-                  <select class="form-select" id="car" name="CAR">
+                  <label class="form-label" for="inputCar">Car:</label>
+                  <select class="form-select" id="inputCar" name="CAR">
                     <option value="YES">Yes</option>
                     <option value="NO">No</option>
                   </select>
@@ -130,34 +130,34 @@
           <div class="modal-body">
             <form id="editCandidateForm" name="editCandidateForm" class="row g-3">
                 <div class="col-md-6">
-                  <label for="inputFirstName" class="form-label">First Name</label>
+                  <label for="editFirstName" class="form-label">First Name</label>
                   <input type="text" class="form-control" id="editFirstName" name="FIRST NAME" placeholder="First Name">
                 </div>
                 <div class="col-md-6">
-                  <label for="inputLastName" class="form-label">Last Name</label>
+                  <label for="editLastName" class="form-label">Last Name</label>
                   <input type="text" class="form-control" id="editLastName" name="LAST NAME" placeholder="Last Name">
                 </div>
                 <div class="col-12">
-                  <label for="inputTempID" class="form-label">Temp ID</label>
+                  <label for="editTempID" class="form-label">Temp ID</label>
                   <input type="text" class="form-control" id="editTempID" name="TEMP ID">
                 </div>
                 <div class="col-12">
-                  <label for="inputAddress" class="form-label">Address</label>
+                  <label for="editAddress" class="form-label">Address</label>
                   <input type="text" class="form-control" id="editAddress" name="ADDRESS" placeholder="1234 Main St">
                 </div>
                 <div class="col-md-6">
-                  <label for="inputCity" class="form-label">City</label>
+                  <label for="editCity" class="form-label">City</label>
                   <input type="text" class="form-control" id="editCity" name="CITY">
                 </div>
                 <div class="col-md-3">
-                  <label for="inputState" class="form-label">State</label>
+                  <label for="editState" class="form-label">State</label>
                   <select id="editState" class="form-select" name="STATE">
                     <option value="NJ">NJ</option>
                     <option value="NY">NY</option>
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <label for="inputZip" class="form-label">Zip</label>
+                  <label for="editZip" class="form-label">Zip</label>
                   <input type="text" class="form-control" id="editZip" name="ZIP">
                 </div>
                 <div class="col-6">
@@ -170,11 +170,11 @@
                  </select>
                 </div>
                 <div class="col-md-4">
-                  <label for="inputPay" class="form-label">Pay</label>
-                  <input type="number" step="any" class="form-control" id="editPay" name="PAY">
+                  <label for="editPay" class="form-label">Pay</label>
+                  <input type="text" class="form-control" id="editPay" name="PAY">
                 </div>
                 <div class="col-md-4">
-                  <label for="inputShift" class="form-label">Shift</label>
+                  <label for="editShift" class="form-label">Shift</label>
                   <select class="form-select" id="editShift" name="SHIFT">
                     <option value=1>1</option>
                     <option value=2>2</option>
@@ -182,7 +182,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label" for="CAR">Car:</label>
+                  <label class="form-label" for="editCar">Car:</label>
                   <select class="form-select" id="editCar" name="CAR">
                     <option value="YES">Yes</option>
                     <option value="NO">No</option>
@@ -197,7 +197,7 @@
                   </select>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label" for="inputStatus">Status:</label>
+                  <label class="form-label" for="editStatus">Status:</label>
                   <select class="form-select" id="editStatus" name="STATUS">
                     <option value="ACTIVE">ACTIVE</option>
                     <option value="INACTIVE">INACTIVE</option>
@@ -206,6 +206,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-danger" id="deleteCandidate" data-bs-dismiss="modal">Delete</button>
             <button type="submit" class="btn btn-primary" id="submitEdit">Save & Submit</button>
           </div>
           </form>
@@ -213,11 +214,23 @@
       </div>
     </div>
 
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 200">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto"><span id="db-name-toast">Client</span> <span id="doc-change-type">Updated</span></strong>
+        <small><span id="edit-time">11 mins ago</span></small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="updated-doc"></div>
+    </div>
+  </div>
+
   <script src="../vendor/spiderify.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+
   <script type="module" src="../recruiting/js/app.js">  </script>
 
 </body>

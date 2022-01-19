@@ -232,7 +232,8 @@ let spiderifierClients = new MapboxglSpiderifier(map, {
     // find the toggle div and add function on click
     const popupDiv = spiderLeg.mapboxMarker._popup;
     popupDiv._content.childNodes[17].addEventListener('click', flipToggle);
-
+    popupContent._content.childNodes[16].addEventListener('click', (e) => {editClient(props);});
+    
   },
   onClick: function (e, spiderLeg) {
 
@@ -728,11 +729,10 @@ async function processData(data) {
       layers.appendChild(link);
     }
 
-
   });
 
 
-}
+}  // end processData
 
 function createFilters(header, geoJSON, source, filterGroup) {
   // remove spaces in header text and append layer name
@@ -911,7 +911,7 @@ async function getCoordsIndiv(item) {
   };
   return dataFeature;
 
-} // end getCoords
+} // end getCoordsIndiv
 
 function createPopupCandidates(props) {
   // let toggleStatus = '';
@@ -1163,7 +1163,7 @@ function showRadius() {
     circlesClients = [];
     radiusBtn.innerText = "Remove Radius";
   }
-}
+}  //end showRadius
 
 function addPopup(e, source)  {
   const coordinates = e.features[0].geometry.coordinates.slice();
@@ -1194,7 +1194,8 @@ function addPopup(e, source)  {
     popupContent._content.childNodes[17].addEventListener('click', flipToggle);
     popupContent._content.childNodes[16].addEventListener('click', (e) => {editClient(props);});
   } else if (source == 'candidates') {
-
+    // popupContent._content.childNodes[15].addEventListener('click', flipToggle);
+    // popupContent._content.childNodes[14].addEventListener('click', (e) => {editCandidate(props);});
   }
 
   console.log(popupContent._content.childNodes);
@@ -1221,4 +1222,4 @@ function addPopup(e, source)  {
     });
   }
 
-}
+}  // end addPopup
