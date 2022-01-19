@@ -751,21 +751,27 @@ function createFilters(header, geoJSON, source, filterGroup) {
     filterGroup.appendChild(jobFilterHeader);
   }
 
-  const jobTypes = [];
-  console.log(jobFilterHeader.childNodes);
+  const existingTypes = [];
+  // console.log([ ...jobFilterHeader.childNodes ]);
+  // console.log(jobFilterHeader.getElementsByTagName('input'));
+  let elements = [ ...jobFilterHeader.getElementsByTagName('input') ];
+  elements.forEach((item, i) => {
+    existingTypes.push(item.id);
+  });
+
+  const newTypes = [];
   // loop through features in layer
   geoJSON.features.forEach((item, i) => {
     // console.log(item.properties[header]);
     // console.log(header);
     // add the values for the selected property
-    if (!jobTypes.includes(item.properties[header]+"-"+source)) {
-      jobTypes.push(item.properties[header]+"-"+source);
+    if (!newTypes.includes(item.properties[header]+"-"+source)) {
+      newTypes.push(item.properties[header]+"-"+source);
     }
   });
   // console.log(jobTypes);
 
-  // create a copy of the list of values
-  // let jobsFilter = jobTypes;
+  let jobTypes = newTypes.filter(x => !existingTypes.includes(x));
 
 
   const sourceID = map.getSource(source);
