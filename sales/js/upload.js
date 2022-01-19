@@ -24,6 +24,7 @@ const db = getFirestore(app);
 const clientHeaders = ["COMPANY","CLIENTID","ADDRESS","CITY","STATE","ZIP","POSITION","PAY RATE","SCHEDULE","DESCRIPTION","NUMPEOPLE","ENGLISHLEVEL","STATUS"];
 
 const outputLog = document.getElementById('outputLog');
+const errorLog = document.getElementById('errorLog');
 
 // form for file upload
 const uploadForm = document.getElementById('uploadForm');
@@ -42,10 +43,20 @@ async function getFile(event) {
   reader.addEventListener('load', function (e) {
 
       let csvdata = e.target.result;
-      let parsedata = d3.csvParse(csvdata, (d) => {
+      let parsedata = d3.csvParse(csvdata, (d, j) => {
         let data = {};
+        let row = j+1;
         clientHeaders.forEach((item, i) => {
-          data[item] = d[item]
+          if (d[item] == null) {
+            console.log(item + " column not in csv");
+            console.log(d);
+            const err = document.createElement("p");
+            err.classList = "small mb-0 pb-0";
+            err.innerText = item + " column not included for row " + row + ". Check your file for correct formatting.";
+            errorLog.appendChild(err);
+          } else {
+            data[item] = d[item];
+          }
         });
         console.log(data);
         return data;
@@ -68,13 +79,13 @@ async function uploadData(data) {
   });
 
 
-  clientHeaders.forEach((item, i) => {
-    if (data.columns.find(x => x == item)) {
-      console.log(item);
-    } else {
-      console.log(item+" not in csv");
-    }
-  });
+  // clientHeaders.forEach((item, i) => {
+  //   if (data.columns.find(x => x == item)) {
+  //     console.log(item);
+  //   } else {
+  //     console.log(item+" not in csv");
+  //   }
+  // });
 
 
   for (const item of data) {
