@@ -180,7 +180,7 @@ let spiderifierCandidate = new MapboxglSpiderifier(map, {
     // find the toggle div and add function on click
     const popupDiv = spiderLeg.mapboxMarker._popup;
     popupDiv._content.childNodes[15].addEventListener('click', flipToggle);
-
+    popupDiv._content.childNodes[14].addEventListener('click', (e) => {editCandidate(props);});
   },
   onClick: function (e, spiderLeg) {
 
