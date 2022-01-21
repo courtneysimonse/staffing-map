@@ -4,141 +4,29 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDd71-OrBUIUbczCorLdf0A_2cq6Yg69nI",
-  authDomain: "staffing-map.firebaseapp.com",
-  databaseURL: "https://staffing-map-default-rtdb.firebaseio.com",
-  projectId: "staffing-map",
-  storageBucket: "staffing-map.appspot.com",
-  messagingSenderId: "145156413761",
-  appId: "1:145156413761:web:f1469ccfb94df673e069c0",
-  measurementId: "G-BTXXRX635C"
-};
+import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters } from "../../js/map.js";
 
-var toastLiveExample = document.getElementById('liveToast');
-var dbNameToast = document.getElementById('db-name-toast');
-var editTime = document.getElementById('edit-time');
-var updatedData = document.getElementById('updated-doc');
-var changeType = document.getElementById('doc-change-type');
-
-// Get a list of documents from your database
-function getSnapshotDB(db,dataset) {
-  const col = collection(db, dataset);
-  const snapshot = onSnapshot(col, (snap) => {
-    const data = snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    console.log("All data in ",dataset," collection", data);
-
-    snap.docChanges().forEach((change) => {
-      let doc = change.doc.data();
-      doc.id = change.doc.id;
-      let description = '';
-
-      var toast = new bootstrap.Toast(toastLiveExample);
-      editTime.innerText = new Date().toString();
-
-      if (dataset == 'client-sites') {
-        dbNameToast.innerText = "Client"
-        description = "<strong>" + doc['COMPANY'] + "</strong><br>" +
-          "<strong>Position:</strong> " + doc['POSITION'] + " <strong>Pay:</strong> " + doc['PAY RATE'] +
-          "<br>" + doc['DESCRIPTION'] + "<br>" + doc['SCHEDULE'] + "<br>" +
-          "<strong>No. of People: </strong>" + doc['NUMPEOPLE'] + " <strong>English Level:</strong> " +
-          doc['ENGLISHLEVEL'] + '<br>' + "<strong>Status:</strong> " + doc['STATUS'];
-
-      } else if (dataset == 'candidates') {
-        dbNameToast.innerText = "Candidate"
-        description = "<strong>" + doc['FIRST NAME'] + " " + doc['LAST NAME'] + "</strong><br>" +
-          "<strong>Temp ID:</strong> " + doc['TEMP ID'] + "<br>" +
-          "<strong>Position:</strong> " + doc['POSITION'] + "<br>" +
-          "<strong>Pay:</strong> " + doc['PAY'] + "  <strong>Shift:</strong> " + doc['SHIFT'] + "  <strong>Car:</strong> " + doc['CAR'] +
-          '<br>' + "<strong>Status:</strong> " + doc['STATUS'];
-      }
-
-      updatedData.innerHTML = description;
-
-      if (change.type === "added") {
-          console.log("New: ", doc);
-          changeType.innerText = 'Added';
-          toast.show();
-
-          const feature = getCoordsIndiv(doc).then(addFeature, error);
-          // return doc;
-      }
-      if (change.type === "modified") {
-          console.log("Modified: ", doc);
-          console.log(change);
-          changeType.innerText = 'Updated';
-          toast.show();
-
-          const feature = getCoordsIndiv(doc).then(updateFeature, error);
-          // updateFeature(feature);
-          // updateMap();
-          // return doc;
-      }
-      if (change.type === "removed") {
-          console.log("Removed: ", doc);
-          changeType.innerText = 'Deleted';
-          toast.show();
-
-          updateMap();
-      }
-    });
-
-  });
-  // const docList = snapshot.docs.map(doc => doc.data());
-  // const docList = [];
-  // snapshot.docs.forEach((doc, i) => {
-  //   let docData = doc.data();
-  //   docData.id = (doc.id);
-  //   console.log(docData);
-  //   docList.push(docData);
-  // });
-
-
-}  //end getSnapshotDB()
-
-
-// Get a list of candidates from your database
-async function getDB(db,dataset) {
-  const col = collection(db, dataset);
-  const snapshot = await getDocs(col);
-  // const docList = snapshot.docs.map(doc => doc.data());
-  const docList = [];
-  snapshot.docs.forEach((doc, i) => {
-    let docData = doc.data();
-    docData.id = (doc.id);
-    console.log(docData);
-    docList.push(docData);
-  });
-
-  return docList;
-} // end getDB()
-
-mapboxgl.accessToken = 'pk.eyJ1IjoidGl0YW5tYXN0ZXIiLCJhIjoiY2t3dmNzbHhsMXl2MDJxanYwcmw0OHYzZCJ9.Rr2kb4WqAzr_5EgH8ZjK3A';
-const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-74.5, 42.0],
-      zoom: 6,
-      maxZoom: 18
-});
+// mapboxgl.accessToken = accessToken;
+// const map = new mapboxgl.Map({
+//       container: 'map',
+//       style: 'mapbox://styles/mapbox/streets-v11',
+//       center: [-74.5, 42.0],
+//       zoom: 6,
+//       maxZoom: 18
+// });
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
 map.addControl(nav, 'top-left');
-
-const filterGroupClients = document.getElementById('filter-group-clients');
-const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
-const filterGroupCandidates = document.getElementById('filter-group-candidates');
-const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
+//
+// const filterGroupClients = document.getElementById('filter-group-clients');
+// const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
+// const filterGroupCandidates = document.getElementById('filter-group-candidates');
+// const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
 
 const addBtn = document.getElementById('add-data');
 
@@ -258,9 +146,6 @@ let spiderifierClients = new MapboxglSpiderifier(map, {
 const SPIDERFY_FROM_ZOOM = 14;
 
 
-const mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
-
-
 const loadBtn = document.getElementById('geocode');
 loadBtn.addEventListener('click', getData);
 
@@ -304,24 +189,10 @@ async function getData() {
 }  // end getData
 
 
-
-// function fired if there is an error
-function error(error) {
-  console.log(error)
-}
-
 async function processData(data) {
-  // var candidatesData = data[0],
-  //     clientsData = data[1];
-  //
-  // console.log(data);
-  //
-  // var candidatesGeoJSON = getCoords(candidatesData);
-  // var clientsGeoJSON = getCoords(clientsData);
 
   var candidatesGeoJSON = data[0],
       clientsGeoJSON = data[1];
-
 
   map.addSource('candidates', {
       'type': 'geojson',
@@ -445,7 +316,6 @@ async function processData(data) {
 
 
   });
-
 
   // When a click event occurs on a feature in
   // the unclustered-point layer, open a popup at
@@ -652,8 +522,6 @@ async function processData(data) {
       popup.remove();
   });
 
-
-
   // After the last frame rendered before the map enters an "idle" state.
   map.on('idle', () => {
     radiusBtn.style.visibility = 'visible';
@@ -729,183 +597,10 @@ async function processData(data) {
 
 } // end processData
 
-function createFilters(header, geoJSON, source, filterGroup) {
-  // remove spaces in header text and append layer name
-  const filterClass = header.replace(/\s/g, '')+"-"+source;
-  var jobFilterHeader = undefined;
-
-  // check if filter already exists
-  if (document.getElementById(filterClass)) {
-    console.log(document.getElementById(filterClass).parentNode);
-    jobFilterHeader = document.getElementById(filterClass).parentNode;
-  } else {
-    // create details element for header and give id
-    jobFilterHeader = document.createElement('details');
-    jobFilterHeader.classList.add('filter-group-header');
-    jobFilterHeader.innerHTML = "<summary id='"+filterClass+"'>"+header+"</summary>";
-    filterGroup.appendChild(jobFilterHeader);
-  }
-
-  const existingTypes = [];
-  // console.log([ ...jobFilterHeader.childNodes ]);
-  // console.log(jobFilterHeader.getElementsByTagName('input'));
-  let elements = [ ...jobFilterHeader.getElementsByTagName('input') ];
-  elements.forEach((item, i) => {
-    existingTypes.push(item.id);
-  });
-
-  const newTypes = [];
-  // loop through features in layer
-  geoJSON.features.forEach((item, i) => {
-    // console.log(item.properties[header]);
-    // console.log(header);
-    // add the values for the selected property
-    if (!newTypes.includes(item.properties[header]+"-"+source)) {
-      newTypes.push(item.properties[header]+"-"+source);
-    }
-  });
-  // console.log(jobTypes);
-
-  let jobTypes = newTypes.filter(x => !existingTypes.includes(x));
-
-  const sourceID = map.getSource(source);
-
-
-  // loop through values in list
-  for (const job of jobTypes) {
-    // Add checkbox and label elements for the layer.
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.id = job;
-    input.checked = true;  // all values start on
-    input.classList.add(filterClass, source+"Checks");
-    jobFilterHeader.appendChild(input);
-
-    const label = document.createElement('label');
-    label.setAttribute('for', job);
-    label.textContent = job.replace(/\-(.*)$/g, '');  //remove layer name from text content
-    label.classList.add(filterClass);
-    jobFilterHeader.appendChild(label);
-
-    // When the checkbox changes, update the visibility of the layer.
-    // doesn't consider the selections under other headers => FIX!!
-    input.addEventListener('change', (e) => {
-      // console.log(jobsFilter);
-      let geoJSONFiltered = {};
-      geoJSONFiltered.type = "FeatureCollection";
-      geoJSONFiltered.features = [];
-
-      let jobsFilter = {};
-
-      // const filterGroupSelection = document.getElementById('filter-group-'+source);
-      if (source == 'clients') {
-        var filteredFile = filterGroupClients;
-      } else if (source == 'candidates') {
-        var filteredFile = filterGroupCandidates;
-      }
-      for (var category of filteredFile.childNodes) {
-        // console.log(category.childNodes[0].id);
-        // console.log(category);
-        const values = category.getElementsByTagName('input');
-        // console.log(values);
-        for (var value of values) {
-          // console.log(value);
-          // console.log(value.id+": "+value.checked);
-          if (value.checked == true) {
-            // console.log([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, ''),value.checked]);
-            // jobsFilter.push([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, '')]);
-            if (jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')] == undefined) {
-              jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')] = [value.id.replace(/\-(.*)$/g, '')]
-            } else {
-              jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')].push(value.id.replace(/\-(.*)$/g, ''));
-              // console.log(jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')]);
-
-            }
-          }
-        }
-
-      }
-
-    console.log(jobsFilter);
-
-    // console.log(Object.keys(jobsFilter));
-    var useConditions = search => a => Object.keys(search).every(k =>
-          a.properties[k] === search[k] ||
-          Array.isArray(search[k]) && search[k].includes(a.properties[k])
-           // ||
-          // typeof search[k] === 'object' && +search[k].min <= a[k] &&  a[k] <= +search[k].max ||
-          // typeof search[k] === 'function' && search[k](a[k])
-        );
-
-    // console.log(geoJSON.features.filter(useConditions(jobsFilter)));
-    geoJSONFiltered.features = geoJSON.features.filter(useConditions(jobsFilter));
-    console.log(geoJSONFiltered);
-
-    sourceID.setData(geoJSONFiltered);
-
-  });
-
-  }
-
-}  // end createFilters
-
 map.on('zoomstart', () => {
   spiderifierCandidate.unspiderfy();
   spiderifierClients.unspiderfy();
 });
-
-async function getCoords(data) {
-
-  var dataJSON = {
-      "type": "FeatureCollection",
-      "features": []
-    };
-
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
-    const itemCoords = await mapboxClient.geocoding.forwardGeocode({
-      query: '"'+item['ADDRESS']+", "+item['CITY']+", "+item["STATE"]+" "+item["ZIP"]+'"',
-      proximity: [-74.5, 42.0],
-      types: ['address']
-    }).send()
-    // console.log(itemCoords);
-    const coords = itemCoords.body.features[0].center;
-    const dataFeature = {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": coords
-      },
-      "properties": item
-    };
-    dataJSON.features.push(dataFeature);
-  }
-
-  console.log(dataJSON);
-  return dataJSON;
-
-} // end getCoords
-
-async function getCoordsIndiv(item) {
-
-  const itemCoords = await mapboxClient.geocoding.forwardGeocode({
-    query: '"'+item['ADDRESS']+", "+item['CITY']+", "+item["STATE"]+" "+item["ZIP"]+'"',
-    proximity: [-74.5, 42.0],
-    types: ['address']
-  }).send();
-  // console.log(itemCoords);
-  const coords = itemCoords.body.features[0].center;
-  const dataFeature = {
-    "type": "Feature",
-    "geometry": {
-      "type": "Point",
-      "coordinates": coords
-    },
-    "properties": item
-  };
-  return dataFeature;
-
-} // end getCoordsIndiv
 
 function createPopupCandidates(props) {
   let toggleStatus = '';
@@ -1059,79 +754,6 @@ async function updateMap() {
   map.getSource('candidates').setData(newGeoJSON);
 }
 
-async function updateFeature(doc) {
-
-  console.log(doc);
-  const props = doc.properties
-
-  if (props["CLIENTID"]) {
-    console.log("Client updated");
-    if (map.getSource('clients')) {
-      const geoJSON = map.getSource('clients')._data;
-      const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
-      geoJSON.features[featureIndex].properties = props;
-      map.getSource('clients').setData(geoJSON);
-    }
-  } else if (props["TEMP ID"]) {
-    if (map.getSource('candidates')) {
-      console.log("Candidate updated");
-      const geoJSON = map.getSource('candidates')._data;
-      const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
-      geoJSON.features[featureIndex].properties = props;
-      map.getSource('candidates').setData(geoJSON);
-    }
-  }
-
-}  // end updateFeature
-
-async function addFeature(doc) {
-  console.log(doc);
-  const props = doc.properties
-
-  if (props["CLIENTID"]) {
-    console.log("Client added");
-    if (map.getSource('clients')) {
-      const geoJSON = map.getSource('clients')._data;
-      const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
-      if (featureIndex == -1) {
-        geoJSON.features.push(doc);
-      } else {
-        geoJSON.features[featureIndex].properties = props;
-      }
-
-      map.getSource('clients').setData(geoJSON);
-      filterHeadersClients.forEach((header, i) => {
-        createFilters(header, geoJSON, 'clients', filterGroupClients);
-
-      });
-
-    } else {
-      console.log("clients not loaded");
-    }
-  } else if (props["TEMP ID"]) {
-    if (map.getSource('candidates')) {
-      console.log("Candidate added");
-      const geoJSON = map.getSource('candidates')._data;
-      const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
-      if (featureIndex == -1) {
-        geoJSON.features.push(doc);
-      } else {
-        geoJSON.features[featureIndex].properties = props;
-      }
-
-      map.getSource('candidates').setData(geoJSON);
-
-      filterHeadersCandidates.forEach((header, i) => {
-        createFilters(header, geoJSON, 'candidates', filterGroupCandidates);
-
-      });
-    } else {
-      console.log("candidates not loaded");
-    }
-
-  }
-}  // end addFeature
-
 function showRadius() {
   if (showRadiusToggle) {
     showRadiusToggle = false;
@@ -1210,3 +832,5 @@ function addPopup(e, source)  {
   }
 
 }  // end addPopup
+
+export { updateMap }
