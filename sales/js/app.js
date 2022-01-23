@@ -588,10 +588,6 @@ map.on('zoomstart', () => {
 });
 
 function createPopupCandidates(props) {
-  // let toggleStatus = '';
-  // if (props['STATUS'] == "ACTIVE") {
-  //   toggleStatus = ' toggle-on';
-  // }
   const description = "<strong>" + props['FIRST NAME'] + " " + props['LAST NAME'] + "</strong><br>" +
     "<strong>Temp ID:</strong> " + props['TEMP ID'] + "<br>" +
     "<strong>Position:</strong> " + props['POSITION'] + "<br>" +
