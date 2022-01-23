@@ -10,23 +10,9 @@ import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/g
 
 import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters } from "../../js/map.js";
 
-// mapboxgl.accessToken = accessToken;
-// const map = new mapboxgl.Map({
-//       container: 'map',
-//       style: 'mapbox://styles/mapbox/streets-v11',
-//       center: [-74.5, 42.0],
-//       zoom: 6,
-//       maxZoom: 18
-// });
-
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
 map.addControl(nav, 'top-left');
-//
-// const filterGroupClients = document.getElementById('filter-group-clients');
-// const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
-// const filterGroupCandidates = document.getElementById('filter-group-candidates');
-// const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
 
 const addBtn = document.getElementById('add-data');
 
@@ -745,14 +731,6 @@ async function deleteCandidate(id) {
   }
 }
 
-async function updateMap() {
-  const candidatesDB = await getDB(db, 'candidates');
-  // console.log(candidatesDB);
-  const newGeoJSON = await getCoords(candidatesDB);
-
-  // console.log(newGeoJSON);
-  map.getSource('candidates').setData(newGeoJSON);
-}
 
 function showRadius() {
   if (showRadiusToggle) {

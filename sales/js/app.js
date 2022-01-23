@@ -6,25 +6,13 @@ import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, 
 
 import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
-import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js"
+import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js";
 
-mapboxgl.accessToken = accessToken;
-const map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/mapbox/streets-v11',
-  center: [-74.5, 42.0],
-  zoom: 6,
-  maxZoom: 18
-});
+import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters } from "../../js/map.js";
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
 map.addControl(nav, 'top-left');
-
-const filterGroupClients = document.getElementById('filter-group-clients');
-const filterHeadersClients = ['POSITION','NUMPEOPLE','ENGLISHLEVEL','STATUS'];
-const filterGroupCandidates = document.getElementById('filter-group-candidates');
-const filterHeadersCandidates = ['POSITION','CAR','STATUS'];
 
 const addBtn = document.getElementById('add-data');
 
@@ -867,17 +855,6 @@ async function deleteClient(id) {
   }
 
 }  // end deleteClient
-
-async function updateMap() {
-
-  const clientsDB = await getDB(db, 'client-sites');
-  console.log(clientsDB);
-  const newGeoJSON = await getCoords(clientsDB);
-
-  console.log(newGeoJSON);
-  map.getSource('clients').setData(newGeoJSON);
-
-}  // end updateMap
 
 function showRadius() {
   if (showRadiusToggle) {

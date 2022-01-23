@@ -207,4 +207,19 @@ function createFilters(header, geoJSON, source, filterGroup) {
 
 }  // end createFilters
 
-export { map, addFeature, updateFeature, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters }
+
+async function updateMap() {
+  const candidatesDB = await getDB(db, 'candidates');
+  // console.log(candidatesDB);
+  const newCandidatesGeoJSON = await getCoords(candidatesDB);
+
+  map.getSource('candidates').setData(newCandidatesGeoJSON);
+
+  const clientsDB = await getDB(db, 'client-sites');
+  // console.log(clientsDB);
+  const newClientsGeoJSON = await getCoords(clientsDB);
+
+  map.getSource('clients').setData(newClientsGeoJSON);
+}
+
+export { map, addFeature, updateFeature, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters, updateMap }
