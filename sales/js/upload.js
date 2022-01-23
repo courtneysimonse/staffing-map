@@ -46,16 +46,36 @@ async function getFile(event) {
       let parsedata = d3.csvParse(csvdata, (d, j) => {
         let data = {};
         let row = j+1;
+        const err = document.createElement("p");
         headers.forEach((item, i) => {
           if (d[item] == null) {
             console.log(item + " column not in csv");
             console.log(d);
-            const err = document.createElement("p");
+
             err.classList = "small mb-0 pb-0";
             err.innerText = item + " column not included for row " + row + ". Check your file for correct formatting.";
             errorLog.appendChild(err);
           } else {
-            data[item] = d[item];
+            if (item == "ENGLISHLEVEL") {
+              const englishLevel = d[item][0].toUpperCase() + d[item].substring(1);
+              if (englishLevel == "None" || englishLevel == "Conversational" || englishLevel == "Fluent") {
+                data[item] = englishLevel;
+              } else {
+                err.innerText = "Row " + row + " has English Level value of "+ d[item] +". Value should be Fluent, Conversational, or None. Check your file for correct formatting.";
+                errorLog.appendChild(err);
+              }
+            } else if (item == "STATUS") {
+              const status = d[item].toUpperCase();
+              if (status == "ACTIVE" || status == "INACTIVE") {
+                data[item] = status;
+              } else {
+                err.innerText = "Row " + row + " has Status value of "+ d[item] +". Value should be ACTIVE or INACTIVE. Check your file for correct formatting.";
+                errorLog.appendChild(err);
+              }
+            } else {
+              data[item] = d[item];
+            }
+
           }
         });
         console.log(data);
@@ -77,16 +97,6 @@ async function uploadData(data) {
   docList.forEach((doc, i) => {
     docClientIDs.push(doc["CLIENTID"]);
   });
-
-
-  // clientHeaders.forEach((item, i) => {
-  //   if (data.columns.find(x => x == item)) {
-  //     console.log(item);
-  //   } else {
-  //     console.log(item+" not in csv");
-  //   }
-  // });
-
 
   for (const item of data) {
     console.log(item);
