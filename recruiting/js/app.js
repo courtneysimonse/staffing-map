@@ -810,5 +810,3 @@ function addPopup(e, source)  {
   }
 
 }  // end addPopup
-
-export { updateMap }
