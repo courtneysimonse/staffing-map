@@ -8,7 +8,7 @@ import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
 import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js";
 
-import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters } from "../../js/map.js";
+import { map, removeInactive, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters } from "../../js/map.js";
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
@@ -154,16 +154,20 @@ async function getData() {
   await getSnapshotDB(db, 'candidates');
   await processData([candidatesGeoJSON, clientsGeoJSON]);
 
+  // for (var header of filterHeadersClients) {
+  //   createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
+  // }
+
+  // removeInactive('clients');
 
   filterHeadersClients.forEach((header, i) => {
+    // console.log(header);
     createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
-
   });
-
+  // removeInactive('clients');
 
   filterHeadersCandidates.forEach((header, i) => {
     createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
-
   });
 
   // Promise.all([candidatesDB,clientsDB]).then(processData, error);
@@ -510,6 +514,7 @@ async function processData(data) {
 
   // After the last frame rendered before the map enters an "idle" state.
   map.on('idle', () => {
+
     radiusBtn.style.visibility = 'visible';
     // If these two layers were not added to the map, abort
     if (!map.getLayer('candidates-clusters') || !map.getLayer('clients-clusters')) {

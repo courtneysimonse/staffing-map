@@ -41,8 +41,8 @@ function getSnapshotDB(db,dataset) {
       let description = '';
 
       var toast = new bootstrap.Toast(createToast());
-      console.log(toast);
-      console.log(toast._element.innerHTML);
+      // console.log(toast);
+      // console.log(toast._element.innerHTML);
       var dbNameToast = "";
       var editTime = new Date().toString();
       var changeType = "";
@@ -100,7 +100,7 @@ function getSnapshotDB(db,dataset) {
 }  //end getSnapshotDB()
 
 
-// Get a list of candidates from your database
+// Get a list of docs from your database
 async function getDB(db,dataset) {
   const col = collection(db, dataset);
   const snapshot = await getDocs(col);
@@ -109,7 +109,7 @@ async function getDB(db,dataset) {
   snapshot.docs.forEach((doc, i) => {
     let docData = doc.data();
     docData.id = (doc.id);
-    console.log(docData);
+    // console.log(docData);
     docList.push(docData);
   });
 

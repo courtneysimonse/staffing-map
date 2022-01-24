@@ -16,7 +16,7 @@ const map = new mapboxgl.Map({
 
 async function updateFeature(doc) {
 
-  console.log(doc);
+  // console.log(doc);
   const props = doc.properties
 
   if (props["CLIENTID"]) {
@@ -40,7 +40,7 @@ async function updateFeature(doc) {
 }  // end updateFeature
 
 async function addFeature(doc) {
-  console.log(doc);
+  // console.log(doc);
   const props = doc.properties
 
   if (props["CLIENTID"]) {
@@ -87,14 +87,14 @@ async function addFeature(doc) {
   }
 }  // end addFeature
 
-function createFilters(header, geoJSON, source, filterGroup) {
+async function createFilters(header, geoJSON, source, filterGroup) {
   // remove spaces in header text and append layer name
   const filterClass = header.replace(/\s/g, '')+"-"+source;
   var jobFilterHeader = undefined;
 
   // check if filter already exists
   if (document.getElementById(filterClass)) {
-    console.log(document.getElementById(filterClass).parentNode);
+    // console.log(document.getElementById(filterClass).parentNode);
     jobFilterHeader = document.getElementById(filterClass).parentNode;
   } else {
     // create details element for header and give id
@@ -205,8 +205,14 @@ function createFilters(header, geoJSON, source, filterGroup) {
 
   }
 
-}  // end createFilters
+  //
+  // if (header == "STATUS") {
+  //   removeInactive(source);
+  // }
 
+  // return header;
+
+}  // end createFilters
 
 async function updateMap() {
   const candidatesDB = await getDB(db, 'candidates');
@@ -220,6 +226,16 @@ async function updateMap() {
   const newClientsGeoJSON = await getCoords(clientsDB);
 
   map.getSource('clients').setData(newClientsGeoJSON);
+
+  removeInactive('clients');
+  removeInactive('candidates');
 }
 
-export { map, addFeature, updateFeature, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters, updateMap }
+function removeInactive(source) {
+  console.log('INACTIVE-'+source);
+  // console.log(document.getElementsByClassName(source+"Checks"));
+  document.getElementById('INACTIVE-'+source).checked = false;
+}
+
+
+export { map, removeInactive, addFeature, updateFeature, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters, updateMap }
