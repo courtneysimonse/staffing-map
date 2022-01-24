@@ -8,7 +8,7 @@ import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
 import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js";
 
-import { map, removeInactive, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters } from "../../js/map.js";
+import { map, removeInactive, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters, setFilters } from "../../js/map.js";
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
@@ -159,11 +159,12 @@ async function getData() {
   // }
 
   // removeInactive('clients');
-
-  createFilters();
-  // add addEventListener to input elements on change
-  console.log(filterGroupClients);
-
+  // add addEventListener to checkboxes
+  setFilters(clientsGeoJSON,'clients');
+  // removeInactive('clients');
+  // console.log(filterGroupClients);
+  setFilters(candidatesGeoJSON,'candidates');
+  // removeInactive('candidates');
   // filterHeadersClients.forEach((header, i) => {
   //   // console.log(header);
   //   createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
