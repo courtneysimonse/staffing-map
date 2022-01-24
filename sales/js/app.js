@@ -8,7 +8,7 @@ import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
 import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js";
 
-import { map, removeInactive, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters, setFilters } from "../../js/map.js";
+import { map, removeInactive, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters, setFilters, filterList } from "../../js/map.js";
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
@@ -137,10 +137,6 @@ loadBtn.addEventListener('click', getData);
 
 async function getData() {
 
-  // let clientsDocs = [];
-
-  // const candidatesDB = getDB(db, 'candidates');
-  // const clientsDB = getDB(db, 'client-sites');
   const candidatesGeoJSON =  {
       "type": "FeatureCollection",
       "features": []
@@ -154,28 +150,11 @@ async function getData() {
   await getSnapshotDB(db, 'candidates');
   await processData([candidatesGeoJSON, clientsGeoJSON]);
 
-  // for (var header of filterHeadersClients) {
-  //   createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
-  // }
-
-  // removeInactive('clients');
   // add addEventListener to checkboxes
   setFilters(clientsGeoJSON,'clients');
-  // removeInactive('clients');
-  // console.log(filterGroupClients);
-  setFilters(candidatesGeoJSON,'candidates');
-  // removeInactive('candidates');
-  // filterHeadersClients.forEach((header, i) => {
-  //   // console.log(header);
-  //   createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
-  // });
-  // // removeInactive('clients');
-  //
-  // filterHeadersCandidates.forEach((header, i) => {
-  //   createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
-  // });
 
-  // Promise.all([candidatesDB,clientsDB]).then(processData, error);
+  setFilters(candidatesGeoJSON,'candidates');
+
   document.getElementById('geocode').style.visibility = 'hidden';
   loadBtn.style.cursor = "pointer";
   addBtn.style.visibility = 'visible';
@@ -652,8 +631,9 @@ async function flipToggle() {
   const geoJSON = map.getSource('clients')._data;
   // console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
   const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
-  geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
+  // geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
   map.getSource('clients').setData(geoJSON);
+  filterList(geoJSON, 'clients');
 
 }  //end flipToggle()
 
