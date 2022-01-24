@@ -160,15 +160,19 @@ async function getData() {
 
   // removeInactive('clients');
 
-  filterHeadersClients.forEach((header, i) => {
-    // console.log(header);
-    createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
-  });
-  // removeInactive('clients');
+  createFilters();
+  // add addEventListener to input elements on change
+  console.log(filterGroupClients);
 
-  filterHeadersCandidates.forEach((header, i) => {
-    createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
-  });
+  // filterHeadersClients.forEach((header, i) => {
+  //   // console.log(header);
+  //   createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
+  // });
+  // // removeInactive('clients');
+  //
+  // filterHeadersCandidates.forEach((header, i) => {
+  //   createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
+  // });
 
   // Promise.all([candidatesDB,clientsDB]).then(processData, error);
   document.getElementById('geocode').style.visibility = 'hidden';

@@ -87,132 +87,136 @@ async function addFeature(doc) {
   }
 }  // end addFeature
 
-async function createFilters(header, geoJSON, source, filterGroup) {
-  // remove spaces in header text and append layer name
-  const filterClass = header.replace(/\s/g, '')+"-"+source;
-  var jobFilterHeader = undefined;
+// function createFilters(header, geoJSON, source, filterGroup) {
+//   // remove spaces in header text and append layer name
+//   const filterClass = header.replace(/\s/g, '')+"-"+source;
+//   var jobFilterHeader = undefined;
+//
+//   // check if filter already exists
+//   if (document.getElementById(filterClass)) {
+//     // console.log(document.getElementById(filterClass).parentNode);
+//     jobFilterHeader = document.getElementById(filterClass).parentNode;
+//   } else {
+//     // create details element for header and give id
+//     jobFilterHeader = document.createElement('details');
+//     jobFilterHeader.classList.add('filter-group-header');
+//     jobFilterHeader.innerHTML = "<summary id='"+filterClass+"'>"+header+"</summary>";
+//     filterGroup.appendChild(jobFilterHeader);
+//   }
+//
+//   const existingTypes = [];
+//   // console.log([ ...jobFilterHeader.childNodes ]);
+//   // console.log(jobFilterHeader.getElementsByTagName('input'));
+//   let elements = [ ...jobFilterHeader.getElementsByTagName('input') ];
+//   elements.forEach((item, i) => {
+//     existingTypes.push(item.id);
+//   });
+//
+//   const newTypes = [];
+//   // loop through features in layer
+//   geoJSON.features.forEach((item, i) => {
+//     // console.log(item.properties[header]);
+//     // console.log(header);
+//     // add the values for the selected property
+//     if (!newTypes.includes(item.properties[header]+"-"+source)) {
+//       newTypes.push(item.properties[header]+"-"+source);
+//     }
+//   });
+//   // console.log(jobTypes);
+//
+//   let jobTypes = newTypes.filter(x => !existingTypes.includes(x));
+//
+//   const sourceID = map.getSource(source);
+//
+//
+//   // loop through values in list
+//   for (const job of jobTypes) {
+//     // Add checkbox and label elements for the layer.
+//     const input = document.createElement('input');
+//     input.type = 'checkbox';
+//     input.id = job;
+//     input.checked = true;  // all values start on
+//     input.classList.add(filterClass, source+"Checks");
+//     jobFilterHeader.appendChild(input);
+//
+//     const label = document.createElement('label');
+//     label.setAttribute('for', job);
+//     label.textContent = job.replace(/\-(.*)$/g, '');  //remove layer name from text content
+//     label.classList.add(filterClass);
+//     jobFilterHeader.appendChild(label);
+//
+//     // When the checkbox changes, update the visibility of the layer.
+//     // doesn't consider the selections under other headers => FIX!!
+//     input.addEventListener('change', (e) => {
+//       // console.log(jobsFilter);
+//       let geoJSONFiltered = {};
+//       geoJSONFiltered.type = "FeatureCollection";
+//       geoJSONFiltered.features = [];
+//
+//       let jobsFilter = {};
+//
+//       // const filterGroupSelection = document.getElementById('filter-group-'+source);
+//       if (source == 'clients') {
+//         var filteredFile = filterGroupClients;
+//       } else if (source == 'candidates') {
+//         var filteredFile = filterGroupCandidates;
+//       }
+//       for (var category of filteredFile.childNodes) {
+//         // console.log(category.childNodes[0].id);
+//         // console.log(category);
+//         const values = category.getElementsByTagName('input');
+//         // console.log(values);
+//         for (var value of values) {
+//           // console.log(value);
+//           // console.log(value.id+": "+value.checked);
+//           if (value.checked == true) {
+//             // console.log([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, ''),value.checked]);
+//             // jobsFilter.push([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, '')]);
+//             if (jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')] == undefined) {
+//               jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')] = [value.id.replace(/\-(.*)$/g, '')]
+//             } else {
+//               jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')].push(value.id.replace(/\-(.*)$/g, ''));
+//               // console.log(jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')]);
+//
+//             }
+//           }
+//         }
+//
+//       }
+//
+//     console.log(jobsFilter);
+//
+//     // console.log(Object.keys(jobsFilter));
+//     var useConditions = search => a => Object.keys(search).every(k =>
+//           a.properties[k] === search[k] ||
+//           Array.isArray(search[k]) && search[k].includes(a.properties[k])
+//            // ||
+//           // typeof search[k] === 'object' && +search[k].min <= a[k] &&  a[k] <= +search[k].max ||
+//           // typeof search[k] === 'function' && search[k](a[k])
+//         );
+//
+//     // console.log(geoJSON.features.filter(useConditions(jobsFilter)));
+//     geoJSONFiltered.features = geoJSON.features.filter(useConditions(jobsFilter));
+//     console.log(geoJSONFiltered);
+//
+//     sourceID.setData(geoJSONFiltered);
+//
+//   });
+//
+//   }
+//
+//   //
+//   // if (header == "STATUS") {
+//   //   removeInactive(source);
+//   // }
+//
+//   // return header;
+//
+// }  // end createFilters
 
-  // check if filter already exists
-  if (document.getElementById(filterClass)) {
-    // console.log(document.getElementById(filterClass).parentNode);
-    jobFilterHeader = document.getElementById(filterClass).parentNode;
-  } else {
-    // create details element for header and give id
-    jobFilterHeader = document.createElement('details');
-    jobFilterHeader.classList.add('filter-group-header');
-    jobFilterHeader.innerHTML = "<summary id='"+filterClass+"'>"+header+"</summary>";
-    filterGroup.appendChild(jobFilterHeader);
-  }
-
-  const existingTypes = [];
-  // console.log([ ...jobFilterHeader.childNodes ]);
-  // console.log(jobFilterHeader.getElementsByTagName('input'));
-  let elements = [ ...jobFilterHeader.getElementsByTagName('input') ];
-  elements.forEach((item, i) => {
-    existingTypes.push(item.id);
-  });
-
-  const newTypes = [];
-  // loop through features in layer
-  geoJSON.features.forEach((item, i) => {
-    // console.log(item.properties[header]);
-    // console.log(header);
-    // add the values for the selected property
-    if (!newTypes.includes(item.properties[header]+"-"+source)) {
-      newTypes.push(item.properties[header]+"-"+source);
-    }
-  });
-  // console.log(jobTypes);
-
-  let jobTypes = newTypes.filter(x => !existingTypes.includes(x));
-
-  const sourceID = map.getSource(source);
-
-
-  // loop through values in list
-  for (const job of jobTypes) {
-    // Add checkbox and label elements for the layer.
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.id = job;
-    input.checked = true;  // all values start on
-    input.classList.add(filterClass, source+"Checks");
-    jobFilterHeader.appendChild(input);
-
-    const label = document.createElement('label');
-    label.setAttribute('for', job);
-    label.textContent = job.replace(/\-(.*)$/g, '');  //remove layer name from text content
-    label.classList.add(filterClass);
-    jobFilterHeader.appendChild(label);
-
-    // When the checkbox changes, update the visibility of the layer.
-    // doesn't consider the selections under other headers => FIX!!
-    input.addEventListener('change', (e) => {
-      // console.log(jobsFilter);
-      let geoJSONFiltered = {};
-      geoJSONFiltered.type = "FeatureCollection";
-      geoJSONFiltered.features = [];
-
-      let jobsFilter = {};
-
-      // const filterGroupSelection = document.getElementById('filter-group-'+source);
-      if (source == 'clients') {
-        var filteredFile = filterGroupClients;
-      } else if (source == 'candidates') {
-        var filteredFile = filterGroupCandidates;
-      }
-      for (var category of filteredFile.childNodes) {
-        // console.log(category.childNodes[0].id);
-        // console.log(category);
-        const values = category.getElementsByTagName('input');
-        // console.log(values);
-        for (var value of values) {
-          // console.log(value);
-          // console.log(value.id+": "+value.checked);
-          if (value.checked == true) {
-            // console.log([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, ''),value.checked]);
-            // jobsFilter.push([category.childNodes[0].id.replace(/\-(.*)$/g, ''),value.id.replace(/\-(.*)$/g, '')]);
-            if (jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')] == undefined) {
-              jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')] = [value.id.replace(/\-(.*)$/g, '')]
-            } else {
-              jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')].push(value.id.replace(/\-(.*)$/g, ''));
-              // console.log(jobsFilter[category.childNodes[0].id.replace(/\-(.*)$/g, '')]);
-
-            }
-          }
-        }
-
-      }
-
-    console.log(jobsFilter);
-
-    // console.log(Object.keys(jobsFilter));
-    var useConditions = search => a => Object.keys(search).every(k =>
-          a.properties[k] === search[k] ||
-          Array.isArray(search[k]) && search[k].includes(a.properties[k])
-           // ||
-          // typeof search[k] === 'object' && +search[k].min <= a[k] &&  a[k] <= +search[k].max ||
-          // typeof search[k] === 'function' && search[k](a[k])
-        );
-
-    // console.log(geoJSON.features.filter(useConditions(jobsFilter)));
-    geoJSONFiltered.features = geoJSON.features.filter(useConditions(jobsFilter));
-    console.log(geoJSONFiltered);
-
-    sourceID.setData(geoJSONFiltered);
-
-  });
-
-  }
-
-  //
-  // if (header == "STATUS") {
-  //   removeInactive(source);
-  // }
-
-  // return header;
-
-}  // end createFilters
+function createFilters() {
+  
+} // end createFilters
 
 async function updateMap() {
   const candidatesDB = await getDB(db, 'candidates');
