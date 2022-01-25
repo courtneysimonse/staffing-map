@@ -8,7 +8,7 @@ import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
 import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js";
 
-import { map, removeInactive, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters, setFilters, filterList } from "../../js/map.js";
+import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, setFilters, filterList } from "../../js/map.js";
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
@@ -162,7 +162,6 @@ async function getData() {
 
 }  // end getData
 
-
 async function processData(data) {
 
   var candidatesGeoJSON = data[0],
@@ -218,7 +217,7 @@ async function processData(data) {
     filter: ['!', ['has', 'point_count']],
     paint: {
       'circle-color': '#fe9414',
-      'circle-radius': 4,
+      'circle-radius': 5,
       'circle-stroke-width': 1,
       'circle-stroke-color': '#fff'
     }
@@ -287,7 +286,6 @@ async function processData(data) {
 
       }
     );
-
 
   });
 
@@ -569,7 +567,6 @@ async function processData(data) {
 
   });
 
-
 }  // end processData
 
 map.on('zoomstart', () => {
@@ -679,7 +676,7 @@ async function editClient(props) {
   document.getElementById('editNumPpl').setAttribute('value',props["NUMPEOPLE"]);
   document.getElementById('editStatus').setAttribute('value',props["STATUS"]);
 
-  console.log('click');
+  // console.log('click');
   const deleteBtn = document.getElementById('deleteClient');
   // console.log(deleteBtn);
   deleteBtn.addEventListener('click', (e) => {deleteClient(props.id);});
@@ -775,11 +772,11 @@ function addPopup(e, source)  {
     // popupContent._content.childNodes[14].addEventListener('click', (e) => {editCandidate(props);});
   }
 
-  console.log(popupContent._content.childNodes);
+  // console.log(popupContent._content.childNodes);
 
 
   // console.log(popupContent._content.childNodes);
-  console.log(popupContent);
+  // console.log(popupContent);
   // const editBtn = document.getElementById(props['id']+"-edit");
   // console.log(editLink);
 

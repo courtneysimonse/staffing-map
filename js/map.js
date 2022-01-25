@@ -184,4 +184,4 @@ function removeInactive(source) {
 }
 
 
-export { map, removeInactive, addFeature, updateFeature, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters, setFilters, filterList, updateMap }
+export { map, addFeature, updateFeature, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, setFilters, filterList, updateMap }

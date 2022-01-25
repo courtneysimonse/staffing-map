@@ -8,7 +8,7 @@ import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
 import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js";
 
-import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, createFilters } from "../../js/map.js";
+import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, setFilters, filterList } from "../../js/map.js";
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
@@ -137,10 +137,6 @@ loadBtn.addEventListener('click', getData);
 
 async function getData() {
 
-    // let clientsDocs = [];
-
-    // const candidatesDB = getDB(db, 'candidates');
-    // const clientsDB = getDB(db, 'client-sites');
     const candidatesGeoJSON =  {
         "type": "FeatureCollection",
         "features": []
@@ -154,26 +150,17 @@ async function getData() {
     await getSnapshotDB(db, 'candidates');
     await processData([candidatesGeoJSON, clientsGeoJSON]);
 
+    // add addEventListener to checkboxes
+    setFilters(clientsGeoJSON,'clients');
 
-    filterHeadersClients.forEach((header, i) => {
-      createFilters(header, clientsGeoJSON, 'clients', filterGroupClients);
+    setFilters(candidatesGeoJSON,'candidates');
 
-    });
-
-
-    filterHeadersCandidates.forEach((header, i) => {
-      createFilters(header, candidatesGeoJSON, 'candidates', filterGroupCandidates);
-
-    });
-
-    // Promise.all([candidatesDB,clientsDB]).then(processData, error);
     document.getElementById('geocode').style.visibility = 'hidden';
     loadBtn.style.cursor = "pointer";
     addBtn.style.visibility = 'visible';
     radiusBtn.addEventListener('click', showRadius);
 
 }  // end getData
-
 
 async function processData(data) {
 
@@ -230,7 +217,7 @@ async function processData(data) {
     filter: ['!', ['has', 'point_count']],
     paint: {
       'circle-color': '#fe9414',
-      'circle-radius': 4,
+      'circle-radius': 5,
       'circle-stroke-width': 1,
       'circle-stroke-color': '#fff'
     }
@@ -299,7 +286,6 @@ async function processData(data) {
 
       }
     );
-
 
   });
 
@@ -510,6 +496,7 @@ async function processData(data) {
 
   // After the last frame rendered before the map enters an "idle" state.
   map.on('idle', () => {
+
     radiusBtn.style.visibility = 'visible';
     // If these two layers were not added to the map, abort
     if (!map.getLayer('candidates-clusters') || !map.getLayer('clients-clusters')) {
@@ -573,13 +560,12 @@ async function processData(data) {
 
       };
 
-      const layers = document.getElementById('menu');
+      const layers = document.getElementById('layerToggle');
+      // console.log(layers.childNodes);
       layers.appendChild(link);
     }
 
-
   });
-
 
 } // end processData
 
@@ -642,8 +628,9 @@ async function flipToggle() {
   const geoJSON = map.getSource('candidates')._data;
   // console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
   const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
-  geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
+  // geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
   map.getSource('candidates').setData(geoJSON);
+  filterList(geoJSON, 'candidates');
 
 }  //end flipToggle()
 
@@ -785,11 +772,11 @@ function addPopup(e, source)  {
     popupContent._content.childNodes[14].addEventListener('click', (e) => {editCandidate(props);});
   }
 
-  console.log(popupContent._content.childNodes);
+  // console.log(popupContent._content.childNodes);
 
 
   // console.log(popupContent._content.childNodes);
-  console.log(popupContent);
+  // console.log(popupContent);
   // const editBtn = document.getElementById(props['id']+"-edit");
   // console.log(editLink);
 
