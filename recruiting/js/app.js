@@ -527,7 +527,7 @@ async function processData(data) {
       link.id = id.id;
       link.href = '#';
       link.textContent = id.name;
-      link.className = 'active';
+      link.className = 'btn btn-primary active';
 
       // Show or hide layer when the toggle is clicked.
       link.onclick = function (e) {
@@ -546,9 +546,9 @@ async function processData(data) {
           // Toggle layer visibility by changing the layout object's visibility property.
           if (visibility === 'visible') {
             map.setLayoutProperty(layer, 'visibility', 'none');
-            this.className = '';
+            this.className = 'btn btn-primary';
           } else {
-            this.className = 'active';
+            this.className = 'btn btn-primary active';
             map.setLayoutProperty(
               layer,
               'visibility',
