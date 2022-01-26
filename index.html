@@ -50,7 +50,7 @@
         // console.log('init', user.app_metadata.roles);
 
         user.app_metadata.roles.forEach((role, i) => {
-          div.innerHTML += "<button type='button' class='btn btn-secondary' href='/"+role+"'>Go To "+role+"</button>";
+          div.innerHTML += "<a class='btn btn-secondary' href='./"+role+"'>Go To "+role+"</a>";
         });
 
       });
