@@ -16,11 +16,29 @@
 </head>
 <body>
 
+    <div id="login" class="col-4 m-3">
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="inputEmail" class="form-label">Email address</label>
+          <input type="email" class="form-control" id="inputEmail" name="email">
+        </div>
+        <div class="mb-3">
+          <label for="inputPassword" class="form-label">Password</label>
+          <input type="password" class="form-control" id="inputPassword" name="password">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-secondary" id="signOut">Sign Out</button>
+      </form>
+      <!-- <div class="">
+        <p>Currently signed in as: <span id="currentUser"></span>.</p>
+      </div> -->
+    </div>
+
   <button id="geocode" class="btn btn-primary">Load Data</button>
   <button id="showRadius" class="btn btn-secondary">Show Radius around Point</button>
   <a id="upload" class="btn btn-primary" role="button" href="upload.html">Upload a CSV</a>
 
-  <div class="container-fluid">
+  <div class="container-fluid" id="uiDiv">
     <div class="row justify-content-end">
       <div class="col-sm-12 col-lg-9 p-0">
         <div id="map" class=" m-0 p-0"></div>

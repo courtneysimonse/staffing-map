@@ -1,10 +1,10 @@
 // Import the functions you need from the SDKs you need
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
 // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.5/firebase-firestore.js'
 
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-auth.js";
 
 import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
@@ -12,9 +12,16 @@ import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/g
 
 import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, setFilters, filterList } from "../../js/map.js";
 
-// import { auth } from "../../js/login.js";
-
 const auth = getAuth(app);
+console.log(auth);
+
+if (auth.currentUser != null) {
+  document.getElementById('currentUser').innerText = auth.currentUser.email;
+}
+
+document.getElementById('signOut').addEventListener('click', () => {
+  signOut(auth);
+});
 
 const loginForm = document.getElementById('loginForm');
 loginForm.addEventListener("submit", function (event) {
@@ -22,33 +29,34 @@ loginForm.addEventListener("submit", function (event) {
   let formData = new FormData(event.target);
   const formProps = Object.fromEntries(formData);
 
-  auth.signInWithEmailAndPassword(formProps.email, formProps.password)
+  signInWithEmailAndPassword(auth, formProps.email, formProps.password)
     .then((userCredential) => {
       // Signed in
-      console.log(userCredential.user._delegate.uid);
+      console.log(userCredential.user.uid);
       var user = userCredential.user;
-      let docRef = db.collection('admin').doc(user._delegate.uid);
-      docRef.get().then((doc) => {
+      console.log(db);
+      const docRef = doc(db, "admin", user.uid);
+      console.log(docRef);
+      const docSnap = getDoc(docRef).then((doc) => {
         const role = doc.data().role;
         if (role == "sales") {
-          document.getElementById('login').style.visibility = 'hidden';
-          document.getElementById('map').style.visibility = 'visible';
+          document.getElementById('login').style.display = 'none';
+          document.getElementById('uiDiv').style.visibility = 'visible';
+          document.getElementById('geocode').style.visibility = 'visible';
+          document.getElementById('upload').style.visibility = 'visible';
           console.log("Go to ./sales");
 
         } else if (role == "recruiting") {
           console.log("Go to ./recruiting");
-
+          document.getElementById('login').innerHTML += "<a class='btn btn-secondary' href='../../"+role+"'>Go To "+role+"</a>";
         }
-
       });
 
     })
-    .catch((error) => {
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      console.log(errorMessage);
+    .catch((err) => {
+      error(err);
     });
-})
+});
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
