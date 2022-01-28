@@ -4,11 +4,51 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
 
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-auth.js";
+
 import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
 import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/geocode.js";
 
 import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, setFilters, filterList } from "../../js/map.js";
+
+// import { auth } from "../../js/login.js";
+
+const auth = getAuth(app);
+
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+  let formData = new FormData(event.target);
+  const formProps = Object.fromEntries(formData);
+
+  auth.signInWithEmailAndPassword(formProps.email, formProps.password)
+    .then((userCredential) => {
+      // Signed in
+      console.log(userCredential.user._delegate.uid);
+      var user = userCredential.user;
+      let docRef = db.collection('admin').doc(user._delegate.uid);
+      docRef.get().then((doc) => {
+        const role = doc.data().role;
+        if (role == "sales") {
+          document.getElementById('login').style.visibility = 'hidden';
+          document.getElementById('map').style.visibility = 'visible';
+          console.log("Go to ./sales");
+
+        } else if (role == "recruiting") {
+          console.log("Go to ./recruiting");
+
+        }
+
+      });
+
+    })
+    .catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      console.log(errorMessage);
+    });
+})
 
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
