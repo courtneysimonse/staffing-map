@@ -15,9 +15,9 @@ import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, f
 const auth = getAuth(app);
 console.log(auth);
 
-if (auth.currentUser != null) {
-  document.getElementById('currentUser').innerText = auth.currentUser.email;
-}
+// if (auth.currentUser != null) {
+//   document.getElementById('currentUser').innerText = auth.currentUser.email;
+// }
 
 document.getElementById('signOut').addEventListener('click', () => {
   signOut(auth);
