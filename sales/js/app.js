@@ -722,6 +722,7 @@ async function editClient(props) {
   document.getElementById('editDescription').setAttribute('value',props["DESCRIPTION"]);
   document.getElementById('editEnglishLevel').setAttribute('value',props["ENGLISHLEVEL"]);
   document.getElementById('editNumPpl').setAttribute('value',props["NUMPEOPLE"]);
+  document.getElementById('editCar').setAttribute('value',props["CAR"]);
   document.getElementById('editStatus').setAttribute('value',props["STATUS"]);
 
   // console.log('click');
@@ -743,6 +744,7 @@ async function editClient(props) {
 
     await updateDoc(doc(db, 'client-sites', props.id), formProps);
     // console.log(doc(db, 'client-sites', props.id));
+    let docStatus = formProps["STATUS"];
 
     // change geoJSON
     console.log(map.getSource('clients')._data);
