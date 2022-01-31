@@ -70,7 +70,7 @@ loginForm.addEventListener("submit", function (event) {
     });
 });
 
-const headers = ["COMPANY","CLIENTID","ADDRESS","CITY","STATE","ZIP","POSITION","PAY RATE","SCHEDULE","DESCRIPTION","NUMPEOPLE","ENGLISHLEVEL","STATUS"];
+const headers = ["COMPANY","CLIENTID","ADDRESS","CITY","STATE","ZIP","POSITION","PAY RATE","SCHEDULE","DESCRIPTION","NUMPEOPLE","ENGLISHLEVEL","CAR","STATUS"];
 
 const outputLog = document.getElementById('outputLog');
 const errorLog = document.getElementById('errorLog');
@@ -111,6 +111,14 @@ async function getFile(event) {
                 data[item] = englishLevel;
               } else {
                 err.innerText = "Row " + row + " has English Level value of "+ d[item] +". Value should be Fluent, Conversational, or None. Check your file for correct formatting.";
+                errorLog.appendChild(err);
+              }
+            } else if (item == "CAR") {
+              const car = d[item][0].toUpperCase() + d[item].substring(1);
+              if (car == "Yes" || car == "No") {
+                data[item] = status;
+              } else {
+                err.innerText = "Row " + row + " has Car value of "+ d[item] +". Value should be Yes or No. Check your file for correct formatting.";
                 errorLog.appendChild(err);
               }
             } else if (item == "STATUS") {
