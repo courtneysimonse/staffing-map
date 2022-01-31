@@ -658,7 +658,7 @@ async function flipToggle() {
   // console.log(toggle);
   // console.log(toggle.id);
 
-  let docStatus = true;
+  let docStatus = "";
 
   if (toggle.classList.contains('toggle-on')) {
     // console.log('toggle-on');
@@ -675,14 +675,14 @@ async function flipToggle() {
     "STATUS": docStatus
   });
 
-  // change geoJSON
-  // console.log(map.getSource('candidates')._data);
-  const geoJSON = map.getSource('candidates')._data;
-  // console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
-  const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
-  // geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
-  map.getSource('candidates').setData(geoJSON);
-  filterList(geoJSON, 'candidates');
+  // // change geoJSON
+  // // console.log(map.getSource('candidates')._data);
+  // const geoJSON = map.getSource('candidates')._data;
+  // // console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
+  // const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
+  // // geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
+  // map.getSource('candidates').setData(geoJSON);
+  // filterList(geoJSON, 'candidates');
 
 }  //end flipToggle()
 
