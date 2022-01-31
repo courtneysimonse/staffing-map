@@ -14,6 +14,24 @@
 
   <h1>Upload Clients Data</h1>
 
+  <div id="login" class="col-4 m-3">
+    <form id="loginForm">
+      <div class="mb-3">
+        <label for="inputEmail" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="inputEmail" name="email">
+      </div>
+      <div class="mb-3">
+        <label for="inputPassword" class="form-label">Password</label>
+        <input type="password" class="form-control" id="inputPassword" name="password">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-secondary" id="signOut">Sign Out</button>
+    </form>
+    <!-- <div class="">
+      <p>Currently signed in as: <span id="currentUser"></span>.</p>
+    </div> -->
+  </div>
+
   <a class="btn btn-primary" role="button" href="index.html">Back to the Map</a>
 
   <form id="uploadForm" name="uploadForm" class="row g-3">

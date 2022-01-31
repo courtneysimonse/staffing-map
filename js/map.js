@@ -33,9 +33,12 @@ async function updateFeature(doc) {
     if (map.getSource('clients')) {
       const geoJSON = map.getSource('clients')._data;
       const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === props.id );
+      // console.log(props.id);
+      // console.log(geoJSON);
       geoJSON.features[featureIndex].properties = props;
+      console.log(geoJSON);
       map.getSource('clients').setData(geoJSON);
-      filterList(geoJSON, 'clients');
+      // filterList(geoJSON, 'clients');
     }
   } else if (props["TEMP ID"]) {
     if (map.getSource('candidates')) {

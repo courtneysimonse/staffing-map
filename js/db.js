@@ -1,8 +1,10 @@
 // Import the functions you need from the SDKs you need
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
 
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-auth.js";
+
+import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.5/firebase-firestore.js'
 
 import { getCoords, getCoordsIndiv } from "./geocode.js";
 
@@ -24,6 +26,20 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// const auth = getAuth(app);
+
+// onAuthStateChanged(auth, (user) => {
+//   if (user) {
+//     // User is signed in, see docs for a list of available properties
+//     // https://firebase.google.com/docs/reference/js/firebase.User
+//     const uid = user.uid;
+//     // ...
+//   } else {
+//     // User is signed out
+//     // ...
+//   }
+// });
 
 // Get a list of documents from your database
 function getSnapshotDB(db,dataset) {

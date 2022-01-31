@@ -1,72 +1,211 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Titan Staffing Map</title>
-  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-  <link href="css/styles.css" rel="stylesheet">
-  <style media="screen">
-    body {
-      background-color: whitesmoke;
-    }
-    #interface {
-      padding: 12px;
-      color: rgb(1, 148, 211);
-      text-transform: uppercase;
-      font-family: "Oswald", open sans, sans-serif;
-      display: grid;
-      align-items: center;
-    }
-    h1 {
-      font-weight: bold;
-      color: rgb(0, 84, 158);
-    }
+  <head>
+    <meta charset="utf-8">
+    <title>Titan Staffing Map</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="css/styles.css" rel="stylesheet">
+    <style media="screen">
+      body {
+        background-color: whitesmoke;
+      }
+      /* #interface {
+        padding: 12px;
+        color: rgb(1, 148, 211);
+        text-transform: uppercase;
+        font-family: "Oswald", open sans, sans-serif;
+        display: grid;
+        align-items: center;
+      } */
+      h1 {
+        font-weight: bold;
+        color: rgb(0, 84, 158);
+      }
+      #btnSales {
+        visibility: hidden;
+      }
+      #btnRecruiting {
+        visibility: hidden;
+      }
 
-  </style>
-  <link href="./css/styles.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    </style>
+    <link href="./css/styles.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
-  <!-- include the widget -->
-  <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-auth-compat.js"></script>
+    <script>
+       const firebaseApp = firebase.initializeApp({
+         apiKey: "AIzaSyDd71-OrBUIUbczCorLdf0A_2cq6Yg69nI",
+         authDomain: "staffing-map.firebaseapp.com",
+         databaseURL: "https://staffing-map-default-rtdb.firebaseio.com",
+         projectId: "staffing-map",
+         storageBucket: "staffing-map.appspot.com",
+         messagingSenderId: "145156413761",
+         appId: "1:145156413761:web:f1469ccfb94df673e069c0",
+         measurementId: "G-BTXXRX635C"
+       });
+       const db = firebaseApp.firestore();
+       const auth = firebaseApp.auth();
+
+       initApp = function() {
+         firebase.auth().onAuthStateChanged(function(user) {
+           if (user) {
+             // User is signed in.
+             var email = user.email;
+             var uid = user.uid;
+             user.getIdToken().then(function(accessToken) {
+               // document.getElementById('sign-in-status').textContent = 'Signed in';
+               // document.getElementById('sign-in').textContent = 'Sign out';
+               // document.getElementById('account-details').textContent = JSON.stringify({
+               //   displayName: displayName,
+               //   email: email,
+               //   emailVerified: emailVerified,
+               //   phoneNumber: phoneNumber,
+               //   photoURL: photoURL,
+               //   uid: uid,
+               //   accessToken: accessToken,
+               //   providerData: providerData
+               // }, null, '  ');
+               console.log('signed in');
+             });
+           } else {
+             // User is signed out.
+             // document.getElementById('sign-in-status').textContent = 'Signed out';
+             // document.getElementById('sign-in').textContent = 'Sign in';
+             // document.getElementById('account-details').textContent = 'null';
+             console.log('signed out');
+           }
+         }, function(error) {
+           console.log(error);
+         });
+       };
+
+       window.addEventListener('load', function() {
+         initApp()
+       });
+
+    </script>
+
+
+    <script src="https://www.gstatic.com/firebasejs/ui/6.0.0/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.0/firebase-ui-auth.css" />
+
+
+
   </head>
   <body>
 
     <div>
       <h1>Titan Staffing Map Login</h1>
       <div class="d-grid gap-2 col-4" id="interface">
-        <button class="btn btn-primary" type="button" id="login" onclick=netlifyIdentity.open();>Login</button>
+        <div id="firebaseui-auth-container"></div>
+        <!-- <div id="login">
+          <form>
+            <div class="mb-3">
+              <label for="inputEmail" class="form-label">Email address</label>
+              <input type="email" class="form-control" id="inputEmail" name="email">
+            </div>
+            <div class="mb-3">
+              <label for="inputPassword" class="form-label">Password</label>
+              <input type="password" class="form-control" id="inputPassword" name="password">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div> -->
+        <a class='btn btn-secondary' href='./sales' id='btnSales'>Go To Sales</a>
+        <a class='btn btn-secondary' href='./recruiting' id='btnRecruiting'>Go To Recruiting</a>
+        <!-- <button class="btn btn-primary" type="button" id="login" onclick=netlifyIdentity.open();>Login</button> -->
       </div>
     </div>
 
-
-    <!-- <a href="/sales">Sales</a>
-    <a href="/recruiting">Recruiting</a> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
     <script type="text/javascript">
-      const div = document.getElementById('interface');
-      const loginBtn = document.getElementById('login');
+      // FirebaseUI config.
+      var uiConfig = {
+        callbacks: {
+          signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+            console.log(authResult.user._delegate.uid);
+            let docRef = db.collection('admin').doc(authResult.user._delegate.uid);
+            docRef.get().then((doc) => {
+              const role = doc.data().role;
+              if (role == "sales") {
+                console.log("Go to ./sales");
+                document.getElementById('btnSales').style.visibility = 'visible';
 
-      netlifyIdentity.on('login', function (user) {
-        // console.log('init', user.app_metadata.roles);
+              } else if (role == "recruiting") {
+                console.log("Go to ./recruiting");
+                document.getElementById('btnRecruiting').style.visibility = 'visible';
 
-        user.app_metadata.roles.forEach((role, i) => {
-          div.innerHTML += "<a class='btn btn-secondary' href='./"+role+"'>Go To "+role+"</a>";
-        });
+              }
 
-      });
-
-      netlifyIdentity.on('logout', function () {
-          const roleButtons = document.getElementsByClassName('role');
-
-          for (var i = 0; i < roleButtons.length; i++) {
-            div.removeChild(roleButtons[i]);
+            });
           }
+        },
+        // signInSuccessUrl: './',
+        signInOptions: [
+          // Leave the lines as is for the providers you want to offer your users.
+          firebase.auth.EmailAuthProvider.PROVIDER_ID
+        ],
+        // // tosUrl and privacyPolicyUrl accept either url string or a callback
+        // // function.
+        // // Terms of service url/callback.
+        // tosUrl: '<your-tos-url>',
+        // // Privacy policy url/callback.
+        // privacyPolicyUrl: function() {
+        //   window.location.assign('<your-privacy-policy-url>');
+        // }
+      };
 
-      });
-
+      // Initialize the FirebaseUI Widget using Firebase.
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      // The start method will wait until the DOM is loaded.
+      ui.start('#firebaseui-auth-container', uiConfig);
     </script>
+    <!-- <script type="text/javascript">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+      const div = document.getElementById('interface');
+
+      const loginForm = document.getElementsByTagName('form')[0];
+      loginForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        let formData = new FormData(event.target);
+        const formProps = Object.fromEntries(formData);
+
+        auth.signInWithEmailAndPassword(formProps.email, formProps.password)
+          .then((userCredential) => {
+            // Signed in
+            console.log(userCredential.user._delegate.uid);
+            var user = userCredential.user;
+            let docRef = db.collection('admin').doc(user._delegate.uid);
+            docRef.get().then((doc) => {
+              const role = doc.data().role;
+              div.innerHTML += "<a class='btn btn-secondary' href='./"+role+"'>Go To "+role+"</a>";
+              if (role == "sales") {
+                console.log("Go to ./sales");
+
+              } else if (role == "recruiting") {
+                console.log("Go to ./recruiting");
+
+              }
+
+            });
+
+          })
+          .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorMessage);
+          });
+      })
+
+
+
+
+    </script> -->
+
 
   </body>
 </html>

@@ -1,8 +1,10 @@
 // Import the functions you need from the SDKs you need
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
 // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.5/firebase-firestore.js'
+
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-auth.js";
 
 import { app, db, getSnapshotDB, getDB, error } from "../../js/db.js";
 
@@ -10,6 +12,56 @@ import { accessToken, mapboxClient, getCoords, getCoordsIndiv } from "../../js/g
 
 import { map, filterGroupClients, filterHeadersClients, filterGroupCandidates, filterHeadersCandidates, setFilters, filterList } from "../../js/map.js";
 
+const auth = getAuth(app);
+console.log(auth);
+
+// if (auth.currentUser != null) {
+//   document.getElementById('currentUser').innerText = auth.currentUser.email;
+// }
+
+document.getElementById('signOut').addEventListener('click', () => {
+  signOut(auth);
+});
+
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+  let formData = new FormData(event.target);
+  const formProps = Object.fromEntries(formData);
+
+  signInWithEmailAndPassword(auth, formProps.email, formProps.password)
+    .then((userCredential) => {
+      // Signed in
+      console.log(userCredential.user.uid);
+      var user = userCredential.user;
+      console.log(db);
+      const docRef = doc(db, "admin", user.uid);
+      console.log(docRef);
+      const docSnap = getDoc(docRef).then((doc) => {
+        const role = doc.data().role;
+        if (role == "sales") {
+          // document.getElementById('login').style.display = 'none';
+          // document.getElementById('uiDiv').style.visibility = 'visible';
+          // document.getElementById('geocode').style.visibility = 'visible';
+          // document.getElementById('upload').style.visibility = 'visible';
+          console.log("Go to ./sales");
+          document.getElementById('login').innerHTML += "<a class='btn btn-secondary' href='../../"+role+"'>Go To "+role+"</a>";
+
+        } else if (role == "recruiting") {
+          document.getElementById('login').style.display = 'none';
+          document.getElementById('uiDiv').style.visibility = 'visible';
+          document.getElementById('geocode').style.visibility = 'visible';
+          document.getElementById('upload').style.visibility = 'visible';
+          console.log("Go to ./recruiting");
+          // document.getElementById('login').innerHTML += "<a class='btn btn-secondary' href='../../"+role+"'>Go To "+role+"</a>";
+        }
+      });
+
+    })
+    .catch((err) => {
+      error(err);
+    });
+});
 
 const nav = new mapboxgl.NavigationControl({showCompass: false});
 map.addControl(nav, 'top-left');
@@ -606,7 +658,7 @@ async function flipToggle() {
   // console.log(toggle);
   // console.log(toggle.id);
 
-  let docStatus = true;
+  let docStatus = "";
 
   if (toggle.classList.contains('toggle-on')) {
     // console.log('toggle-on');
@@ -623,14 +675,14 @@ async function flipToggle() {
     "STATUS": docStatus
   });
 
-  // change geoJSON
-  // console.log(map.getSource('candidates')._data);
-  const geoJSON = map.getSource('candidates')._data;
-  // console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
-  const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
-  // geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
-  map.getSource('candidates').setData(geoJSON);
-  filterList(geoJSON, 'candidates');
+  // // change geoJSON
+  // // console.log(map.getSource('candidates')._data);
+  // const geoJSON = map.getSource('candidates')._data;
+  // // console.log(geoJSON.features.findIndex( (feature) => feature.properties.id === docID ));
+  // const featureIndex = geoJSON.features.findIndex( (feature) => feature.properties.id === docID );
+  // // geoJSON.features[featureIndex].properties["STATUS"] = docStatus;
+  // map.getSource('candidates').setData(geoJSON);
+  // filterList(geoJSON, 'candidates');
 
 }  //end flipToggle()
 

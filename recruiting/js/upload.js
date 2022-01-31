@@ -1,8 +1,10 @@
 // Import the functions you need from the SDKs you need
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
 // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, addDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.5/firebase-firestore.js'
+
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-auth.js";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -20,6 +22,55 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+const auth = getAuth(app);
+console.log(auth);
+
+// if (auth.currentUser != null) {
+//   document.getElementById('currentUser').innerText = auth.currentUser.email;
+// }
+
+document.getElementById('signOut').addEventListener('click', () => {
+  signOut(auth);
+});
+
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+  let formData = new FormData(event.target);
+  const formProps = Object.fromEntries(formData);
+
+  signInWithEmailAndPassword(auth, formProps.email, formProps.password)
+    .then((userCredential) => {
+      // Signed in
+      console.log(userCredential.user.uid);
+      var user = userCredential.user;
+      console.log(db);
+      const docRef = doc(db, "admin", user.uid);
+      console.log(docRef);
+      const docSnap = getDoc(docRef).then((doc) => {
+        const role = doc.data().role;
+        if (role == "sales") {
+          // document.getElementById('login').style.display = 'none';
+          // document.getElementById('uiDiv').style.visibility = 'visible';
+          // document.getElementById('geocode').style.visibility = 'visible';
+          // document.getElementById('upload').style.visibility = 'visible';
+          console.log("Go to ./sales");
+          document.getElementById('login').innerHTML += "<a class='btn btn-secondary' href='../../"+role+"'>Go To "+role+"</a>";
+
+        } else if (role == "recruiting") {
+          document.getElementById('login').style.display = 'none';
+          document.getElementById('uploadForm').style.visibility = 'visible';
+          console.log("Go to ./recruiting");
+          // document.getElementById('login').innerHTML += "<a class='btn btn-secondary' href='../../"+role+"'>Go To "+role+"</a>";
+        }
+      });
+
+    })
+    .catch((err) => {
+      error(err);
+    });
+});
 
 const headers = ["FIRST NAME","LAST NAME","ADDRESS","CITY","STATE","ZIP","TEMP ID","POSITION","PAY","SHIFT","CAR","ENGLISHLEVEL","STATUS"];
 
