@@ -116,7 +116,7 @@ async function getFile(event) {
             } else if (item == "CAR") {
               const car = d[item][0].toUpperCase() + d[item].substring(1);
               if (car == "Yes" || car == "No") {
-                data[item] = status;
+                data[item] = car;
               } else {
                 err.innerText = "Row " + row + " has Car value of "+ d[item] +". Value should be Yes or No. Check your file for correct formatting.";
                 errorLog.appendChild(err);
