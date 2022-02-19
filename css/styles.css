@@ -134,6 +134,14 @@ body { margin: 0; padding: 0; }
  visibility: hidden;
 }
 
+#signOut {
+ z-index: 100;
+ position: absolute;
+ left: 350px;
+ top: 10px;
+ visibility: hidden;
+}
+
 #showRadius {
    z-index: 100;
    position: absolute;
