@@ -137,7 +137,7 @@ body { margin: 0; padding: 0; }
 #signOut {
  z-index: 100;
  position: absolute;
- left: 350px;
+ left: 400px;
  top: 10px;
  visibility: hidden;
 }

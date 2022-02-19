@@ -45,14 +45,14 @@ function signIn(user) {
   const docSnap = getDoc(docRef).then((doc) => {
     const role = doc.data().role;
     if (role == "sales") {
-      document.getElementById('login').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'none';
       // document.getElementById('uploadForm').style.visibility = 'visible';
       document.getElementById('signOut').style.visibility = 'visible';
       console.log("Go to ./sales");
       document.getElementById('login').innerHTML += "<a class='btn btn-secondary' href='../../"+role+"'>Go To "+role+"</a>";
 
     } else if (role == "recruiting" || role == "admin") {
-      document.getElementById('login').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'none';
       document.getElementById('signOut').style.visibility = 'visible';
       document.getElementById('uploadForm').style.visibility = 'visible';
       console.log("Go to ./recruiting");
@@ -62,7 +62,7 @@ function signIn(user) {
 }
 
 document.getElementById('signOut').addEventListener('click', function () {
-  signOutUser()
+  signOutUser(auth)
 }, false);
 
 async function signOutUser() {
